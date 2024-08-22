@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  frontend:
+    container_name: db_frontend
+    build:
+      context: ./frontend  # Укажите путь к вашему React-приложению
+      dockerfile: Dockerfile          # Укажите имя Dockerfile, если оно отличается
+    ports:
+      - "80:80"                       # Проброс порта 80 для доступа к приложению
+    networks:
+      - app-network                   # Опциональная сеть для связи между сервисами
+
+  server:
+    container_name: db_server
+    build:
+      context: ./backend      # Укажите путь к вашему Go-приложению
+      dockerfile: Dockerfile          # Укажите имя Dockerfile, если оно отличается
+    ports:
+      - "8082:8082"                   # Проброс порта 8080 для доступа к приложению
+    networks:
+      - app-network                   # Опциональная сеть для связи между сервисами
+
+  db:
+    container_name: db_db
+    image: mysql:latest                  # Используем образ MySQL версии 5.7
+    restart: always                    # Перезапускать контейнер при сбоях
+    environment:
+      MYSQL_ROOT_PASSWORD: my-secret-pw # Устанавливаем пароль для root
+      MYSQL_DATABASE: mydatabase        # Создаем базу данных при старте
+      MYSQL_USER: user                  # Имя пользователя
+      MYSQL_PASSWORD: userpassword      # Пароль для пользователя
+    ports:
+      - "3306:3306"                     # Проброс порта 3306 для доступа к MySQL
+    networks:
+      - app-network                     # Подключаем к общей сети
+
+
+networks:
+  app-network:                       # Определяем сеть для сервисов
