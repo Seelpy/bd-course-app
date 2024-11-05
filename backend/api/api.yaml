@@ -1,0 +1,49 @@
+openapi: 3.0.0
+info:
+  title: My API
+  version: 1.0.0
+
+paths:
+  /api/v1/users:
+    get:
+      operationId: "ListUsers"
+      summary: List users
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /api/v1/users/{id}:
+    get:
+      operationId: "GetUser"
+      summary: Get user by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
