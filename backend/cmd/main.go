@@ -2,18 +2,21 @@ package main
 
 import (
 	"log"
-	"net/http"
+	"server/api"
+
+	"github.com/labstack/echo/v4"
+
+	"server/pkg/infrastructure/transport"
 )
 
 func main() {
-	// Указываем, что статические файлы находятся в папке "static"
-	fs := http.FileServer(http.Dir("./static"))
-	http.Handle("/", fs)
+	e := echo.New()
 
-	// Запускаем сервер на порту 8080
-	log.Println("Сервер запущен на http://localhost:8082")
-	err := http.ListenAndServe(":8082", nil)
-	if err != nil {
+	public := transport.NewPublicAPI()
+
+	api.RegisterHandlersWithBaseURL(e, public, "/")
+
+	if err := e.Start(":8082"); err != nil {
 		log.Fatal(err)
 	}
 }
