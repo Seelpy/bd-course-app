@@ -9,7 +9,7 @@ type AuthorID = uuid.UUID
 
 type Author struct {
 	id         AuthorID
-	avatarID   ImageID
+	avatarID   maybe.Maybe[ImageID]
 	firstName  string
 	secondName string
 	middleName maybe.Maybe[string]
@@ -18,7 +18,7 @@ type Author struct {
 
 func NewAuthor(
 	id AuthorID,
-	avatarID ImageID,
+	avatarID maybe.Maybe[ImageID],
 	firstName string,
 	secondName string,
 	middleName maybe.Maybe[string],
@@ -38,7 +38,7 @@ func (author *Author) ID() AuthorID {
 	return author.id
 }
 
-func (author *Author) AvatarID() ImageID {
+func (author *Author) AvatarID() maybe.Maybe[ImageID] {
 	return author.avatarID
 }
 
@@ -58,7 +58,7 @@ func (author *Author) Nickname() maybe.Maybe[string] {
 	return author.nickname
 }
 
-func (author *Author) SetAvatarID(avatarID ImageID) {
+func (author *Author) SetAvatarID(avatarID maybe.Maybe[ImageID]) {
 	author.avatarID = avatarID
 }
 

@@ -138,8 +138,8 @@ erDiagram
 
     user {
         uuid    user_id      PK
-        uuid    avatar_id    FK
-        string  login        "UNIQUE"
+        uuid    avatar_id    FK     "DEFAULT NULL"
+        string  login               "UNIQUE"
         smalint role
         string  password
         string  about_me
@@ -153,7 +153,7 @@ erDiagram
 
     book {
         uuid    book_id     PK
-        uuid    cover_id    FK
+        uuid    cover_id    FK "DEFAULT NULL"
         string  description
         string  title
         bool    is_publish
@@ -213,11 +213,11 @@ erDiagram
 
     author {
         uuid   author_id    PK
-        uuid   avatar_id    FK
+        uuid   avatar_id    FK  "DEFAULT NULL"
         string first_name
         string second_name
-        string middle_name  "DEFAULT NULL"
-        string nickname     "DEFAULT NULL"
+        string middle_name      "DEFAULT NULL"
+        string nickname         "DEFAULT NULL"
     }
 
     genre {

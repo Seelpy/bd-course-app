@@ -1,12 +1,15 @@
 package model
 
-import "github.com/gofrs/uuid"
+import (
+	"github.com/gofrs/uuid"
+	"github.com/mono83/maybe"
+)
 
 type BookID = uuid.UUID
 
 type Book struct {
 	id          BookID
-	coverID     ImageID
+	coverID     maybe.Maybe[ImageID]
 	title       string
 	description string
 	isPublished bool
@@ -14,7 +17,7 @@ type Book struct {
 
 func NewBook(
 	id BookID,
-	coverID ImageID,
+	coverID maybe.Maybe[ImageID],
 	title string,
 	description string,
 	isPublished bool,
@@ -32,7 +35,7 @@ func (book *Book) ID() BookID {
 	return book.id
 }
 
-func (book *Book) CoverID() ImageID {
+func (book *Book) CoverID() maybe.Maybe[ImageID] {
 	return book.coverID
 }
 
@@ -48,7 +51,7 @@ func (book *Book) IsPublished() bool {
 	return book.isPublished
 }
 
-func (book *Book) SetCoverID(coverID ImageID) {
+func (book *Book) SetCoverID(coverID maybe.Maybe[ImageID]) {
 	book.coverID = coverID
 }
 

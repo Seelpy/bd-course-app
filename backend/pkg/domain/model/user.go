@@ -1,6 +1,9 @@
 package model
 
-import "github.com/gofrs/uuid"
+import (
+	"github.com/gofrs/uuid"
+	"github.com/mono83/maybe"
+)
 
 type UserID uuid.UUID
 
@@ -13,7 +16,7 @@ const (
 
 type User struct {
 	id       UserID
-	avatarID ImageID
+	avatarID maybe.Maybe[ImageID]
 	login    string
 	role     UserRole
 	password string
@@ -22,7 +25,7 @@ type User struct {
 
 func NewUser(
 	id UserID,
-	avatarID ImageID,
+	avatarID maybe.Maybe[ImageID],
 	login string,
 	role UserRole,
 	password string,
@@ -42,7 +45,7 @@ func (user *User) ID() UserID {
 	return user.id
 }
 
-func (user *User) AvatarID() ImageID {
+func (user *User) AvatarID() maybe.Maybe[ImageID] {
 	return user.avatarID
 }
 
@@ -62,7 +65,7 @@ func (user *User) AboutMe() string {
 	return user.aboutMe
 }
 
-func (user *User) SetAvatarID(avatarID ImageID) {
+func (user *User) SetAvatarID(avatarID maybe.Maybe[ImageID]) {
 	user.avatarID = avatarID
 }
 
