@@ -1,16 +1,41 @@
 # Используем официальный образ Go
+FROM golang:latest AS builder
+
+# Устанавливаем рабочую директорию
+WORKDIR /app
+
+# Копируем go.mod и go.sum для установки зависимостей
+COPY go.mod go.sum ./
+
+# Устанавливаем зависимости
+RUN go mod download
+
+# Устанавливаем oapi-codegen
+RUN go install github.com/deepmap/oapi-codegen/cmd/oapi-codegen@latest
+
+# Копируем исходный код, включая директорию backend/api
+COPY . .
+
+# Создаем директорию для сгенерированных файлов, если она не существует
+RUN mkdir -p ./api
+
+# Генерируем код из OpenAPI спецификации
+RUN /go/bin/oapi-codegen -generate types,server,spec -package api ./api/api.yaml > ./api/api.gen.go
+
+# Собираем приложение
+RUN go build -o ./bin/main ./cmd/main.go
+
+# Используем другой образ для финального результата
 FROM golang:latest
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем исходный код
-COPY . .
+# Копируем сгенерированные файлы из builder
+COPY --from=builder /app/api/api.gen.go ./api/api.gen.go
+COPY --from=builder /app/bin/main ./bin/main
 
-# Собираем приложение
-RUN go build -o ./bin/main ./cmd/main.go
-
-# Экспортируем порт 8080
+# Экспортируем порт 8082
 EXPOSE 8082
 
 # Запускаем приложение
