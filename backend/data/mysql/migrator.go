@@ -6,6 +6,11 @@ import (
 	"server/pkg/infrastructure/mysql"
 )
 
+const (
+	dbDriverName  = "mysql"
+	migrationsDir = "migrations"
+)
+
 //go:embed migrations/*.sql
 var embedMigrations embed.FS
 
@@ -17,11 +22,11 @@ func InitMigrations() {
 
 	goose.SetBaseFS(embedMigrations)
 
-	if err := goose.SetDialect("mysql"); err != nil {
+	if err := goose.SetDialect(dbDriverName); err != nil {
 		panic(err)
 	}
 
-	if err := goose.Up(db.DB, "./migrations"); err != nil {
+	if err := goose.Up(db.DB, migrationsDir); err != nil {
 		panic(err)
 	}
 }

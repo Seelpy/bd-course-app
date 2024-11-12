@@ -20,6 +20,8 @@ services:
       - "8082:8082"                   # Проброс порта 8080 для доступа к приложению
     networks:
       - app-network                   # Опциональная сеть для связи между сервисами
+    volumes:
+      - "./backend/data/mysql/migrations:/app/data/mysql/migrations"
     depends_on:
       - db
 
@@ -36,7 +38,11 @@ services:
       - "3306:3306"                     # Проброс порта 3306 для доступа к MySQL
     networks:
       - app-network                     # Подключаем к общей сети
-
+    volumes:
+      - db-data:/var/lib/mysql
 
 networks:
   app-network:                       # Определяем сеть для сервисов
+
+volumes:
+  db-data:
