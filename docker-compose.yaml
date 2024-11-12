@@ -20,6 +20,8 @@ services:
       - "8082:8082"                   # Проброс порта 8080 для доступа к приложению
     networks:
       - app-network                   # Опциональная сеть для связи между сервисами
+    depends_on:
+      - db
 
   db:
     container_name: db_db
