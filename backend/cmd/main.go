@@ -1,16 +1,17 @@
 package main
 
 import (
+	"github.com/labstack/echo/v4"
 	"log"
 	"server/api"
-
-	"github.com/labstack/echo/v4"
-
+	"server/data/mysql"
 	"server/pkg/infrastructure/transport"
 )
 
 func main() {
 	e := echo.New()
+
+	mysql.InitMigrations()
 
 	public := transport.NewPublicAPI()
 
