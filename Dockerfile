@@ -1,5 +1,5 @@
-# Используем официальный образ Go
-FROM golang:latest AS builder
+# Используем официальный образ Go версии 1.23 для сборки
+FROM golang:1.23 AS builder
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
@@ -7,16 +7,18 @@ WORKDIR /app
 # Копируем go.mod и go.sum (если есть) в контейнер
 COPY go.mod go.sum ./
 
+RUN go mod tidy
+
 # Загружаем зависимости
 RUN go mod download
 
-# Копируем исходный код
+# Копируем весь исходный код в контейнер
 COPY . .
 
 # Собираем приложение
 RUN go build -o main .
 
-# Создаем новый образ для сервера
+# Создаем новый образ для сервера на основе Nginx
 FROM nginx:alpine
 
 # Копируем статические файлы React в Nginx
