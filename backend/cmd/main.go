@@ -17,7 +17,7 @@ func main() {
 
 	public := transport.NewPublicAPI()
 
-	api.RegisterHandlersWithBaseURL(e, public, "/")
+	api.RegisterHandlersWithBaseURL(e, public, "")
 
 	e.File("/api/v1/openapi.yaml", "./api/api.yaml")
 
