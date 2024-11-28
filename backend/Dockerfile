@@ -38,6 +38,7 @@ FROM golang:latest
 WORKDIR /app
 
 # Копируем сгенерированные файлы из builder
+COPY --from=builder /app/api/api.yaml ./api/api.yaml
 COPY --from=builder /app/api/api.gen.go ./api/api.gen.go
 COPY --from=builder /app/bin/main ./bin/main
 COPY --from=builder /app/vendor ./vendor
