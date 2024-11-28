@@ -1,10 +1,11 @@
 package transport
 
 import (
+	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
-
 	"server/api"
+	"server/pkg/domain/service"
 )
 
 type User struct {
@@ -13,8 +14,10 @@ type User struct {
 	Email string `json:"email"`
 }
 
-func NewPublicAPI() api.ServerInterface {
-	return &public{}
+func NewPublicAPI(userService service.UserService) api.ServerInterface {
+	return &public{
+		userService: userService,
+	}
 }
 
 type PublicAPI struct {
@@ -22,13 +25,42 @@ type PublicAPI struct {
 }
 
 type public struct {
+	userService service.UserService
 }
 
 func (p public) ListUsers(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, User{ID: "1", Name: "Igor", Email: "maks@mail.ru"})
 }
 
+func (p public) CreateUser(ctx echo.Context) error {
+	var input api.CreateUserRequest
+
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.userService.CreateUser(service.CreateUserInput{
+		AboutMe:  input.AboutMe,
+		Login:    input.Login,
+		Password: input.Password,
+	})
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to create user: %s", err))
+	}
+
+	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+		Message: ptr("User created successfully"),
+	})
+}
+
 func (p public) GetUser(ctx echo.Context, id string) error {
 	//TODO implement me
 	panic("implement me")
+}
+
+func ptr(s string) *string {
+	return &s
 }

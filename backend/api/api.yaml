@@ -18,6 +18,30 @@ paths:
                 items:
                   $ref: '#/components/schemas/User'
 
+  /api/v1/user/create:
+    post:
+      operationId: "CreateUser"
+      summary: Create user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+
   /api/v1/users/{id}:
     get:
       operationId: "GetUser"
@@ -38,6 +62,16 @@ paths:
 
 components:
   schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    BadRequestResponse:
+      type: object
+      properties:
+        message:
+          type: string
     User:
       type: object
       properties:
@@ -47,3 +81,16 @@ components:
           type: string
         email:
           type: string
+    CreateUserRequest:
+      type: object
+      properties:
+        login:
+          type: string
+        password:
+          type: string
+        aboutMe:
+          type: string
+      required:
+        - login
+        - password
+        - aboutMe

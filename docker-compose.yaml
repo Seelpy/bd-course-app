@@ -35,7 +35,7 @@ services:
       MYSQL_USER: user                  # Имя пользователя
       MYSQL_PASSWORD: userpassword      # Пароль для пользователя
     ports:
-      - "3306:3306"                     # Проброс порта 3306 для доступа к MySQL
+      - "3307:3306"                     # Проброс порта 3306 для доступа к MySQL
     networks:
       - app-network                     # Подключаем к общей сети
     volumes:
