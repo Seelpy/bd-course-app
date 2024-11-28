@@ -11,7 +11,6 @@ import (
 	"server/pkg/infrastructure/mysql/repo"
 	"server/pkg/infrastructure/transport"
 
-	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
@@ -25,6 +24,7 @@ func main() {
 		panic(err)
 	}
 	dependencyContainer := NewDependencyContainer(db)
+	public := transport.NewPublicAPI(dependencyContainer.UserService())
 
 	api.RegisterHandlersWithBaseURL(e, public, "")
 
