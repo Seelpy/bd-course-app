@@ -1,0 +1,52 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout dev branch
+      uses: actions/checkout@v2
+      with:
+        ref: dev
+
+    - name: Set up SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.SSH }}
+
+    - name: Add server to known hosts
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan $SERVER_IP >> ~/.ssh/known_hosts
+      env:
+        SERVER_IP: ${{ secrets.HOST }}
+
+    - name: Copy files to server
+      run: |
+        rsync -avz --exclude .git --exclude node_modules ./ $SERVER_USER@$SERVER_IP:/opt/bd-course-app
+      env:
+        SERVER_IP: ${{ secrets.HOST }}
+        SERVER_USER: ${{ secrets.USER }}
+
+    - name: Build and restart services
+      run: |
+        ssh -i ~/.ssh/id_rsa $SERVER_USER@$SERVER_IP << 'EOF'
+          cd /opt/bd-course-app
+          docker-compose up --build -d
+          docker cp db_server:/app/api/api.gen.go ./backend/api/api.gen.go
+          docker cp db_server:/app/vendor ./backend/vendor
+          docker-compose restart
+        EOF
+      env:
+        SERVER_IP: ${{ secrets.HOST }}
+        SERVER_USER: ${{ secrets.USER }}
