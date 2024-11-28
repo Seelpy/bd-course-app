@@ -23,7 +23,6 @@ func (repo *UserRepository) Store(user model.User) error {
 		INSERT INTO
 			user (
 			      user_id,
-			      avtar_id,
 			      login,
 			      role,
 			      password,
@@ -34,14 +33,17 @@ func (repo *UserRepository) Store(user model.User) error {
 		    ?,
 		    ?,
 		    ?,
-		    ?,
 		    ?
 		)
 	`
 
-	_, err := repo.connection.Exec(query,
-		user.ID(),
-		user.AvatarID(),
+	binaryUserID, err := uuid.UUID(user.ID()).MarshalBinary()
+	if err != nil {
+		return err
+	}
+
+	_, err = repo.connection.Exec(query,
+		binaryUserID,
 		user.Login(),
 		user.Role(),
 		user.Password(),
