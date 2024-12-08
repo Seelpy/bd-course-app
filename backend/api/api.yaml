@@ -60,6 +60,30 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
 
+  /api/v1/book/create:
+    post:
+      operationId: "CreateBook"
+      summary: Create book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+
 components:
   schemas:
     SuccessResponse:
@@ -94,3 +118,13 @@ components:
         - login
         - password
         - aboutMe
+    CreateBookRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+      required:
+        - title
+        - description

@@ -24,7 +24,10 @@ func main() {
 		panic(err)
 	}
 	dependencyContainer := NewDependencyContainer(db)
-	public := transport.NewPublicAPI(dependencyContainer.UserService())
+	public := transport.NewPublicAPI(
+		dependencyContainer.UserService(),
+		dependencyContainer.BookService(),
+	)
 
 	api.RegisterHandlersWithBaseURL(e, public, "")
 
@@ -44,17 +47,26 @@ func main() {
 
 type DependencyContainer struct {
 	userService service.UserService
+	bookService service.BookService
 }
 
 func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 	userRepository := repo.NewUserRepository(connection)
 	userService := service.NewUserService(userRepository)
 
+	bookRepository := repo.NewBookRepository(connection)
+	bookService := service.NewBookService(bookRepository)
+
 	return &DependencyContainer{
 		userService: userService,
+		bookService: bookService,
 	}
 }
 
 func (container *DependencyContainer) UserService() service.UserService {
 	return container.userService
+}
+
+func (container *DependencyContainer) BookService() service.BookService {
+	return container.bookService
 }
