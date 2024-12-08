@@ -4,6 +4,42 @@ info:
   version: 1.0.0
 
 paths:
+  /api/v1/login:
+    post:
+      operationId: "LoginUser"
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginUserRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginUserResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
   /api/v1/users:
     get:
       operationId: "ListUsers"
@@ -83,6 +119,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
 
 components:
   schemas:
@@ -96,6 +144,16 @@ components:
       properties:
         message:
           type: string
+    UnauthorizedResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    NotFoundResponse:
+      type: object
+      properties:
+        message:
+          type: string
     User:
       type: object
       properties:
@@ -105,6 +163,23 @@ components:
           type: string
         email:
           type: string
+    LoginUserRequest:
+      type: object
+      properties:
+        login:
+          type: string
+        password:
+          type: string
+      required:
+        - login
+        - password
+    LoginUserResponse:
+      type: object
+      properties:
+        token:
+          type: string
+      required:
+        - token
     CreateUserRequest:
       type: object
       properties:

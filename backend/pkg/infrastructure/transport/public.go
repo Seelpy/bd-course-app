@@ -24,7 +24,7 @@ func NewPublicAPI(
 	userService service.UserService,
 	bookService service.BookService,
 	userQueryService query.UserQueryService,
-) PublicAPI {
+) api.ServerInterface {
 	return &public{
 		userService:      userService,
 		bookService:      bookService,
@@ -34,7 +34,6 @@ func NewPublicAPI(
 
 type PublicAPI interface {
 	api.ServerInterface
-	Login(c echo.Context) error
 }
 
 type public struct {
@@ -49,7 +48,7 @@ type LoginUserRequest struct {
 	Password string `json:"password"`
 }
 
-func (p public) Login(ctx echo.Context) error {
+func (p public) LoginUser(ctx echo.Context) error {
 	var userReq LoginUserRequest
 	if err := ctx.Bind(&userReq); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request")
@@ -58,6 +57,9 @@ func (p public) Login(ctx echo.Context) error {
 	user, err := p.userQueryService.FindByLogin(userReq.Login)
 	if err != nil {
 		return err
+	}
+	if user == (model.User{}) {
+		return echo.NewHTTPError(http.StatusNotFound, "User not found")
 	}
 
 	if user.Password != userReq.Password {

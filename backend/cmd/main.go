@@ -36,7 +36,6 @@ func main() {
 
 	api.RegisterHandlersWithBaseURL(e, public, "")
 
-	e.POST("/login", public.Login)
 	e.POST("/api/v1/book/create", public.CreateBook, MiddlewareRole(0))
 
 	e.File("/api/v1/openapi.yaml", "./api/api.yaml")
