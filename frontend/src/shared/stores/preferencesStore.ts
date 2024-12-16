@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
-import { Theme } from "@shared/types/Theme";
+import { Theme } from "@shared/types/theme";
 
 type PreferencesState = {
   theme: Theme;
