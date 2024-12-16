@@ -24,11 +24,6 @@ jobs:
       env:
         SSH_PRIVATE_KEY: ${{ secrets.SSH }}
 
-    - name: Start ssh-agent
-      run: |
-        eval $(ssh-agent -s)
-        ssh-add ~/.ssh/id_rsa
-
     - name: Add server to known hosts
       run: |
         mkdir -p ~/.ssh
@@ -38,7 +33,7 @@ jobs:
 
     - name: Copy files to server
       run: |
-        rsync -avz --exclude .git --exclude node_modules -e "ssh -p 222 -v" ./ $SERVER_USER@$SERVER_IP:/opt/bd-course-app
+        rsync -avz --exclude .git --exclude node_modules -e "ssh -p 222" ./ $SERVER_USER@$SERVER_IP:/opt/bd-course-app
       env:
         SERVER_IP: ${{ secrets.HOST }}
         SERVER_USER: ${{ secrets.USER }}
