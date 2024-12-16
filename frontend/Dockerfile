@@ -20,7 +20,7 @@ RUN npm run build
 FROM nginx:alpine
 
 # Копируем статические файлы React в Nginx
-COPY --from=builder /app/build /usr/share/nginx/html
+COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Экспортируем порт 80
 EXPOSE 80
