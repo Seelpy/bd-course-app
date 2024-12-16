@@ -1,6 +1,6 @@
 import { Box, Button, Typography } from "@mui/material";
 
-export default function ErrorBoundary() {
+export const PageNotFound = () => {
   return (
     <Box
       display="flex"
@@ -11,10 +11,10 @@ export default function ErrorBoundary() {
       sx={{ textAlign: "center", p: 2 }}
     >
       <Typography variant="h5" gutterBottom>
-        Что-то пошло не так
+        Страница не найдена
       </Typography>
       <Typography variant="body1" gutterBottom>
-        К сожалению, возникла непредвиденная ошибка, попробуйте вернуться назад
+        К сожалению, страница, которую вы пытаетесь открыть, не существует.
       </Typography>
       <Button
         variant="contained"
@@ -28,4 +28,4 @@ export default function ErrorBoundary() {
       </Button>
     </Box>
   );
-}
+};

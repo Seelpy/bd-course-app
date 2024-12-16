@@ -21,6 +21,10 @@ function App() {
           path: AppRoute.Root,
           lazy: () => import("./pages/RootPage.tsx").then((m) => ({ Component: m.RootPage })),
         },
+        {
+          path: AppRoute.NotFound,
+          lazy: () => import("./pages/PageNotFound.tsx").then((m) => ({ Component: m.PageNotFound })),
+        },
       ],
     },
   ]);
