@@ -2,9 +2,11 @@ package mysql
 
 import (
 	"fmt"
+	"log"
+	"time"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
-	"time"
 )
 
 const (
@@ -18,15 +20,21 @@ func InitDBConnection() (*sqlx.DB, error) {
 		fmt.Printf("open db err: %v\n", err)
 		return nil, err
 	}
+
 	waitForDB(dbx)
 
 	return dbx, nil
 }
 
 func waitForDB(db *sqlx.DB) {
+	log.Println("Pinging DB...")
+
 	for {
 		if err := db.Ping(); err == nil {
+			log.Println("DB is reachable")
 			break
+		} else {
+			// log.Printf("DB ping failed: %v", err)
 		}
 		time.Sleep(1 * time.Second)
 	}

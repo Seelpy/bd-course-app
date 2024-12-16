@@ -19,21 +19,29 @@ import (
 )
 
 func main() {
+	log.Println("Starting server...")
 	e := echo.New()
 
+	log.Println("Initiating migrations")
 	mysql.InitMigrations()
 
+	log.Println("Initiating DB connection")
 	db, err := inframysql.InitDBConnection()
 	if err != nil {
 		panic(err)
 	}
+	
+	log.Println("Creating dependency container")
 	dependencyContainer := NewDependencyContainer(db)
+	
+	log.Println("Loading API")
 	public := transport.NewPublicAPI(
 		dependencyContainer.UserService(),
 		dependencyContainer.BookService(),
 		dependencyContainer.UserQueryService(),
 	)
 
+	log.Println("Creating endpoints")
 	api.RegisterHandlersWithBaseURL(e, public, "")
 
 	e.POST("/api/v1/book/create", public.CreateBook, MiddlewareRole(0))
@@ -46,7 +54,8 @@ func main() {
 		c.DocExpansion = "list"
 		c.DeepLinking = true
 	}))
-
+	
+	log.Println("Starting listening...")
 	if err := e.Start(":8082"); err != nil {
 		log.Fatal(err)
 	}

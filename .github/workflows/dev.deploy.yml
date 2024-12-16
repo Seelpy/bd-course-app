@@ -31,9 +31,20 @@ jobs:
       env:
         SERVER_IP: ${{ secrets.HOST }}
 
-    - name: Copy files to server
+    - name: Build frontend
       run: |
-        rsync -avz --exclude .git --exclude node_modules -e "ssh -p 222" ./ $SERVER_USER@$SERVER_IP:/opt/bd-course-app
+        cd frontend
+        npm install
+        npm run build
+        cd ..
+
+    - name: Copy frontend, backend, and docker-compose
+      run: |
+        rsync -avz -e "ssh -p 222" ./frontend/Dockerfile $SERVER_USER@$SERVER_IP:/opt/bd-course-app/frontend/
+        rsync -avz -e "ssh -p 222" ./frontend/dist $SERVER_USER@$SERVER_IP:/opt/bd-course-app/frontend/
+        rsync -avz -e "ssh -p 222" ./backend $SERVER_USER@$SERVER_IP:/opt/bd-course-app
+        rsync -avz -e "ssh -p 222" ./docker-compose.yaml $SERVER_USER@$SERVER_IP:/opt/bd-course-app
+        rsync -avz -e "ssh -p 222" ./my.cnf $SERVER_USER@$SERVER_IP:/opt/bd-course-app
       env:
         SERVER_IP: ${{ secrets.HOST }}
         SERVER_USER: ${{ secrets.USER }}
