@@ -2,14 +2,15 @@ package transport
 
 import (
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
-	"github.com/labstack/echo/v4"
 	"net/http"
 	"server/api"
 	"server/pkg/domain/service"
 	"server/pkg/infrastructure/model"
 	"server/pkg/infrastructure/mysql/query"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	"github.com/labstack/echo/v4"
 )
 
 var JwtKey = []byte("your_secret_key")
@@ -58,12 +59,8 @@ func (p public) LoginUser(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	if user == (model.User{}) {
+	if user == (model.User{}) || user.Password != userReq.Password {
 		return echo.NewHTTPError(http.StatusNotFound, "User not found")
-	}
-
-	if user.Password != userReq.Password {
-		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid password")
 	}
 
 	expirationTime := time.Now().Add(5 * time.Hour)
@@ -82,7 +79,17 @@ func (p public) LoginUser(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "Could not create token")
 	}
 
-	return ctx.JSON(http.StatusOK, map[string]string{"token": tokenString})
+	cookie := new(http.Cookie)
+	cookie.Name = "jwt"
+	cookie.Value = tokenString
+	cookie.Expires = expirationTime
+	cookie.Path = "/"
+	cookie.HttpOnly = true
+	cookie.Secure = true
+	cookie.SameSite = http.SameSiteStrictMode
+
+	ctx.SetCookie(cookie)
+	return ctx.NoContent(http.StatusOK)
 }
 
 func (p public) ListUsers(ctx echo.Context) error {
