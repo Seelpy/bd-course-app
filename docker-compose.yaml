@@ -4,37 +4,46 @@ services:
   frontend:
     container_name: db_frontend
     build:
-      context: ./frontend  # Укажите путь к вашему React-приложению
-      dockerfile: Dockerfile          # Укажите имя Dockerfile, если оно отличается
+      context: ./frontend
+      dockerfile: Dockerfile
     ports:
-      - "80:80"                       # Проброс порта 80 для доступа к приложению
+      - "80:80"
     networks:
-      - app-network                   # Опциональная сеть для связи между сервисами
+      - app-network
 
   server:
     container_name: db_server
     build:
-      context: ./backend      # Укажите путь к вашему Go-приложению
-      dockerfile: Dockerfile          # Укажите имя Dockerfile, если оно отличается
+      context: ./backend
+      dockerfile: Dockerfile
     ports:
-      - "8082:8082"                   # Проброс порта 8080 для доступа к приложению
+      - "8082:8082"
     networks:
-      - app-network                   # Опциональная сеть для связи между сервисами
+      - app-network
+    volumes:
+      - "./backend/data/mysql/migrations:/app/data/mysql/migrations"
+    depends_on:
+      - db
 
   db:
     container_name: db_db
-    image: mysql:latest                  # Используем образ MySQL версии 5.7
-    restart: always                    # Перезапускать контейнер при сбоях
+    image: mysql:latest
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: my-secret-pw # Устанавливаем пароль для root
-      MYSQL_DATABASE: mydatabase        # Создаем базу данных при старте
-      MYSQL_USER: user                  # Имя пользователя
-      MYSQL_PASSWORD: userpassword      # Пароль для пользователя
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: user
+      MYSQL_PASSWORD: userpassword
     ports:
-      - "3306:3306"                     # Проброс порта 3306 для доступа к MySQL
+      - "3307:3306"
     networks:
-      - app-network                     # Подключаем к общей сети
-
+      - app-network
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./my.cnf:/etc/mysql/conf.d/my.cnf
 
 networks:
-  app-network:                       # Определяем сеть для сервисов
+  app-network:
+
+volumes:
+  db-data:
