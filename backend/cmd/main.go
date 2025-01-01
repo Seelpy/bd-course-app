@@ -30,10 +30,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	log.Println("Creating dependency container")
 	dependencyContainer := NewDependencyContainer(db)
-	
+
 	log.Println("Loading API")
 	public := transport.NewPublicAPI(
 		dependencyContainer.UserService(),
@@ -44,7 +44,7 @@ func main() {
 	log.Println("Creating endpoints")
 	api.RegisterHandlersWithBaseURL(e, public, "")
 
-	e.POST("/api/v1/book/create", public.CreateBook, MiddlewareRole(0))
+	e.POST("/api/v1/book/publish", public.CreateBook, MiddlewareRole(0))
 
 	e.File("/api/v1/openapi.yaml", "./api/api.yaml")
 
@@ -54,7 +54,7 @@ func main() {
 		c.DocExpansion = "list"
 		c.DeepLinking = true
 	}))
-	
+
 	log.Println("Starting listening...")
 	if err := e.Start(":8082"); err != nil {
 		log.Fatal(err)

@@ -65,7 +65,10 @@ func (repo *BookRepository) Delete(bookID model.BookID) error {
 		return err
 	}
 
-	_, err = result.RowsAffected()
+	count, err := result.RowsAffected()
+	if count == 0 {
+		return model.ErrBookNotFound
+	}
 
 	return err
 }
@@ -73,7 +76,6 @@ func (repo *BookRepository) Delete(bookID model.BookID) error {
 func (repo *BookRepository) FindByID(bookID model.BookID) (model.Book, error) {
 	const query = `
 		SELECT
-			book_id,
 			description,
 			title,
 			is_publish
@@ -89,7 +91,7 @@ func (repo *BookRepository) FindByID(bookID model.BookID) (model.Book, error) {
 
 	err = repo.connection.Get(&book, query, binaryBookID)
 	if errors.Is(err, sql.ErrNoRows) {
-		return model.Book{}, model.ErrUserNotFound
+		return model.Book{}, model.ErrBookNotFound
 	}
 	if err != nil {
 		return model.Book{}, err

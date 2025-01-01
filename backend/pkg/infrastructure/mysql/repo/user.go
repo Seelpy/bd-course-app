@@ -64,14 +64,14 @@ func (repo *UserRepository) Delete(userID model.UserID) error {
 	}
 
 	result, err := repo.connection.Exec(query, binaryUserID)
-	if errors.Is(err, sql.ErrNoRows) {
-		return model.ErrUserNotFound
-	}
 	if err != nil {
 		return err
 	}
 
-	_, err = result.RowsAffected()
+	count, err := result.RowsAffected()
+	if count == 0 {
+		return model.ErrUserNotFound
+	}
 
 	return err
 }
@@ -79,7 +79,6 @@ func (repo *UserRepository) Delete(userID model.UserID) error {
 func (repo *UserRepository) FindByID(userID model.UserID) (model.User, error) {
 	const query = `
 		SELECT
-			user_id,
 			login,
 			role,
 			password,
@@ -103,7 +102,7 @@ func (repo *UserRepository) FindByID(userID model.UserID) (model.User, error) {
 	}
 
 	return model.NewUser(
-		model.UserID(user.ID),
+		model.UserID(userID),
 		maybe.Nothing[model.ImageID](),
 		user.Login,
 		model.UserRole(user.Role),
@@ -113,9 +112,8 @@ func (repo *UserRepository) FindByID(userID model.UserID) (model.User, error) {
 }
 
 type sqlxUser struct {
-	ID       uuid.UUID `db:"user_id"`
-	Login    string    `db:"login"`
-	Role     int       `db:"role"`
-	Password string    `db:"password"`
-	AboutMe  string    `db:"about_me"`
+	Login    string `db:"login"`
+	Role     int    `db:"role"`
+	Password string `db:"password"`
+	AboutMe  string `db:"about_me"`
 }

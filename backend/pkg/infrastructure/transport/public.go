@@ -190,11 +190,57 @@ func (p public) CreateBook(ctx echo.Context) error {
 	})
 
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to create user: %s", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to create book: %s", err))
 	}
 
 	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
 		Message: ptr("Book created successfully"),
+	})
+}
+
+func (p public) EditBook(ctx echo.Context) error {
+	var input api.EditBookRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.bookService.EditBook(service.EditBookInput{
+		ID:          domainmodel.BookID(input.Id),
+		Title:       input.Title,
+		Description: input.Description,
+	})
+	if errors.Is(err, domainmodel.ErrBookNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "Book not found")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to edit book: %s", err))
+	}
+
+	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+		Message: ptr("Book edited successfully"),
+	})
+}
+
+func (p public) DeleteBook(ctx echo.Context) error {
+	var input api.DeleteBookRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.bookService.DeleteBook(domainmodel.BookID(input.Id))
+	if errors.Is(err, domainmodel.ErrBookNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "Book not found")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete book: %s", err))
+	}
+
+	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+		Message: ptr("Book deleted successfully"),
 	})
 }
 
