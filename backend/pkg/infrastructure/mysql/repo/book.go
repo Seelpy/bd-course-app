@@ -48,11 +48,8 @@ func (repo *BookRepository) Store(book model.Book) error {
 		book.Description(),
 		book.IsPublished(),
 	)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
 func (repo *BookRepository) Delete(bookID model.BookID) error {
