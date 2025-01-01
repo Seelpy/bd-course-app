@@ -52,27 +52,25 @@ func (repo *UserRepository) Store(user model.User) error {
 		user.AboutMe(),
 	)
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
 func (repo *UserRepository) Delete(userID model.UserID) error {
 	const query = `DELETE FROM user WHERE user_id = ?`
 
-	result, err := repo.connection.Exec(query, userID)
+	binaryUserID, err := uuid.UUID(userID).MarshalBinary()
+	if err != nil {
+		return err
+	}
+
+	result, err := repo.connection.Exec(query, binaryUserID)
 	if err != nil {
 		return err
 	}
 
 	_, err = result.RowsAffected()
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
 func (repo *UserRepository) FindByID(userID model.UserID) (model.User, error) {
