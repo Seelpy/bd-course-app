@@ -61,7 +61,7 @@ func (service *userService) EditUser(input EditUserInput) error {
 
 	user.SetLogin(input.Login)
 	user.SetPassword(input.Password)
-	user.SetPassword(input.AboutMe)
+	user.SetAboutMe(input.AboutMe)
 
 	return service.userRepo.Store(user)
 }
