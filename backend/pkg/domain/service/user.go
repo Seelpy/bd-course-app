@@ -8,6 +8,8 @@ import (
 
 type UserService interface {
 	CreateUser(input CreateUserInput) error
+	EditUser(input EditUserInput) error
+	DeleteUser(userID model.UserID) error
 }
 
 type userService struct {
@@ -21,10 +23,18 @@ func NewUserService(userRepo UserRepository) *userService {
 type UserRepository interface {
 	NextID() uuid.UUID
 	Store(user model.User) error
-	List(userIDs []model.UserID) ([]model.User, error)
+	Delete(userID model.UserID) error
+	FindByID(userID model.UserID) (model.User, error)
 }
 
 type CreateUserInput struct {
+	Login    string
+	Password string
+	AboutMe  string
+}
+
+type EditUserInput struct {
+	ID       model.UserID
 	Login    string
 	Password string
 	AboutMe  string
@@ -40,10 +50,31 @@ func (service *userService) CreateUser(input CreateUserInput) error {
 		input.AboutMe,
 	)
 
-	err := service.userRepo.Store(user)
+	return service.userRepo.Store(user)
+}
+
+func (service *userService) EditUser(input EditUserInput) error {
+	user, err := service.userRepo.FindByID(input.ID)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	user.SetLogin(input.Login)
+	user.SetPassword(input.Password)
+	user.SetPassword(input.AboutMe)
+
+	return service.userRepo.Store(user)
+}
+
+func (service *userService) DeleteUser(userID model.UserID) error {
+	user, err := service.userRepo.FindByID(userID)
+	if err != nil {
+		return err
+	}
+
+	if user.Role() == model.Admin {
+		return model.ErrNotDeleteAdmin
+	}
+
+	return service.userRepo.Delete(userID)
 }
