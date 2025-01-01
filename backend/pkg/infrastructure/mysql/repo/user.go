@@ -34,7 +34,7 @@ func (repo *UserRepository) Store(user model.User) error {
 		VALUES (?, ?, ?, ?, ?)
 		ON DUPLICATE KEY UPDATE
 			 login = VALUES(login),
-			 'role' = VALUES('role'),
+			 role = VALUES(role),
 			 password = VALUES(password),
 			 about_me = VALUES(about_me)
 	`
@@ -64,6 +64,9 @@ func (repo *UserRepository) Delete(userID model.UserID) error {
 	}
 
 	result, err := repo.connection.Exec(query, binaryUserID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return model.ErrUserNotFound
+	}
 	if err != nil {
 		return err
 	}

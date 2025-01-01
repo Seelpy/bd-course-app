@@ -1,9 +1,11 @@
 package transport
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"server/api"
+	domainmodel "server/pkg/domain/model"
 	"server/pkg/domain/service"
 	"server/pkg/infrastructure/model"
 	"server/pkg/infrastructure/mysql/query"
@@ -116,6 +118,56 @@ func (p public) CreateUser(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
 		Message: ptr("User created successfully"),
+	})
+}
+
+func (p public) EditUser(ctx echo.Context) error {
+	var input api.EditUserRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.userService.EditUser(service.EditUserInput{
+		ID:       domainmodel.UserID(input.Id),
+		AboutMe:  input.AboutMe,
+		Login:    input.Login,
+		Password: input.Password,
+	})
+	if errors.Is(err, domainmodel.ErrUserNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "User not found")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to edit user: %s", err))
+	}
+
+	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+		Message: ptr("User edited successfully"),
+	})
+}
+
+func (p public) DeleteUser(ctx echo.Context) error {
+	var input api.DeleteUserRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.userService.DeleteUser(domainmodel.UserID(input.Id))
+	if errors.Is(err, domainmodel.ErrUserNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "User not found")
+	}
+	if errors.Is(err, domainmodel.ErrNotDeleteAdmin) {
+		return echo.NewHTTPError(http.StatusForbidden, "Not allowed")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete user: %s", err))
+	}
+
+	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+		Message: ptr("User deleted successfully"),
 	})
 }
 
