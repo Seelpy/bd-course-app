@@ -8,6 +8,8 @@ import (
 
 type BookService interface {
 	CreateBook(input CreateBookInput) error
+	EditBook(input EditBookInput) error
+	DeleteBook(bookID model.BookID) error
 }
 
 type bookService struct {
@@ -21,10 +23,17 @@ func NewBookService(bookRepo BookRepository) *bookService {
 type BookRepository interface {
 	NextID() uuid.UUID
 	Store(book model.Book) error
-	List(bookIDs []model.BookID) ([]model.Book, error)
+	Delete(bookID model.BookID) error
+	FindByID(bookID model.BookID) (model.Book, error)
 }
 
 type CreateBookInput struct {
+	Title       string
+	Description string
+}
+
+type EditBookInput struct {
+	ID          model.BookID
 	Title       string
 	Description string
 }
@@ -44,4 +53,20 @@ func (service *bookService) CreateBook(input CreateBookInput) error {
 	}
 
 	return nil
+}
+
+func (service *bookService) EditBook(input EditBookInput) error {
+	book, err := service.bookRepo.FindByID(input.ID)
+	if err != nil {
+		return err
+	}
+
+	book.SetTitle(input.Title)
+	book.SetDescription(input.Description)
+
+	return service.bookRepo.Store(book)
+}
+
+func (service *bookService) DeleteBook(bookID model.BookID) error {
+	return service.bookRepo.Delete(bookID)
 }
