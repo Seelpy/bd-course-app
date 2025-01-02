@@ -38,6 +38,7 @@ func main() {
 	public := transport.NewPublicAPI(
 		dependencyContainer.UserService(),
 		dependencyContainer.BookService(),
+		dependencyContainer.BookChapterService(),
 		dependencyContainer.UserQueryService(),
 	)
 
@@ -62,8 +63,9 @@ func main() {
 }
 
 type DependencyContainer struct {
-	userService service.UserService
-	bookService service.BookService
+	userService        service.UserService
+	bookService        service.BookService
+	bookChapterService service.BookChapterService
 
 	userQueryService query.UserQueryService
 }
@@ -75,11 +77,15 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 	bookRepository := repo.NewBookRepository(connection)
 	bookService := service.NewBookService(bookRepository)
 
+	bookChapterRepository := repo.NewBookChapterRepository(connection)
+	bookChapterService := service.NewBookChapterService(bookChapterRepository)
+
 	userQueryService := query.NewUserQueryService(connection)
 
 	return &DependencyContainer{
-		userService: userService,
-		bookService: bookService,
+		userService:        userService,
+		bookService:        bookService,
+		bookChapterService: bookChapterService,
 
 		userQueryService: userQueryService,
 	}
@@ -91,6 +97,10 @@ func (container *DependencyContainer) UserService() service.UserService {
 
 func (container *DependencyContainer) BookService() service.BookService {
 	return container.bookService
+}
+
+func (container *DependencyContainer) BookChapterService() service.BookChapterService {
+	return container.bookChapterService
 }
 
 func (container *DependencyContainer) UserQueryService() query.UserQueryService {

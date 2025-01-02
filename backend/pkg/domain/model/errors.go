@@ -7,4 +7,6 @@ var (
 	ErrNotDeleteAdmin = errors.New("not delete admin")
 
 	ErrBookNotFound = errors.New("book not found")
+
+	ErrBookChapterNotFound = errors.New("book chapter not found")
 )

@@ -98,7 +98,7 @@ func (repo *BookRepository) FindByID(bookID model.BookID) (model.Book, error) {
 	}
 
 	return model.NewBook(
-		model.BookID(bookID),
+		bookID,
 		maybe.Nothing[model.ImageID](),
 		book.Title,
 		book.Description,

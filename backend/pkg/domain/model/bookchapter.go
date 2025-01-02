@@ -12,13 +12,13 @@ type BookChapter struct {
 }
 
 func NewBookChapter(
-	id BookChapterID,
+	ID BookChapterID,
 	bookID BookID,
 	index int,
 	title string,
 ) BookChapter {
 	return BookChapter{
-		id:     id,
+		id:     ID,
 		bookID: bookID,
 		index:  index,
 		title:  title,
@@ -35,6 +35,10 @@ func (bookChapter *BookChapter) BookID() BookID {
 
 func (bookChapter *BookChapter) Index() int {
 	return bookChapter.index
+}
+
+func (bookChapter *BookChapter) SetIndex(index int) {
+	bookChapter.index = index
 }
 
 func (bookChapter *BookChapter) Title() string {

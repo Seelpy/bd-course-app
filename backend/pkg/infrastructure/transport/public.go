@@ -26,12 +26,14 @@ type User struct {
 func NewPublicAPI(
 	userService service.UserService,
 	bookService service.BookService,
+	bookChapterService service.BookChapterService,
 	userQueryService query.UserQueryService,
 ) api.ServerInterface {
 	return &public{
-		userService:      userService,
-		bookService:      bookService,
-		userQueryService: userQueryService,
+		userService:        userService,
+		bookService:        bookService,
+		bookChapterService: bookChapterService,
+		userQueryService:   userQueryService,
 	}
 }
 
@@ -40,8 +42,9 @@ type PublicAPI interface {
 }
 
 type public struct {
-	userService service.UserService
-	bookService service.BookService
+	userService        service.UserService
+	bookService        service.BookService
+	bookChapterService service.BookChapterService
 
 	userQueryService query.UserQueryService
 }
@@ -241,6 +244,73 @@ func (p public) DeleteBook(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
 		Message: ptr("Book deleted successfully"),
+	})
+}
+
+func (p public) CreateBookChapter(ctx echo.Context) error {
+	var input api.CreateBookChapterRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.bookChapterService.CreateBookChapter(service.CreateBookChapterInput{
+		BookID: domainmodel.BookID(input.BookId),
+		Title:  input.Title,
+	})
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to create book chapter: %s", err))
+	}
+
+	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+		Message: ptr("Book chapter created successfully"),
+	})
+}
+
+func (p public) EditBookChapter(ctx echo.Context) error {
+	var input api.EditBookChapterRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.bookChapterService.EditBookChapter(service.EditBookChapterInput{
+		BookChapterID: domainmodel.BookChapterID(input.BookChapterId),
+		Title:         input.Title,
+	})
+	if errors.Is(err, domainmodel.ErrBookChapterNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "Book chapter not found")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to create book chapter: %s", err))
+	}
+
+	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+		Message: ptr("Book chapter edited successfully"),
+	})
+}
+
+func (p public) DeleteBookChapter(ctx echo.Context) error {
+	var input api.DeleteBookChapterRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.bookChapterService.DeleteBookChapter(domainmodel.BookChapterID(input.BookChapterId))
+	if errors.Is(err, domainmodel.ErrBookChapterNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "Book chapter not found")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to create book chapter: %s", err))
+	}
+
+	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+		Message: ptr("Book chapter deleted successfully"),
 	})
 }
 
