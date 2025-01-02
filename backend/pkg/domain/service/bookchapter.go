@@ -85,6 +85,10 @@ func (service *bookChapterService) DeleteBookChapter(bookChapterID uuid.UUID) er
 		return err
 	}
 
+	return service.restoreBookChaptersIndex(bookChapterID, bookChapters)
+}
+
+func (service *bookChapterService) restoreBookChaptersIndex(bookChapterID uuid.UUID, bookChapters []model.BookChapter) error {
 	var isDec bool
 	for i, bookChap := range bookChapters {
 		if bookChap.ID() == bookChapterID {
@@ -99,7 +103,7 @@ func (service *bookChapterService) DeleteBookChapter(bookChapterID uuid.UUID) er
 
 		bookChap.SetIndex(newIndex)
 
-		err = service.bookChapterRepo.Store(bookChap)
+		err := service.bookChapterRepo.Store(bookChap)
 		if err != nil {
 			return err
 		}
