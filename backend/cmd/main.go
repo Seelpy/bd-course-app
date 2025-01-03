@@ -45,7 +45,7 @@ func main() {
 	log.Println("Creating endpoints")
 	api.RegisterHandlersWithBaseURL(e, public, "")
 
-	e.POST("/api/v1/book/publish", public.CreateBook, MiddlewareRole(0))
+	e.POST("/api/v1/verify-book-request/accept", public.CreateBook, MiddlewareRole(0))
 
 	e.File("/api/v1/openapi.yaml", "./api/api.yaml")
 

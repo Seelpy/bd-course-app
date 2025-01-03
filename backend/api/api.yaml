@@ -520,6 +520,124 @@ paths:
               schema:
                 $ref: '#/components/schemas/NotFoundResponse'
 
+  /api/v1/verify-book-request:
+    post:
+      tags:
+        - VerifyBookRequest
+      operationId: "CreateVerifyBookRequest"
+      summary: Create verify book request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookChapterRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    delete:
+      tags:
+        - VerifyBookRequest
+      operationId: "DeleteVerifyBookRequest"
+      summary: Delete verify book request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteVerifyBookRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/verify-book-request/accept:
+    post:
+      tags:
+        - VerifyBookRequest
+      operationId: "AcceptVerifyBookRequest"
+      summary: Accept verify book request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcceptBookChapterRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
 components:
   schemas:
     SuccessResponse:
@@ -699,3 +817,34 @@ components:
         - bookId
         - bookChapterId
         - userId
+    CreateVerifyBookRequest:
+      type: object
+      properties:
+        translatorId:
+          type: string
+          format: uuid
+        bookId:
+          type: string
+          format: uuid
+      required:
+        - translatorId
+        - bookId
+    DeleteVerifyBookRequest:
+      type: object
+      properties:
+        verifyBookRequestId:
+          type: string
+          format: uuid
+      required:
+        - verifyBookRequestId
+    AcceptBookChapterRequest:
+      type: object
+      properties:
+        verifyBookRequestId:
+          type: string
+          format: uuid
+        accept:
+          type: boolean
+      required:
+        - verifyBookRequestId
+        - accept
