@@ -40,6 +40,7 @@ func main() {
 		dependencyContainer.BookService(),
 		dependencyContainer.BookChapterService(),
 		dependencyContainer.BookChapterTranslationService(),
+		dependencyContainer.ReadingSessionService(),
 		dependencyContainer.UserQueryService(),
 	)
 
@@ -68,6 +69,7 @@ type DependencyContainer struct {
 	bookService                   service.BookService
 	bookChapterService            service.BookChapterService
 	bookChapterTranslationService service.BookChapterTranslationService
+	readingSessionService         service.ReadingSessionService
 
 	userQueryService query.UserQueryService
 }
@@ -85,6 +87,9 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 	bookChapterTranslationRepository := repo.NewBookChapterTranslationRepository(connection)
 	bookChapterTranslationService := service.NewBookChapterTranslationService(bookChapterTranslationRepository)
 
+	readingSessionRepository := repo.NewReadingSessionRepository(connection)
+	readingSessionService := service.NewReadingSessionService(readingSessionRepository)
+
 	userQueryService := query.NewUserQueryService(connection)
 
 	return &DependencyContainer{
@@ -92,6 +97,7 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 		bookService:                   bookService,
 		bookChapterService:            bookChapterService,
 		bookChapterTranslationService: bookChapterTranslationService,
+		readingSessionService:         readingSessionService,
 
 		userQueryService: userQueryService,
 	}
@@ -111,6 +117,10 @@ func (container *DependencyContainer) BookChapterService() service.BookChapterSe
 
 func (container *DependencyContainer) BookChapterTranslationService() service.BookChapterTranslationService {
 	return container.bookChapterTranslationService
+}
+
+func (container *DependencyContainer) ReadingSessionService() service.ReadingSessionService {
+	return container.readingSessionService
 }
 
 func (container *DependencyContainer) UserQueryService() query.UserQueryService {

@@ -28,6 +28,7 @@ func NewPublicAPI(
 	bookService service.BookService,
 	bookChapterService service.BookChapterService,
 	bookChapterTranslationService service.BookChapterTranslationService,
+	readingSession service.ReadingSessionService,
 	userQueryService query.UserQueryService,
 ) api.ServerInterface {
 	return &public{
@@ -35,6 +36,7 @@ func NewPublicAPI(
 		bookService:                   bookService,
 		bookChapterService:            bookChapterService,
 		bookChapterTranslationService: bookChapterTranslationService,
+		readingSession:                readingSession,
 		userQueryService:              userQueryService,
 	}
 }
@@ -48,6 +50,7 @@ type public struct {
 	bookService                   service.BookService
 	bookChapterService            service.BookChapterService
 	bookChapterTranslationService service.BookChapterTranslationService
+	readingSession                service.ReadingSessionService
 
 	userQueryService query.UserQueryService
 }
@@ -340,7 +343,26 @@ func (p public) StoreBookChapterTranslation(ctx echo.Context) error {
 }
 
 func (p public) StoreReadingSession(ctx echo.Context) error {
-	panic("implement me")
+	var input api.StoreReadingSessionRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.readingSession.StoreReadingSession(service.StoreReadingSessionInput{
+		BookID:        domainmodel.BookID(input.BookId),
+		BookChapterID: domainmodel.BookChapterID(input.BookChapterId),
+		UserID:        domainmodel.UserID(input.UserId),
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to store reading session: %s", err))
+	}
+
+	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+		Message: ptr("Reading session" +
+			" stored successfully"),
+	})
 }
 
 func ptr(s string) *string {
