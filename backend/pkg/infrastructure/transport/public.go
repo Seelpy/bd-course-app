@@ -27,13 +27,15 @@ func NewPublicAPI(
 	userService service.UserService,
 	bookService service.BookService,
 	bookChapterService service.BookChapterService,
+	bookChapterTranslationService service.BookChapterTranslationService,
 	userQueryService query.UserQueryService,
 ) api.ServerInterface {
 	return &public{
-		userService:        userService,
-		bookService:        bookService,
-		bookChapterService: bookChapterService,
-		userQueryService:   userQueryService,
+		userService:                   userService,
+		bookService:                   bookService,
+		bookChapterService:            bookChapterService,
+		bookChapterTranslationService: bookChapterTranslationService,
+		userQueryService:              userQueryService,
 	}
 }
 
@@ -42,9 +44,10 @@ type PublicAPI interface {
 }
 
 type public struct {
-	userService        service.UserService
-	bookService        service.BookService
-	bookChapterService service.BookChapterService
+	userService                   service.UserService
+	bookService                   service.BookService
+	bookChapterService            service.BookChapterService
+	bookChapterTranslationService service.BookChapterTranslationService
 
 	userQueryService query.UserQueryService
 }
@@ -306,7 +309,7 @@ func (p public) DeleteBookChapter(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, "Book chapter not found")
 	}
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to create book chapter: %s", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete book chapter: %s", err))
 	}
 
 	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
@@ -315,7 +318,25 @@ func (p public) DeleteBookChapter(ctx echo.Context) error {
 }
 
 func (p public) StoreBookChapterTranslation(ctx echo.Context) error {
-	panic("implement me")
+	var input api.StoreBookChapterTranslationRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.bookChapterTranslationService.StoreBookChapterTranslation(service.StoreBookChapterTranslationInput{
+		BookChapterID: domainmodel.BookChapterID(input.BookChapterId),
+		TranslatorID:  domainmodel.UserID(input.TranslatorId),
+		Text:          input.Text,
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to store book chapter translation: %s", err))
+	}
+
+	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+		Message: ptr("Book chapter translation stored successfully"),
+	})
 }
 
 func (p public) StoreReadingSession(ctx echo.Context) error {

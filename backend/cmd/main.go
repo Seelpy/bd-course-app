@@ -39,6 +39,7 @@ func main() {
 		dependencyContainer.UserService(),
 		dependencyContainer.BookService(),
 		dependencyContainer.BookChapterService(),
+		dependencyContainer.BookChapterTranslationService(),
 		dependencyContainer.UserQueryService(),
 	)
 
@@ -63,9 +64,10 @@ func main() {
 }
 
 type DependencyContainer struct {
-	userService        service.UserService
-	bookService        service.BookService
-	bookChapterService service.BookChapterService
+	userService                   service.UserService
+	bookService                   service.BookService
+	bookChapterService            service.BookChapterService
+	bookChapterTranslationService service.BookChapterTranslationService
 
 	userQueryService query.UserQueryService
 }
@@ -80,12 +82,16 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 	bookChapterRepository := repo.NewBookChapterRepository(connection)
 	bookChapterService := service.NewBookChapterService(bookChapterRepository)
 
+	bookChapterTranslationRepository := repo.NewBookChapterTranslationRepository(connection)
+	bookChapterTranslationService := service.NewBookChapterTranslationService(bookChapterTranslationRepository)
+
 	userQueryService := query.NewUserQueryService(connection)
 
 	return &DependencyContainer{
-		userService:        userService,
-		bookService:        bookService,
-		bookChapterService: bookChapterService,
+		userService:                   userService,
+		bookService:                   bookService,
+		bookChapterService:            bookChapterService,
+		bookChapterTranslationService: bookChapterTranslationService,
 
 		userQueryService: userQueryService,
 	}
@@ -101,6 +107,10 @@ func (container *DependencyContainer) BookService() service.BookService {
 
 func (container *DependencyContainer) BookChapterService() service.BookChapterService {
 	return container.bookChapterService
+}
+
+func (container *DependencyContainer) BookChapterTranslationService() service.BookChapterTranslationService {
+	return container.bookChapterTranslationService
 }
 
 func (container *DependencyContainer) UserQueryService() query.UserQueryService {
