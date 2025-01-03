@@ -443,6 +443,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundResponse'
+
   /api/v1/book-chapter-translation:
     post:
       tags:
@@ -455,6 +456,44 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/StoreBookChapterTranslationRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/reading-session:
+    post:
+      tags:
+        - ReadingSession
+      operationId: "StoreReadingSession"
+      summary: Store reading session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreReadingSessionRequest'
       responses:
         '200':
           description: Successful response
@@ -644,3 +683,19 @@ components:
         - bookChapterId
         - translatorId
         - text
+    StoreReadingSessionRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+        bookChapterId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+      required:
+        - bookId
+        - bookChapterId
+        - userId
