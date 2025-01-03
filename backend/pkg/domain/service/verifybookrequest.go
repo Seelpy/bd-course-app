@@ -10,7 +10,7 @@ import (
 type VerifyBookRequestService interface {
 	CreateVerifyBookRequest(input CreateVerifyBookRequestInput) error
 	AcceptVerifyBookRequest(input AcceptVerifyBookRequestInput) error
-	DeleteVerifyBookRequest(input DeleteVerifyBookRequestInput) error
+	DeleteVerifyBookRequest(verifyBookRequestID model.VerifyBookRequestID) error
 }
 
 type verifyBookRequestService struct {
@@ -35,10 +35,6 @@ type VerifyBookRequestRepository interface {
 type CreateVerifyBookRequestInput struct {
 	TranslatorID model.UserID
 	BookID       model.BookID
-}
-
-type DeleteVerifyBookRequestInput struct {
-	VerifyBookRequestID model.VerifyBookRequestID
 }
 
 type AcceptVerifyBookRequestInput struct {
@@ -69,6 +65,6 @@ func (service *verifyBookRequestService) AcceptVerifyBookRequest(input AcceptVer
 	return service.verifyBookRequestRepo.Store(verifyBookRequest)
 }
 
-func (service *verifyBookRequestService) DeleteVerifyBookRequest(input DeleteVerifyBookRequestInput) error {
-	return service.verifyBookRequestRepo.Delete(input.VerifyBookRequestID)
+func (service *verifyBookRequestService) DeleteVerifyBookRequest(verifyBookRequestID model.VerifyBookRequestID) error {
+	return service.verifyBookRequestRepo.Delete(verifyBookRequestID)
 }

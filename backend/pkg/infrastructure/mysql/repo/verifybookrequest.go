@@ -50,14 +50,20 @@ func (repo *VerifyBookRequestRepository) Store(verifyBookRequest model.VerifyBoo
 		return err
 	}
 
+	var isVerified sql.NullBool
+	if verified, ok := verifyBookRequest.IsVerified().Get(); ok {
+		isVerified = sql.NullBool{Bool: verified, Valid: true}
+	} else {
+		isVerified = sql.NullBool{Valid: false}
+	}
+
 	_, err = repo.connection.Exec(query,
 		binaryVerifyBookRequestID,
 		binaryTranslatorID,
 		binaryBookID,
-		verifyBookRequest.IsVerified(),
+		isVerified,
 		verifyBookRequest.SendDate(),
 	)
-
 	return err
 }
 
@@ -107,18 +113,23 @@ func (repo *VerifyBookRequestRepository) FindByID(verifyBookRequestID model.Veri
 		return model.VerifyBookRequest{}, err
 	}
 
+	isVerified := maybe.Nothing[bool]()
+	if verifyBookRequest.IsVerified.Valid {
+		isVerified = maybe.Just(verifyBookRequest.IsVerified.Bool)
+	}
+
 	return model.NewVerifyBookRequest(
 		verifyBookRequestID,
 		model.UserID(verifyBookRequest.TranslatorID),
 		verifyBookRequest.BookID,
-		maybe.Just(verifyBookRequest.IsVerified),
+		isVerified,
 		verifyBookRequest.SendDate,
 	), nil
 }
 
 type sqlxVerifyBookRequest struct {
-	TranslatorID uuid.UUID `db:"translator_id"`
-	BookID       uuid.UUID `db:"book_id"`
-	IsVerified   bool      `db:"is_verified"`
-	SendDate     time.Time `db:"send_date"`
+	TranslatorID uuid.UUID    `db:"translator_id"`
+	BookID       uuid.UUID    `db:"book_id"`
+	IsVerified   sql.NullBool `db:"is_verified"`
+	SendDate     time.Time    `db:"send_date"`
 }

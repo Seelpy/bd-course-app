@@ -9,6 +9,7 @@ import (
 type BookService interface {
 	CreateBook(input CreateBookInput) error
 	EditBook(input EditBookInput) error
+	PublishBook(input PublishBookInput) error
 	DeleteBook(bookID model.BookID) error
 }
 
@@ -38,6 +39,11 @@ type EditBookInput struct {
 	Description string
 }
 
+type PublishBookInput struct {
+	ID          model.BookID
+	IsPublished bool
+}
+
 func (service *bookService) CreateBook(input CreateBookInput) error {
 	book := model.NewBook(
 		model.BookID(service.bookRepo.NextID()),
@@ -63,6 +69,17 @@ func (service *bookService) EditBook(input EditBookInput) error {
 
 	book.SetTitle(input.Title)
 	book.SetDescription(input.Description)
+
+	return service.bookRepo.Store(book)
+}
+
+func (service *bookService) PublishBook(input PublishBookInput) error {
+	book, err := service.bookRepo.FindByID(input.ID)
+	if err != nil {
+		return err
+	}
+
+	book.SetIsPublished(input.IsPublished)
 
 	return service.bookRepo.Store(book)
 }

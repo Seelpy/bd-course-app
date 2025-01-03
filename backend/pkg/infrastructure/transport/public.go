@@ -8,6 +8,7 @@ import (
 	domainmodel "server/pkg/domain/model"
 	"server/pkg/domain/service"
 	"server/pkg/infrastructure/model"
+	"server/pkg/infrastructure/mysql/provider"
 	"server/pkg/infrastructure/mysql/query"
 	"time"
 
@@ -29,7 +30,9 @@ func NewPublicAPI(
 	bookChapterService service.BookChapterService,
 	bookChapterTranslationService service.BookChapterTranslationService,
 	readingSession service.ReadingSessionService,
+	verifyBookRequestService service.VerifyBookRequestService,
 	userQueryService query.UserQueryService,
+	verifyBookRequestProvider provider.VerifyBookRequestProvider,
 ) api.ServerInterface {
 	return &public{
 		userService:                   userService,
@@ -37,7 +40,11 @@ func NewPublicAPI(
 		bookChapterService:            bookChapterService,
 		bookChapterTranslationService: bookChapterTranslationService,
 		readingSession:                readingSession,
-		userQueryService:              userQueryService,
+		verifyBookRequestService:      verifyBookRequestService,
+
+		userQueryService: userQueryService,
+
+		verifyBookRequestProvider: verifyBookRequestProvider,
 	}
 }
 
@@ -51,8 +58,11 @@ type public struct {
 	bookChapterService            service.BookChapterService
 	bookChapterTranslationService service.BookChapterTranslationService
 	readingSession                service.ReadingSessionService
+	verifyBookRequestService      service.VerifyBookRequestService
 
 	userQueryService query.UserQueryService
+
+	verifyBookRequestProvider provider.VerifyBookRequestProvider
 }
 
 type LoginUserRequest struct {
@@ -360,8 +370,92 @@ func (p public) StoreReadingSession(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
-		Message: ptr("Reading session" +
-			" stored successfully"),
+		Message: ptr("Reading session stored successfully"),
+	})
+}
+
+func (p public) CreateVerifyBookRequest(ctx echo.Context) error {
+	var input api.CreateVerifyBookRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.verifyBookRequestService.CreateVerifyBookRequest(service.CreateVerifyBookRequestInput{
+		TranslatorID: domainmodel.UserID(input.TranslatorId),
+		BookID:       domainmodel.BookID(input.BookId),
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to create verify book request: %s", err))
+	}
+
+	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+		Message: ptr("Verify book request created successfully"),
+	})
+}
+
+func (p public) DeleteVerifyBookRequest(ctx echo.Context) error {
+	var input api.DeleteVerifyBookRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.verifyBookRequestService.DeleteVerifyBookRequest(domainmodel.VerifyBookRequestID(input.VerifyBookRequestId))
+	if errors.Is(err, domainmodel.ErrVerifyBookRequestNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "Verify book request not found")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete verify book request: %s", err))
+	}
+
+	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+		Message: ptr("Verify book request deleted successfully"),
+	})
+}
+
+func (p public) AcceptVerifyBookRequest(ctx echo.Context) error {
+	var input api.AcceptBookChapterRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.verifyBookRequestService.AcceptVerifyBookRequest(service.AcceptVerifyBookRequestInput{
+		VerifyBookRequestID: domainmodel.VerifyBookRequestID(input.VerifyBookRequestId),
+		Accept:              input.Accept,
+	})
+	if errors.Is(err, domainmodel.ErrVerifyBookRequestNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "Verify book request not found")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to accept verify book request: %s", err))
+	}
+
+	bookID, err := p.verifyBookRequestProvider.FindBookIDByVerifyBookRequestID(domainmodel.VerifyBookRequestID(input.VerifyBookRequestId))
+	if errors.Is(err, domainmodel.ErrVerifyBookRequestNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "Verify book request not found")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to find book to verify: %s", err))
+	}
+
+	err = p.bookService.PublishBook(service.PublishBookInput{
+		ID:          bookID,
+		IsPublished: input.Accept,
+	})
+	if errors.Is(err, domainmodel.ErrBookNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "Book not found")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to find book to verify: %s", err))
+	}
+
+	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+		Message: ptr("Verify book request verified successfully"),
 	})
 }
 

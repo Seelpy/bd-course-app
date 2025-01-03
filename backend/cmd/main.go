@@ -11,6 +11,7 @@ import (
 	"server/pkg/domain/service"
 	"server/pkg/infrastructure/model"
 	inframysql "server/pkg/infrastructure/mysql"
+	"server/pkg/infrastructure/mysql/provider"
 	"server/pkg/infrastructure/mysql/query"
 	"server/pkg/infrastructure/mysql/repo"
 	"server/pkg/infrastructure/transport"
@@ -41,13 +42,15 @@ func main() {
 		dependencyContainer.BookChapterService(),
 		dependencyContainer.BookChapterTranslationService(),
 		dependencyContainer.ReadingSessionService(),
+		dependencyContainer.VerifyBookRequestService(),
 		dependencyContainer.UserQueryService(),
+		dependencyContainer.VerifyBookRequestProvider(),
 	)
 
 	log.Println("Creating endpoints")
 	api.RegisterHandlersWithBaseURL(e, public, "")
 
-	e.POST("/api/v1/verify-book-request/accept", public.CreateBook, MiddlewareRole(0))
+	e.POST("/api/v1/verify-book-request/accept", public.AcceptVerifyBookRequest, MiddlewareRole(0))
 
 	e.File("/api/v1/openapi.yaml", "./api/api.yaml")
 
@@ -70,8 +73,11 @@ type DependencyContainer struct {
 	bookChapterService            service.BookChapterService
 	bookChapterTranslationService service.BookChapterTranslationService
 	readingSessionService         service.ReadingSessionService
+	verifyBookRequestService      service.VerifyBookRequestService
 
 	userQueryService query.UserQueryService
+
+	verifyBookRequestProvider provider.VerifyBookRequestProvider
 }
 
 func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
@@ -90,7 +96,12 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 	readingSessionRepository := repo.NewReadingSessionRepository(connection)
 	readingSessionService := service.NewReadingSessionService(readingSessionRepository)
 
+	verifyBookRequestRepository := repo.NewVerifyBookRequestRepository(connection)
+	verifyBookRequestService := service.NewVerifyBookRequestService(verifyBookRequestRepository)
+
 	userQueryService := query.NewUserQueryService(connection)
+
+	verifyBookRequestProvider := provider.NewVerifyBookRequestProvider(connection)
 
 	return &DependencyContainer{
 		userService:                   userService,
@@ -98,8 +109,11 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 		bookChapterService:            bookChapterService,
 		bookChapterTranslationService: bookChapterTranslationService,
 		readingSessionService:         readingSessionService,
+		verifyBookRequestService:      verifyBookRequestService,
 
 		userQueryService: userQueryService,
+
+		verifyBookRequestProvider: verifyBookRequestProvider,
 	}
 }
 
@@ -123,8 +137,16 @@ func (container *DependencyContainer) ReadingSessionService() service.ReadingSes
 	return container.readingSessionService
 }
 
+func (container *DependencyContainer) VerifyBookRequestService() service.VerifyBookRequestService {
+	return container.verifyBookRequestService
+}
+
 func (container *DependencyContainer) UserQueryService() query.UserQueryService {
 	return container.userQueryService
+}
+
+func (container *DependencyContainer) VerifyBookRequestProvider() provider.VerifyBookRequestProvider {
+	return container.verifyBookRequestProvider
 }
 
 func MiddlewareRole(requiredRole int) echo.MiddlewareFunc {
