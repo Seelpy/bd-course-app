@@ -443,6 +443,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundResponse'
+  /api/v1/book-chapter-translation:
+    post:
+      tags:
+        - BookChapterTranslation
+      operationId: "StoreBookChapterTranslation"
+      summary: Store book chapter translation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreBookChapterTranslationRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
 
 components:
   schemas:
@@ -592,3 +629,18 @@ components:
           format: uuid
       required:
         - bookChapterId
+    StoreBookChapterTranslationRequest:
+      type: object
+      properties:
+        bookChapterId:
+          type: string
+          format: uuid
+        translatorId:
+          type: string
+          format: uuid
+        text:
+          type: string
+      required:
+        - bookChapterId
+        - translatorId
+        - text

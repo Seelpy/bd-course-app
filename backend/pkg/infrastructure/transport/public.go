@@ -314,6 +314,10 @@ func (p public) DeleteBookChapter(ctx echo.Context) error {
 	})
 }
 
+func (p public) StoreBookChapterTranslation(ctx echo.Context) error {
+	panic("implement me")
+}
+
 func ptr(s string) *string {
 	return &s
 }
