@@ -318,6 +318,10 @@ func (p public) StoreBookChapterTranslation(ctx echo.Context) error {
 	panic("implement me")
 }
 
+func (p public) StoreReadingSession(ctx echo.Context) error {
+	panic("implement me")
+}
+
 func ptr(s string) *string {
 	return &s
 }
