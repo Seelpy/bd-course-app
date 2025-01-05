@@ -388,9 +388,14 @@ func (p public) StoreBookChapterTranslation(ctx echo.Context) error {
 		})
 	}
 
-	err := p.bookChapterTranslationService.StoreBookChapterTranslation(service.StoreBookChapterTranslationInput{
+	translatorID, err := extractUserIDFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = p.bookChapterTranslationService.StoreBookChapterTranslation(service.StoreBookChapterTranslationInput{
 		BookChapterID: domainmodel.BookChapterID(input.BookChapterId),
-		TranslatorID:  domainmodel.UserID(input.TranslatorId),
+		TranslatorID:  translatorID,
 		Text:          input.Text,
 	})
 	if err != nil {
@@ -531,22 +536,4 @@ func extractUserIDFromContext(ctx echo.Context) (domainmodel.UserID, error) {
 	var userID uuid.UUID
 	err = userID.Parse(claims.UserID)
 	return domainmodel.UserID(userID), err
-}
-
-func extractTokenFromContext(ctx echo.Context) (model.Claims, error) {
-	tokenString := ctx.Request().Header.Get("Authorization")
-	if tokenString == "" {
-		return model.Claims{}, echo.NewHTTPError(http.StatusUnauthorized, "Missing token")
-	}
-
-	claims := &model.Claims{}
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		return JwtKey, nil
-	})
-
-	if err != nil || !token.Valid {
-		return model.Claims{}, echo.NewHTTPError(http.StatusUnauthorized, "Invalid token")
-	}
-
-	return *claims, nil
 }

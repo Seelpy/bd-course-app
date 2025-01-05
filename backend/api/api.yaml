@@ -51,6 +51,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundResponse'
+
   /api/v1/book/{id}/raiting:
     post:
       tags:
@@ -166,6 +167,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundResponse'
+
   /api/v1/user:
     get:
       tags:
@@ -922,14 +924,10 @@ components:
         bookChapterId:
           type: string
           format: uuid
-        translatorId:
-          type: string
-          format: uuid
         text:
           type: string
       required:
         - bookChapterId
-        - translatorId
         - text
     StoreReadingSessionRequest:
       type: object
