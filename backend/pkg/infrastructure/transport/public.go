@@ -415,10 +415,15 @@ func (p public) StoreReadingSession(ctx echo.Context) error {
 		})
 	}
 
-	err := p.readingSession.StoreReadingSession(service.StoreReadingSessionInput{
+	userID, err := extractUserIDFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = p.readingSession.StoreReadingSession(service.StoreReadingSessionInput{
 		BookID:        domainmodel.BookID(input.BookId),
 		BookChapterID: domainmodel.BookChapterID(input.BookChapterId),
-		UserID:        domainmodel.UserID(input.UserId),
+		UserID:        userID,
 	})
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to store reading session: %s", err))

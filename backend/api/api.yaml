@@ -938,13 +938,9 @@ components:
         bookChapterId:
           type: string
           format: uuid
-        userId:
-          type: string
-          format: uuid
       required:
         - bookId
         - bookChapterId
-        - userId
     CreateVerifyBookRequest:
       type: object
       properties:
