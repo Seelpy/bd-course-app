@@ -45,6 +45,7 @@ func main() {
 		dependencyContainer.VerifyBookRequestService(),
 		dependencyContainer.UserQueryService(),
 		dependencyContainer.VerifyBookRequestProvider(),
+		dependencyContainer.BookRatingService(),
 	)
 
 	log.Println("Creating endpoints")
@@ -74,6 +75,7 @@ type DependencyContainer struct {
 	bookChapterTranslationService service.BookChapterTranslationService
 	readingSessionService         service.ReadingSessionService
 	verifyBookRequestService      service.VerifyBookRequestService
+	bookRatingService             service.BookRatingService
 
 	userQueryService query.UserQueryService
 
@@ -96,6 +98,9 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 	readingSessionRepository := repo.NewReadingSessionRepository(connection)
 	readingSessionService := service.NewReadingSessionService(readingSessionRepository)
 
+	bookRatingRepository := repo.NewBookRatingRepository(connection)
+	bookRatingService := service.NewBookRatingService(bookRatingRepository)
+
 	verifyBookRequestRepository := repo.NewVerifyBookRequestRepository(connection)
 	verifyBookRequestService := service.NewVerifyBookRequestService(verifyBookRequestRepository)
 
@@ -110,6 +115,7 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 		bookChapterTranslationService: bookChapterTranslationService,
 		readingSessionService:         readingSessionService,
 		verifyBookRequestService:      verifyBookRequestService,
+		bookRatingService:             bookRatingService,
 
 		userQueryService: userQueryService,
 
@@ -123,6 +129,10 @@ func (container *DependencyContainer) UserService() service.UserService {
 
 func (container *DependencyContainer) BookService() service.BookService {
 	return container.bookService
+}
+
+func (container *DependencyContainer) BookRatingService() service.BookRatingService {
+	return container.bookRatingService
 }
 
 func (container *DependencyContainer) BookChapterService() service.BookChapterService {

@@ -10,6 +10,8 @@ tags:
     description: Endpoints for managing users
   - name: Book
     description: Endpoints for managing books
+  - name: BookRating
+    description: Endpoints for managing book ratings
 
 paths:
   /api/v1/auth:
@@ -49,7 +51,121 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundResponse'
-
+  /api/v1/book/{id}/raiting:
+    post:
+      tags:
+        - BookRating
+      operationId: "UpdateBookRating"
+      summary: Update Book Rating
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBookRatingRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    delete:
+      tags:
+        - BookRating
+      operationId: "DeleteBookRating"
+      summary: Delete Book Rating
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    get:
+      tags:
+        - BookRating
+      operationId: "GetBookRating"
+      summary: Get Book Rating
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBookRatingResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
   /api/v1/user:
     get:
       tags:
@@ -679,6 +795,20 @@ components:
       required:
         - login
         - password
+    UpdateBookRatingRequest:
+      type: object
+      properties:
+        value:
+          type: integer
+      required:
+        - value
+    GetBookRatingResponse:
+      type: object
+      properties:
+        average:
+          type: integer
+        count:
+          type: integer
     LoginUserResponse:
       type: object
       properties:

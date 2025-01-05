@@ -3,6 +3,7 @@ package transport
 import (
 	"errors"
 	"fmt"
+	"github.com/gofrs/uuid"
 	"net/http"
 	"server/api"
 	domainmodel "server/pkg/domain/model"
@@ -33,6 +34,7 @@ func NewPublicAPI(
 	verifyBookRequestService service.VerifyBookRequestService,
 	userQueryService query.UserQueryService,
 	verifyBookRequestProvider provider.VerifyBookRequestProvider,
+	bookRatingService service.BookRatingService,
 ) api.ServerInterface {
 	return &public{
 		userService:                   userService,
@@ -41,6 +43,7 @@ func NewPublicAPI(
 		bookChapterTranslationService: bookChapterTranslationService,
 		readingSession:                readingSession,
 		verifyBookRequestService:      verifyBookRequestService,
+		bookRatingService:             bookRatingService,
 
 		userQueryService: userQueryService,
 
@@ -59,19 +62,65 @@ type public struct {
 	bookChapterTranslationService service.BookChapterTranslationService
 	readingSession                service.ReadingSessionService
 	verifyBookRequestService      service.VerifyBookRequestService
+	bookRatingService             service.BookRatingService
 
 	userQueryService query.UserQueryService
 
 	verifyBookRequestProvider provider.VerifyBookRequestProvider
 }
 
-type LoginUserRequest struct {
-	Login    string `json:"login"`
-	Password string `json:"password"`
+func (p public) UpdateBookRating(ctx echo.Context, id string) error {
+	var req api.UpdateBookRatingRequest
+	if err := ctx.Bind(&req); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request")
+	}
+
+	userID, err := extractUserIDFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	var bookID uuid.UUID
+	err = bookID.Parse(id)
+	if err != nil {
+		return err
+	}
+
+	return p.bookRatingService.StoreRating(service.StoreBookRatingInput{BookID: bookID, UserID: userID, Value: req.Value})
+}
+
+func (p public) DeleteBookRating(ctx echo.Context, id string) error {
+	userID, err := extractUserIDFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	var bookID uuid.UUID
+	err = bookID.Parse(id)
+	if err != nil {
+		return err
+	}
+
+	return p.bookRatingService.DeleteRating(bookID, userID)
+}
+
+func (p public) GetBookRating(ctx echo.Context, id string) error {
+	var bookID uuid.UUID
+	err := bookID.Parse(id)
+	if err != nil {
+		return err
+	}
+
+	stat, err := p.bookRatingService.GetStatistics(bookID)
+
+	return ctx.JSON(http.StatusCreated, api.GetBookRatingResponse{
+		Average: ptr(stat.Average),
+		Count:   ptr(stat.Count),
+	})
 }
 
 func (p public) LoginUser(ctx echo.Context) error {
-	var userReq LoginUserRequest
+	var userReq api.LoginUserRequest
 	if err := ctx.Bind(&userReq); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request")
 	}
@@ -86,8 +135,9 @@ func (p public) LoginUser(ctx echo.Context) error {
 
 	expirationTime := time.Now().Add(5 * time.Hour)
 	claims := &model.Claims{
-		Login: user.Login,
-		Role:  user.Role,
+		Login:  user.Login,
+		Role:   user.Role,
+		UserID: user.ID.String(),
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},
@@ -459,6 +509,44 @@ func (p public) AcceptVerifyBookRequest(ctx echo.Context) error {
 	})
 }
 
-func ptr(s string) *string {
+func ptr[T any](s T) *T {
 	return &s
+}
+
+func extractUserIDFromContext(ctx echo.Context) (domainmodel.UserID, error) {
+	tokenString := ctx.Request().Header.Get("Authorization")
+	if tokenString == "" {
+		return domainmodel.UserID{}, echo.NewHTTPError(http.StatusUnauthorized, "Missing token")
+	}
+
+	claims := &model.Claims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return JwtKey, nil
+	})
+
+	if err != nil || !token.Valid {
+		return domainmodel.UserID{}, echo.NewHTTPError(http.StatusUnauthorized, "Invalid token")
+	}
+
+	var userID uuid.UUID
+	err = userID.Parse(claims.UserID)
+	return domainmodel.UserID(userID), err
+}
+
+func extractTokenFromContext(ctx echo.Context) (model.Claims, error) {
+	tokenString := ctx.Request().Header.Get("Authorization")
+	if tokenString == "" {
+		return model.Claims{}, echo.NewHTTPError(http.StatusUnauthorized, "Missing token")
+	}
+
+	claims := &model.Claims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return JwtKey, nil
+	})
+
+	if err != nil || !token.Valid {
+		return model.Claims{}, echo.NewHTTPError(http.StatusUnauthorized, "Invalid token")
+	}
+
+	return *claims, nil
 }
