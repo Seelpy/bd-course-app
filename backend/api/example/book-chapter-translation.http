@@ -1,0 +1,10 @@
+### create
+POST http://localhost:8082/api/v1/book-chapter-translation
+Content-Type: application/json
+
+{
+  "bookChapterId": "9d17984d-b865-417e-a74e-c5ff144abc45",
+  "translatorId": "0d871ed0-ca04-11ef-a61e-0242ac130003",
+  "text": "Я текст первой главы рестор"
+}
+###
