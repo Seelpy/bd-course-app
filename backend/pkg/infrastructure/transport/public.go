@@ -442,8 +442,13 @@ func (p public) CreateVerifyBookRequest(ctx echo.Context) error {
 		})
 	}
 
-	err := p.verifyBookRequestService.CreateVerifyBookRequest(service.CreateVerifyBookRequestInput{
-		TranslatorID: domainmodel.UserID(input.TranslatorId),
+	translatorID, err := extractUserIDFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = p.verifyBookRequestService.CreateVerifyBookRequest(service.CreateVerifyBookRequestInput{
+		TranslatorID: translatorID,
 		BookID:       domainmodel.BookID(input.BookId),
 	})
 	if err != nil {

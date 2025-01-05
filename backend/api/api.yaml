@@ -944,14 +944,10 @@ components:
     CreateVerifyBookRequest:
       type: object
       properties:
-        translatorId:
-          type: string
-          format: uuid
         bookId:
           type: string
           format: uuid
       required:
-        - translatorId
         - bookId
     DeleteVerifyBookRequest:
       type: object
