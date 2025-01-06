@@ -434,6 +434,75 @@ paths:
               schema:
                 $ref: '#/components/schemas/NotFoundResponse'
 
+  /api/v1/book/{page}/{size}:
+    get:
+      tags:
+        - Book
+      operationId: "ListBook"
+      summary: List book paging
+      parameters:
+        - in: path
+          name: page
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: size
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListBookResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+
+  /api/v1/book/{id}:
+    get:
+      tags:
+        - Book
+      operationId: "GetBook"
+      summary: Get book
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBookResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+
   /api/v1/book-chapter:
     post:
       tags:
@@ -968,3 +1037,37 @@ components:
       required:
         - verifyBookRequestId
         - accept
+    GetBookResponse:
+      type: object
+      properties:
+        book:
+          $ref: "#/components/schemas/Book"
+      required:
+        - book
+    ListBookResponse:
+      type: object
+      properties:
+        books:
+          type: array
+          items:
+            $ref: "#/components/schemas/Book"
+        countPages:
+          type: integer
+      required:
+        - books
+    Book:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+        cover:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+      required:
+        - bookId
+        - title
+        - description

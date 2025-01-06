@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gofrs/uuid"
+	openapi_types "github.com/oapi-codegen/runtime/types"
+	"math"
 	"net/http"
 	"server/api"
 	domainmodel "server/pkg/domain/model"
@@ -33,6 +35,7 @@ func NewPublicAPI(
 	readingSession service.ReadingSessionService,
 	verifyBookRequestService service.VerifyBookRequestService,
 	userQueryService query.UserQueryService,
+	bookQueryService query.BookQueryService,
 	verifyBookRequestProvider provider.VerifyBookRequestProvider,
 	bookRatingService service.BookRatingService,
 ) api.ServerInterface {
@@ -46,6 +49,7 @@ func NewPublicAPI(
 		bookRatingService:             bookRatingService,
 
 		userQueryService: userQueryService,
+		bookQueryService: bookQueryService,
 
 		verifyBookRequestProvider: verifyBookRequestProvider,
 	}
@@ -65,6 +69,7 @@ type public struct {
 	bookRatingService             service.BookRatingService
 
 	userQueryService query.UserQueryService
+	bookQueryService query.BookQueryService
 
 	verifyBookRequestProvider provider.VerifyBookRequestProvider
 }
@@ -310,6 +315,69 @@ func (p public) DeleteBook(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
 		Message: ptr("Book deleted successfully"),
+	})
+}
+
+func (p public) ListBook(ctx echo.Context, page int, size int) error {
+	bookOutputs, err := p.bookQueryService.List(page, size)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete book: %s", err))
+	}
+
+	booksRespData := make([]api.Book, len(bookOutputs))
+	for i, b := range bookOutputs {
+		cover, ok := b.Cover.Get()
+
+		booksRespData[i] = api.Book{
+			BookId:      openapi_types.UUID(b.BookID),
+			Cover:       ptr(cover),
+			Title:       b.Title,
+			Description: b.Description,
+		}
+
+		if !ok {
+			booksRespData[i].Cover = nil
+		}
+	}
+
+	countBook, err := p.bookQueryService.CountBook(true)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list book: %s", err))
+	}
+
+	return ctx.JSON(http.StatusCreated, api.ListBookResponse{
+		Books:      booksRespData,
+		CountPages: ptr(int(math.Ceil(float64(countBook) / float64(size)))),
+	})
+}
+
+func (p public) GetBook(ctx echo.Context, id string) error {
+	var bookID uuid.UUID
+	err := bookID.Parse(id)
+	if err != nil {
+		return err
+	}
+
+	book, err := p.bookQueryService.FindByID(domainmodel.BookID(bookID))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list book: %s", err))
+	}
+
+	cover, ok := book.Cover.Get()
+
+	bookRespData := api.Book{
+		BookId:      openapi_types.UUID(book.BookID),
+		Cover:       ptr(cover),
+		Title:       book.Title,
+		Description: book.Description,
+	}
+
+	if !ok {
+		bookRespData.Cover = nil
+	}
+
+	return ctx.JSON(http.StatusCreated, api.GetBookResponse{
+		Book: bookRespData,
 	})
 }
 

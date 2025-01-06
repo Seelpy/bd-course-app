@@ -44,6 +44,7 @@ func main() {
 		dependencyContainer.ReadingSessionService(),
 		dependencyContainer.VerifyBookRequestService(),
 		dependencyContainer.UserQueryService(),
+		dependencyContainer.BookQueryService(),
 		dependencyContainer.VerifyBookRequestProvider(),
 		dependencyContainer.BookRatingService(),
 	)
@@ -78,6 +79,7 @@ type DependencyContainer struct {
 	bookRatingService             service.BookRatingService
 
 	userQueryService query.UserQueryService
+	bookQueryService query.BookQueryService
 
 	verifyBookRequestProvider provider.VerifyBookRequestProvider
 }
@@ -106,6 +108,8 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 
 	userQueryService := query.NewUserQueryService(connection)
 
+	bookQueryService := query.NewBookQueryService(connection)
+
 	verifyBookRequestProvider := provider.NewVerifyBookRequestProvider(connection)
 
 	return &DependencyContainer{
@@ -118,6 +122,7 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 		bookRatingService:             bookRatingService,
 
 		userQueryService: userQueryService,
+		bookQueryService: bookQueryService,
 
 		verifyBookRequestProvider: verifyBookRequestProvider,
 	}
@@ -153,6 +158,10 @@ func (container *DependencyContainer) VerifyBookRequestService() service.VerifyB
 
 func (container *DependencyContainer) UserQueryService() query.UserQueryService {
 	return container.userQueryService
+}
+
+func (container *DependencyContainer) BookQueryService() query.BookQueryService {
+	return container.bookQueryService
 }
 
 func (container *DependencyContainer) VerifyBookRequestProvider() provider.VerifyBookRequestProvider {
