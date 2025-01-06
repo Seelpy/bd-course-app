@@ -37,8 +37,13 @@ func (service *bookQueryService) FindByID(bookID model.BookID) (BookOutput, erro
 		WHERE b.book_id = ?;
 	`
 
+	binaryBookID, err := uuid.UUID(bookID).MarshalBinary()
+	if err != nil {
+		return BookOutput{}, err
+	}
+
 	var book sqlxBook
-	err := service.connection.Get(&book, query, bookID)
+	err = service.connection.Get(&book, query, binaryBookID)
 	if err != nil {
 		return BookOutput{}, err
 	}
