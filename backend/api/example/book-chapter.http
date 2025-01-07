@@ -26,3 +26,12 @@ Content-Type: application/json
   "bookChapterId": "9d17984d-b865-417e-a74e-c5ff144abc45"
 }
 ###
+
+### list
+GET http://localhost:8082/api/v1/book-chapter
+Content-Type: application/json
+
+{
+  "bookId": "a71c7282-e4e9-4cce-bf33-361fdf3255bb"
+}
+###

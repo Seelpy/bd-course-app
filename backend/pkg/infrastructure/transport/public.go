@@ -36,6 +36,7 @@ func NewPublicAPI(
 	verifyBookRequestService service.VerifyBookRequestService,
 	userQueryService query.UserQueryService,
 	bookQueryService query.BookQueryService,
+	bookChapterQueryService query.BookChapterQueryService,
 	verifyBookRequestProvider provider.VerifyBookRequestProvider,
 	bookRatingService service.BookRatingService,
 ) api.ServerInterface {
@@ -48,8 +49,9 @@ func NewPublicAPI(
 		verifyBookRequestService:      verifyBookRequestService,
 		bookRatingService:             bookRatingService,
 
-		userQueryService: userQueryService,
-		bookQueryService: bookQueryService,
+		userQueryService:        userQueryService,
+		bookQueryService:        bookQueryService,
+		bookChapterQueryService: bookChapterQueryService,
 
 		verifyBookRequestProvider: verifyBookRequestProvider,
 	}
@@ -68,8 +70,9 @@ type public struct {
 	verifyBookRequestService      service.VerifyBookRequestService
 	bookRatingService             service.BookRatingService
 
-	userQueryService query.UserQueryService
-	bookQueryService query.BookQueryService
+	userQueryService        query.UserQueryService
+	bookQueryService        query.BookQueryService
+	bookChapterQueryService query.BookChapterQueryService
 
 	verifyBookRequestProvider provider.VerifyBookRequestProvider
 }
@@ -445,6 +448,33 @@ func (p public) DeleteBookChapter(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
 		Message: ptr("Book chapter deleted successfully"),
+	})
+}
+
+func (p public) ListBookChapter(ctx echo.Context) error {
+	var input api.ListBookChapterRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	bookChaptersOutput, err := p.bookChapterQueryService.ListByBookID(domainmodel.BookID(input.BookId))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete book chapter: %s", err))
+	}
+
+	bookChaptersRespData := make([]api.BookChapter, len(bookChaptersOutput))
+	for i, b := range bookChaptersOutput {
+		bookChaptersRespData[i] = api.BookChapter{
+			BookChapterId: openapi_types.UUID(b.BookChapterID),
+			Index:         b.Index,
+			Title:         b.Title,
+		}
+	}
+
+	return ctx.JSON(http.StatusCreated, api.ListBookChapterResponse{
+		BookChapters: ptr(bookChaptersRespData),
 	})
 }
 

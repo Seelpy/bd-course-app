@@ -504,6 +504,30 @@ paths:
                 $ref: '#/components/schemas/UnauthorizedResponse'
 
   /api/v1/book-chapter:
+    get:
+      tags:
+        - BookChapter
+      operationId: "ListBookChapter"
+      summary: List book chapter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListBookChapterRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListBookChapterResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
     post:
       tags:
         - BookChapter
@@ -957,6 +981,21 @@ components:
           format: uuid
       required:
         - id
+    ListBookChapterRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+      required:
+        - bookId
+    ListBookChapterResponse:
+      type: object
+      properties:
+        bookChapters:
+          type: array
+          items:
+            $ref: '#/components/schemas/BookChapter'
     CreateBookChapterRequest:
       type: object
       properties:
@@ -1071,3 +1110,17 @@ components:
         - bookId
         - title
         - description
+    BookChapter:
+      type: object
+      properties:
+        bookChapterId:
+          type: string
+          format: uuid
+        index:
+          type: integer
+        title:
+          type: string
+      required:
+        - bookChapterId
+        - index
+        - title
