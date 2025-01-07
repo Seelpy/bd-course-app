@@ -37,6 +37,7 @@ func NewPublicAPI(
 	userQueryService query.UserQueryService,
 	bookQueryService query.BookQueryService,
 	bookChapterQueryService query.BookChapterQueryService,
+	bookChapterTranslationQueryService query.BookChapterTranslationQueryService,
 	verifyBookRequestProvider provider.VerifyBookRequestProvider,
 	bookRatingService service.BookRatingService,
 ) api.ServerInterface {
@@ -49,9 +50,10 @@ func NewPublicAPI(
 		verifyBookRequestService:      verifyBookRequestService,
 		bookRatingService:             bookRatingService,
 
-		userQueryService:        userQueryService,
-		bookQueryService:        bookQueryService,
-		bookChapterQueryService: bookChapterQueryService,
+		userQueryService:                   userQueryService,
+		bookQueryService:                   bookQueryService,
+		bookChapterQueryService:            bookChapterQueryService,
+		bookChapterTranslationQueryService: bookChapterTranslationQueryService,
 
 		verifyBookRequestProvider: verifyBookRequestProvider,
 	}
@@ -70,9 +72,10 @@ type public struct {
 	verifyBookRequestService      service.VerifyBookRequestService
 	bookRatingService             service.BookRatingService
 
-	userQueryService        query.UserQueryService
-	bookQueryService        query.BookQueryService
-	bookChapterQueryService query.BookChapterQueryService
+	userQueryService                   query.UserQueryService
+	bookQueryService                   query.BookQueryService
+	bookChapterQueryService            query.BookChapterQueryService
+	bookChapterTranslationQueryService query.BookChapterTranslationQueryService
 
 	verifyBookRequestProvider provider.VerifyBookRequestProvider
 }
@@ -502,6 +505,58 @@ func (p public) StoreBookChapterTranslation(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
 		Message: ptr("Book chapter translation stored successfully"),
+	})
+}
+
+func (p public) GetBookChapterTranslation(ctx echo.Context) error {
+	var input api.GetBookChapterTranslationRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	bookChapterTranslation, err := p.bookChapterTranslationQueryService.GetByBookChapterIDAndTranslatorID(
+		domainmodel.BookChapterID(input.BookChapterId),
+		domainmodel.UserID(input.TranslatorId),
+	)
+	if errors.Is(err, domainmodel.ErrBookChapterTranslationNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "Book chapter translation not found")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete book chapter: %s", err))
+	}
+
+	return ctx.JSON(http.StatusCreated, api.GetBookChapterTranslationResponse{
+		Text: bookChapterTranslation.Text,
+	})
+}
+
+func (p public) ListTranslatorsByBookChapterId(ctx echo.Context) error {
+	var input api.ListTranslatorsByBookChapterIdRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	translatorsID, err := p.bookChapterTranslationQueryService.ListTranslatorsByBookChapterId(
+		domainmodel.BookChapterID(input.BookChapterId),
+	)
+	if errors.Is(err, domainmodel.ErrBookChapterTranslationNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "Book chapter translation not found")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete book chapter: %s", err))
+	}
+
+	translatorsRespID := make([]openapi_types.UUID, len(translatorsID))
+	for i, t := range translatorsID {
+		translatorsRespID[i] = openapi_types.UUID(t)
+	}
+
+	return ctx.JSON(http.StatusCreated, api.ListTranslatorsByBookChapterIdResponse{
+		TranslatorsId: translatorsRespID,
 	})
 }
 

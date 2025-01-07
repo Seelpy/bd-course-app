@@ -10,6 +10,8 @@ var (
 
 	ErrBookChapterNotFound = errors.New("book chapter not found")
 
+	ErrBookChapterTranslationNotFound = errors.New("book chapter translation not found")
+
 	ErrVerifyBookRequestNotFound = errors.New("verify book request not found")
 
 	ErrBookRatingNotFound = errors.New("book rating not found")

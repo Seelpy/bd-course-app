@@ -656,6 +656,36 @@ paths:
                 $ref: '#/components/schemas/NotFoundResponse'
 
   /api/v1/book-chapter-translation:
+    get:
+      tags:
+        - BookChapterTranslation
+      operationId: "GetBookChapterTranslation"
+      summary: Get book chapter translation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetBookChapterTranslationRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBookChapterTranslationResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
     post:
       tags:
         - BookChapterTranslation
@@ -686,6 +716,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/book-chapter-translation/translator:
+    get:
+      tags:
+        - BookChapterTranslation
+      operationId: "ListTranslatorsByBookChapterId"
+      summary: List translators by book chapter id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListTranslatorsByBookChapterIdRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTranslatorsByBookChapterIdResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
         '404':
           description: Not Found
           content:
@@ -1037,6 +1099,43 @@ components:
       required:
         - bookChapterId
         - text
+    GetBookChapterTranslationRequest:
+      type: object
+      properties:
+        bookChapterId:
+          type: string
+          format: uuid
+        translatorId:
+          type: string
+          format: uuid
+      required:
+        - bookChapterId
+        - translatorId
+    GetBookChapterTranslationResponse:
+      type: object
+      properties:
+        text:
+          type: string
+      required:
+        - text
+    ListTranslatorsByBookChapterIdRequest:
+      type: object
+      properties:
+        bookChapterId:
+          type: string
+          format: uuid
+      required:
+        - bookChapterId
+    ListTranslatorsByBookChapterIdResponse:
+      type: object
+      properties:
+        translatorsId:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+        - translatorsId
     StoreReadingSessionRequest:
       type: object
       properties:

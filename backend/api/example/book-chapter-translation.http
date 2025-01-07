@@ -1,10 +1,29 @@
 ### create
 POST http://localhost:8082/api/v1/book-chapter-translation
 Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwicm9sZSI6MCwidXNlcklEIjoiMGQ4NzFlZDAtY2EwNC0xMWVmLWE2MWUtMDI0MmFjMTMwMDAzIiwiZXhwIjoxNzM2MzA2NDA0fQ.lYdJCjAhW8nBBEfXBWpedd6AnYF-GE1Lyk49oKFEcuw
 
 {
-  "bookChapterId": "9d17984d-b865-417e-a74e-c5ff144abc45",
-  "translatorId": "0d871ed0-ca04-11ef-a61e-0242ac130003",
+  "bookChapterId": "2829a642-2687-4305-91f5-6af577e6ce19",
   "text": "Я текст первой главы рестор"
+}
+###
+
+### get
+GET http://localhost:8082/api/v1/book-chapter-translation
+Content-Type: application/json
+
+{
+  "bookChapterId": "2829a642-2687-4305-91f5-6af577e6ce19",
+  "translatorId": "0d871ed0-ca04-11ef-a61e-0242ac130003"
+}
+###
+
+### list translators
+GET http://localhost:8082/api/v1/book-chapter-translation/translator
+Content-Type: application/json
+
+{
+  "bookChapterId": "2829a642-2687-4305-91f5-6af577e6ce19"
 }
 ###
