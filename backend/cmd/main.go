@@ -48,6 +48,7 @@ func main() {
 		dependencyContainer.BookChapterQueryService(),
 		dependencyContainer.BookChapterTranslationQueryService(),
 		dependencyContainer.VerifyBookRequestQueryService(),
+		dependencyContainer.ReadingSessionQueryService(),
 		dependencyContainer.VerifyBookRequestProvider(),
 		dependencyContainer.BookRatingService(),
 	)
@@ -86,6 +87,7 @@ type DependencyContainer struct {
 	bookChapterQueryService            query.BookChapterQueryService
 	bookChapterTranslationQueryService query.BookChapterTranslationQueryService
 	verifyBookRequestQueryService      query.VerifyBookRequestQueryService
+	readingSessionQueryService         query.ReadingSessionQueryService
 
 	verifyBookRequestProvider provider.VerifyBookRequestProvider
 }
@@ -122,6 +124,8 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 
 	verifyBookRequestQueryService := query.NewVerifyBookRequestQueryService(connection)
 
+	readingSessionQueryService := query.NewReadingSessionQueryService(connection)
+
 	verifyBookRequestProvider := provider.NewVerifyBookRequestProvider(connection)
 
 	return &DependencyContainer{
@@ -138,6 +142,7 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 		bookChapterQueryService:            bookChapterQueryService,
 		bookChapterTranslationQueryService: bookChapterTranslationQueryService,
 		verifyBookRequestQueryService:      verifyBookRequestQueryService,
+		readingSessionQueryService:         readingSessionQueryService,
 
 		verifyBookRequestProvider: verifyBookRequestProvider,
 	}
@@ -189,6 +194,10 @@ func (container *DependencyContainer) BookChapterTranslationQueryService() query
 
 func (container *DependencyContainer) VerifyBookRequestQueryService() query.VerifyBookRequestQueryService {
 	return container.verifyBookRequestQueryService
+}
+
+func (container *DependencyContainer) ReadingSessionQueryService() query.ReadingSessionQueryService {
+	return container.readingSessionQueryService
 }
 
 func (container *DependencyContainer) VerifyBookRequestProvider() provider.VerifyBookRequestProvider {

@@ -39,6 +39,7 @@ func NewPublicAPI(
 	bookChapterQueryService query.BookChapterQueryService,
 	bookChapterTranslationQueryService query.BookChapterTranslationQueryService,
 	verifyBookRequestQueryService query.VerifyBookRequestQueryService,
+	readingSessionQueryService query.ReadingSessionQueryService,
 	verifyBookRequestProvider provider.VerifyBookRequestProvider,
 	bookRatingService service.BookRatingService,
 ) api.ServerInterface {
@@ -56,6 +57,7 @@ func NewPublicAPI(
 		bookChapterQueryService:            bookChapterQueryService,
 		bookChapterTranslationQueryService: bookChapterTranslationQueryService,
 		verifyBookRequestQueryService:      verifyBookRequestQueryService,
+		readingSessionQueryService:         readingSessionQueryService,
 
 		verifyBookRequestProvider: verifyBookRequestProvider,
 	}
@@ -79,6 +81,7 @@ type public struct {
 	bookChapterQueryService            query.BookChapterQueryService
 	bookChapterTranslationQueryService query.BookChapterTranslationQueryService
 	verifyBookRequestQueryService      query.VerifyBookRequestQueryService
+	readingSessionQueryService         query.ReadingSessionQueryService
 
 	verifyBookRequestProvider provider.VerifyBookRequestProvider
 }
@@ -560,6 +563,32 @@ func (p public) ListTranslatorsByBookChapterId(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusOK, api.ListTranslatorsByBookChapterIdResponse{
 		TranslatorsId: translatorsRespID,
+	})
+}
+
+func (p public) GetLastReadingSession(ctx echo.Context) error {
+	var input api.GetLastReadingSessionRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	userID, err := extractUserIDFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	lastReadingSession, err := p.readingSessionQueryService.GetLastReadingSession(domainmodel.BookID(input.BookId), userID)
+	if errors.Is(err, domainmodel.ErrBookChapterTranslationNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "Reading session not found")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to get last reading session: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, api.GetLastReadingSessionResponse{
+		BookChapterId: openapi_types.UUID(lastReadingSession.BookChapterId),
 	})
 }
 

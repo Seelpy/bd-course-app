@@ -15,4 +15,6 @@ var (
 	ErrVerifyBookRequestNotFound = errors.New("verify book request not found")
 
 	ErrBookRatingNotFound = errors.New("book rating not found")
+
+	ErrSessionReadingNotFound = errors.New("session reading not found")
 )

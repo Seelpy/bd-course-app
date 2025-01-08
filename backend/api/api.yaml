@@ -756,6 +756,42 @@ paths:
                 $ref: '#/components/schemas/NotFoundResponse'
 
   /api/v1/reading-session:
+    get:
+      tags:
+        - ReadingSession
+      operationId: "GetLastReadingSession"
+      summary: Get last reading session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetLastReadingSessionRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLastReadingSessionResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
     post:
       tags:
         - ReadingSession
@@ -1148,6 +1184,22 @@ components:
             format: uuid
       required:
         - translatorsId
+    GetLastReadingSessionRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+      required:
+        - bookId
+    GetLastReadingSessionResponse:
+      type: object
+      properties:
+        bookChapterId:
+          type: string
+          format: uuid
+      required:
+        - bookChapterId
     StoreReadingSessionRequest:
       type: object
       properties:
