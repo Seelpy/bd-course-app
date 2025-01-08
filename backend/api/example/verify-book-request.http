@@ -27,3 +27,8 @@ Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwicm9s
   "accept": false
 }
 ###
+
+### list
+GET http://localhost:8082/api/v1/verify-book-request
+Content-Type: application/json
+###

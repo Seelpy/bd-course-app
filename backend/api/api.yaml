@@ -794,6 +794,18 @@ paths:
                 $ref: '#/components/schemas/NotFoundResponse'
 
   /api/v1/verify-book-request:
+    get:
+      tags:
+        - VerifyBookRequest
+      operationId: "ListVerifyBookRequest"
+      summary: List verify book request
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListVerifyBookRequestResponse'
     post:
       tags:
         - VerifyBookRequest
@@ -1148,6 +1160,15 @@ components:
       required:
         - bookId
         - bookChapterId
+    ListVerifyBookRequestResponse:
+      type: object
+      properties:
+        verifyBookRequests:
+          type: array
+          items:
+            $ref: '#/components/schemas/VerifyBookRequest'
+      required:
+        - verifyBookRequests
     CreateVerifyBookRequest:
       type: object
       properties:
@@ -1223,3 +1244,24 @@ components:
         - bookChapterId
         - index
         - title
+    VerifyBookRequest:
+      type: object
+      properties:
+        verifyBookRequestId:
+          type: string
+          format: uuid
+        translatorId:
+          type: string
+          format: uuid
+        bookId:
+          type: string
+          format: uuid
+        isVerified:
+          type: boolean
+        sendDateMilli:
+          type: integer
+      required:
+        - verifyBookRequestId
+        - translatorId
+        - bookId
+        - sendDateMilli

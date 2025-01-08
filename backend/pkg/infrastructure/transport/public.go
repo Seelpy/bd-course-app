@@ -38,6 +38,7 @@ func NewPublicAPI(
 	bookQueryService query.BookQueryService,
 	bookChapterQueryService query.BookChapterQueryService,
 	bookChapterTranslationQueryService query.BookChapterTranslationQueryService,
+	verifyBookRequestQueryService query.VerifyBookRequestQueryService,
 	verifyBookRequestProvider provider.VerifyBookRequestProvider,
 	bookRatingService service.BookRatingService,
 ) api.ServerInterface {
@@ -54,6 +55,7 @@ func NewPublicAPI(
 		bookQueryService:                   bookQueryService,
 		bookChapterQueryService:            bookChapterQueryService,
 		bookChapterTranslationQueryService: bookChapterTranslationQueryService,
+		verifyBookRequestQueryService:      verifyBookRequestQueryService,
 
 		verifyBookRequestProvider: verifyBookRequestProvider,
 	}
@@ -76,6 +78,7 @@ type public struct {
 	bookQueryService                   query.BookQueryService
 	bookChapterQueryService            query.BookChapterQueryService
 	bookChapterTranslationQueryService query.BookChapterTranslationQueryService
+	verifyBookRequestQueryService      query.VerifyBookRequestQueryService
 
 	verifyBookRequestProvider provider.VerifyBookRequestProvider
 }
@@ -584,6 +587,36 @@ func (p public) StoreReadingSession(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusOK, api.SuccessResponse{
 		Message: ptr("Reading session stored successfully"),
+	})
+}
+
+func (p public) ListVerifyBookRequest(ctx echo.Context) error {
+	verifyBooksRequests, err := p.verifyBookRequestQueryService.List()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list verify book request session: %s", err))
+	}
+
+	verifyBookRespRequests := make([]api.VerifyBookRequest, len(verifyBooksRequests))
+	for i, v := range verifyBooksRequests {
+		isVerified, ok := v.IsVerified.Get()
+
+		sendDateMilli := int(v.SendDate.UnixNano() / int64(time.Millisecond))
+
+		verifyBookRespRequests[i] = api.VerifyBookRequest{
+			VerifyBookRequestId: openapi_types.UUID(v.VerifyBookRequestID),
+			TranslatorId:        openapi_types.UUID(v.TranslatorID),
+			BookId:              openapi_types.UUID(v.BookID),
+			IsVerified:          ptr(isVerified),
+			SendDateMilli:       sendDateMilli,
+		}
+
+		if !ok {
+			verifyBookRespRequests[i].IsVerified = nil
+		}
+	}
+
+	return ctx.JSON(http.StatusOK, api.ListVerifyBookRequestResponse{
+		VerifyBookRequests: verifyBookRespRequests,
 	})
 }
 
