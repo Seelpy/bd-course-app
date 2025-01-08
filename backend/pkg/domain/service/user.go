@@ -9,6 +9,7 @@ import (
 type UserService interface {
 	CreateUser(input CreateUserInput) error
 	EditUser(input EditUserInput) error
+	EditImageUser(input EditUserImageInput) error
 	DeleteUser(userID model.UserID) error
 }
 
@@ -40,6 +41,11 @@ type EditUserInput struct {
 	AboutMe  string
 }
 
+type EditUserImageInput struct {
+	ID      model.UserID
+	ImageID model.ImageID
+}
+
 func (service *userService) CreateUser(input CreateUserInput) error {
 	user := model.NewUser(
 		model.UserID(service.userRepo.NextID()),
@@ -62,6 +68,17 @@ func (service *userService) EditUser(input EditUserInput) error {
 	user.SetLogin(input.Login)
 	user.SetPassword(input.Password)
 	user.SetAboutMe(input.AboutMe)
+
+	return service.userRepo.Store(user)
+}
+
+func (service *userService) EditImageUser(input EditUserImageInput) error {
+	user, err := service.userRepo.FindByID(input.ID)
+	if err != nil {
+		return err
+	}
+
+	user.SetAvatarID(maybe.Just(input.ImageID))
 
 	return service.userRepo.Store(user)
 }

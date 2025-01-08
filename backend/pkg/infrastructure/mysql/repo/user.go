@@ -29,19 +29,33 @@ func (repo *UserRepository) Store(user model.User) error {
 			      login,
 			      role,
 			      password,
-			      about_me
+			      about_me,
+			      avatar_id
 			)
-		VALUES (?, ?, ?, ?, ?)
+		VALUES (?, ?, ?, ?, ?, ?)
 		ON DUPLICATE KEY UPDATE
 			 login = VALUES(login),
 			 role = VALUES(role),
 			 password = VALUES(password),
-			 about_me = VALUES(about_me)
+			 about_me = VALUES(about_me),
+			 avatar_id = VALUES(avatar_id)
 	`
 
 	binaryUserID, err := uuid.UUID(user.ID()).MarshalBinary()
 	if err != nil {
 		return err
+	}
+
+	var avatarID *[]byte
+	if imageID, ok := user.AvatarID().Get(); ok {
+		uid, err2 := uuid.UUID(imageID).MarshalBinary()
+		if err2 != nil {
+			return err2
+		}
+
+		avatarID = &uid
+	} else {
+		avatarID = nil
 	}
 
 	_, err = repo.connection.Exec(query,
@@ -50,6 +64,7 @@ func (repo *UserRepository) Store(user model.User) error {
 		user.Role(),
 		user.Password(),
 		user.AboutMe(),
+		avatarID,
 	)
 
 	return err

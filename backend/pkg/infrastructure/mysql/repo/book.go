@@ -28,13 +28,15 @@ func (repo *BookRepository) Store(book model.Book) error {
 			      book_id,
 			      title,
 			      description,
-			      is_publish
+			      is_publish,
+			      cover_id
 			)
-		VALUES (?, ?, ?, ?)
+		VALUES (?, ?, ?, ?, ?)
 		ON DUPLICATE KEY UPDATE
 			title = VALUES(title),
 			description = VALUES(description),
-			is_publish = VALUES(is_publish)
+			is_publish = VALUES(is_publish),
+			cover_id = VALUES(cover_id)
 	`
 
 	binaryBookID, err := uuid.UUID(book.ID()).MarshalBinary()
@@ -42,11 +44,24 @@ func (repo *BookRepository) Store(book model.Book) error {
 		return err
 	}
 
+	var coverID *[]byte
+	if imageID, ok := book.CoverID().Get(); ok {
+		uid, err2 := uuid.UUID(imageID).MarshalBinary()
+		if err2 != nil {
+			return err2
+		}
+
+		coverID = &uid
+	} else {
+		coverID = nil
+	}
+
 	_, err = repo.connection.Exec(query,
 		binaryBookID,
 		book.Title(),
 		book.Description(),
 		book.IsPublished(),
+		coverID,
 	)
 
 	return err

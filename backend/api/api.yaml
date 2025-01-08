@@ -959,6 +959,132 @@ paths:
               schema:
                 $ref: '#/components/schemas/NotFoundResponse'
 
+  /api/v1/image:
+    get:
+      tags:
+        - Image
+      operationId: "GetImage"
+      summary: Get book image
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetImageRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetImageResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    delete:
+      tags:
+        - Image
+      operationId: "DeleteImage"
+      summary: Delete image
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteImageRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/image/book:
+    post:
+      tags:
+        - ImageBook
+      operationId: "StoreImageBook"
+      summary: Store image book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreBookImageRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/image/user:
+    post:
+      tags:
+        - ImageUser
+      operationId: "StoreImageUser"
+      summary: Store image user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreUserImageRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
 components:
   schemas:
     SuccessResponse:
@@ -1266,6 +1392,47 @@ components:
           type: integer
       required:
         - books
+    GetImageRequest:
+      type: object
+      properties:
+        imageId:
+          type: string
+          format: uuid
+      required:
+        - imageId
+    GetImageResponse:
+      type: object
+      properties:
+        imageData:
+          type: string
+      required:
+        - imageData
+    StoreBookImageRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+        imageData:
+          type: string
+      required:
+        - bookId
+        - imageData
+    StoreUserImageRequest:
+      type: object
+      properties:
+        imageData:
+          type: string
+      required:
+        - imageData
+    DeleteImageRequest:
+      type: object
+      properties:
+        imageId:
+          type: string
+          format: uuid
+      required:
+        - imageId
     Book:
       type: object
       properties:

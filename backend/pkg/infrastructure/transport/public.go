@@ -34,10 +34,12 @@ func NewPublicAPI(
 	bookChapterTranslationService service.BookChapterTranslationService,
 	readingSession service.ReadingSessionService,
 	verifyBookRequestService service.VerifyBookRequestService,
+	imageService service.ImageService,
 	userQueryService query.UserQueryService,
 	bookQueryService query.BookQueryService,
 	bookChapterQueryService query.BookChapterQueryService,
 	bookChapterTranslationQueryService query.BookChapterTranslationQueryService,
+	imageQueryService query.ImageQueryService,
 	verifyBookRequestQueryService query.VerifyBookRequestQueryService,
 	readingSessionQueryService query.ReadingSessionQueryService,
 	verifyBookRequestProvider provider.VerifyBookRequestProvider,
@@ -51,6 +53,7 @@ func NewPublicAPI(
 		readingSession:                readingSession,
 		verifyBookRequestService:      verifyBookRequestService,
 		bookRatingService:             bookRatingService,
+		imageService:                  imageService,
 
 		userQueryService:                   userQueryService,
 		bookQueryService:                   bookQueryService,
@@ -58,6 +61,7 @@ func NewPublicAPI(
 		bookChapterTranslationQueryService: bookChapterTranslationQueryService,
 		verifyBookRequestQueryService:      verifyBookRequestQueryService,
 		readingSessionQueryService:         readingSessionQueryService,
+		imageQueryService:                  imageQueryService,
 
 		verifyBookRequestProvider: verifyBookRequestProvider,
 	}
@@ -75,6 +79,7 @@ type public struct {
 	readingSession                service.ReadingSessionService
 	verifyBookRequestService      service.VerifyBookRequestService
 	bookRatingService             service.BookRatingService
+	imageService                  service.ImageService
 
 	userQueryService                   query.UserQueryService
 	bookQueryService                   query.BookQueryService
@@ -82,6 +87,7 @@ type public struct {
 	bookChapterTranslationQueryService query.BookChapterTranslationQueryService
 	verifyBookRequestQueryService      query.VerifyBookRequestQueryService
 	readingSessionQueryService         query.ReadingSessionQueryService
+	imageQueryService                  query.ImageQueryService
 
 	verifyBookRequestProvider provider.VerifyBookRequestProvider
 }
@@ -736,6 +742,108 @@ func (p public) AcceptVerifyBookRequest(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusOK, api.SuccessResponse{
 		Message: ptr("Verify book request verified successfully"),
+	})
+}
+
+func (p public) GetImage(ctx echo.Context) error {
+	var input api.GetImageRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	imageData, err := p.imageQueryService.FindByID(domainmodel.ImageID(input.ImageId))
+	if errors.Is(err, domainmodel.ErrImageNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "Image not found")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to get image: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, api.GetImageResponse{
+		ImageData: imageData,
+	})
+}
+
+func (p public) DeleteImage(ctx echo.Context) error {
+	var input api.DeleteImageRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.imageService.DeleteImage(domainmodel.ImageID(input.ImageId))
+	if errors.Is(err, domainmodel.ErrImageNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "Reading image not found")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to get last reading session: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
+		Message: ptr("Image deleted successfully"),
+	})
+}
+
+func (p public) StoreImageBook(ctx echo.Context) error {
+	var input api.StoreBookImageRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	imageID, err := p.imageService.StoreImage(input.ImageData)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to store image book: %s", err))
+	}
+
+	err = p.bookService.EditBookImage(service.EditBookImageInput{
+		ID:      domainmodel.BookID(input.BookId),
+		ImageID: imageID,
+	})
+	if errors.Is(err, domainmodel.ErrBookNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "Book not found")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to store image book: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
+		Message: ptr("Store image book successfully"),
+	})
+}
+
+func (p public) StoreImageUser(ctx echo.Context) error {
+	var input api.StoreUserImageRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	userID, err := extractUserIDFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	imageID, err := p.imageService.StoreImage(input.ImageData)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to store image user: %s", err))
+	}
+
+	err = p.userService.EditImageUser(service.EditUserImageInput{
+		ID:      userID,
+		ImageID: imageID,
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to store image user: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
+		Message: ptr("Store image user successfully"),
 	})
 }
 

@@ -17,4 +17,6 @@ var (
 	ErrBookRatingNotFound = errors.New("book rating not found")
 
 	ErrSessionReadingNotFound = errors.New("session reading not found")
+
+	ErrImageNotFound = errors.New("image not found")
 )
