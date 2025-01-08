@@ -39,9 +39,9 @@ func NewPublicAPI(
 	bookQueryService query.BookQueryService,
 	bookChapterQueryService query.BookChapterQueryService,
 	bookChapterTranslationQueryService query.BookChapterTranslationQueryService,
-	imageQueryService query.ImageQueryService,
 	verifyBookRequestQueryService query.VerifyBookRequestQueryService,
 	readingSessionQueryService query.ReadingSessionQueryService,
+	imageQueryService query.ImageQueryService,
 	verifyBookRequestProvider provider.VerifyBookRequestProvider,
 	bookRatingService service.BookRatingService,
 ) api.ServerInterface {

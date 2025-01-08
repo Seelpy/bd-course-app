@@ -50,6 +50,7 @@ func main() {
 		dependencyContainer.BookChapterTranslationQueryService(),
 		dependencyContainer.VerifyBookRequestQueryService(),
 		dependencyContainer.ReadingSessionQueryService(),
+		dependencyContainer.ImageQueryService(),
 		dependencyContainer.VerifyBookRequestProvider(),
 		dependencyContainer.BookRatingService(),
 	)
