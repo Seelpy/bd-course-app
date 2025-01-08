@@ -124,7 +124,7 @@ func (p public) GetBookRating(ctx echo.Context, id string) error {
 
 	stat, err := p.bookRatingService.GetStatistics(bookID)
 
-	return ctx.JSON(http.StatusCreated, api.GetBookRatingResponse{
+	return ctx.JSON(http.StatusOK, api.GetBookRatingResponse{
 		Average: ptr(stat.Average),
 		Count:   ptr(stat.Count),
 	})
@@ -196,7 +196,7 @@ func (p public) CreateUser(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to create user: %s", err))
 	}
 
-	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
 		Message: ptr("User created successfully"),
 	})
 }
@@ -222,7 +222,7 @@ func (p public) EditUser(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to edit user: %s", err))
 	}
 
-	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
 		Message: ptr("User edited successfully"),
 	})
 }
@@ -246,7 +246,7 @@ func (p public) DeleteUser(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete user: %s", err))
 	}
 
-	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
 		Message: ptr("User deleted successfully"),
 	})
 }
@@ -273,7 +273,7 @@ func (p public) CreateBook(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to create book: %s", err))
 	}
 
-	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
 		Message: ptr("Book created successfully"),
 	})
 }
@@ -298,7 +298,7 @@ func (p public) EditBook(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to edit book: %s", err))
 	}
 
-	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
 		Message: ptr("Book edited successfully"),
 	})
 }
@@ -319,7 +319,7 @@ func (p public) DeleteBook(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete book: %s", err))
 	}
 
-	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
 		Message: ptr("Book deleted successfully"),
 	})
 }
@@ -351,7 +351,7 @@ func (p public) ListBook(ctx echo.Context, page int, size int) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list book: %s", err))
 	}
 
-	return ctx.JSON(http.StatusCreated, api.ListBookResponse{
+	return ctx.JSON(http.StatusOK, api.ListBookResponse{
 		Books:      booksRespData,
 		CountPages: ptr(int(math.Ceil(float64(countBook) / float64(size)))),
 	})
@@ -382,7 +382,7 @@ func (p public) GetBook(ctx echo.Context, id string) error {
 		bookRespData.Cover = nil
 	}
 
-	return ctx.JSON(http.StatusCreated, api.GetBookResponse{
+	return ctx.JSON(http.StatusOK, api.GetBookResponse{
 		Book: bookRespData,
 	})
 }
@@ -404,7 +404,7 @@ func (p public) CreateBookChapter(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to create book chapter: %s", err))
 	}
 
-	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
 		Message: ptr("Book chapter created successfully"),
 	})
 }
@@ -428,7 +428,7 @@ func (p public) EditBookChapter(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to create book chapter: %s", err))
 	}
 
-	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
 		Message: ptr("Book chapter edited successfully"),
 	})
 }
@@ -449,7 +449,7 @@ func (p public) DeleteBookChapter(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete book chapter: %s", err))
 	}
 
-	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
 		Message: ptr("Book chapter deleted successfully"),
 	})
 }
@@ -476,7 +476,7 @@ func (p public) ListBookChapter(ctx echo.Context) error {
 		}
 	}
 
-	return ctx.JSON(http.StatusCreated, api.ListBookChapterResponse{
+	return ctx.JSON(http.StatusOK, api.ListBookChapterResponse{
 		BookChapters: ptr(bookChaptersRespData),
 	})
 }
@@ -503,7 +503,7 @@ func (p public) StoreBookChapterTranslation(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to store book chapter translation: %s", err))
 	}
 
-	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
 		Message: ptr("Book chapter translation stored successfully"),
 	})
 }
@@ -527,7 +527,7 @@ func (p public) GetBookChapterTranslation(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to get book chapter: %s", err))
 	}
 
-	return ctx.JSON(http.StatusCreated, api.GetBookChapterTranslationResponse{
+	return ctx.JSON(http.StatusOK, api.GetBookChapterTranslationResponse{
 		Text: bookChapterTranslation.Text,
 	})
 }
@@ -555,7 +555,7 @@ func (p public) ListTranslatorsByBookChapterId(ctx echo.Context) error {
 		translatorsRespID[i] = openapi_types.UUID(t)
 	}
 
-	return ctx.JSON(http.StatusCreated, api.ListTranslatorsByBookChapterIdResponse{
+	return ctx.JSON(http.StatusOK, api.ListTranslatorsByBookChapterIdResponse{
 		TranslatorsId: translatorsRespID,
 	})
 }
@@ -582,7 +582,7 @@ func (p public) StoreReadingSession(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to store reading session: %s", err))
 	}
 
-	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
 		Message: ptr("Reading session stored successfully"),
 	})
 }
@@ -608,7 +608,7 @@ func (p public) CreateVerifyBookRequest(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to create verify book request: %s", err))
 	}
 
-	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
 		Message: ptr("Verify book request created successfully"),
 	})
 }
@@ -629,7 +629,7 @@ func (p public) DeleteVerifyBookRequest(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete verify book request: %s", err))
 	}
 
-	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
 		Message: ptr("Verify book request deleted successfully"),
 	})
 }
@@ -672,7 +672,7 @@ func (p public) AcceptVerifyBookRequest(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to find book to verify: %s", err))
 	}
 
-	return ctx.JSON(http.StatusCreated, api.SuccessResponse{
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
 		Message: ptr("Verify book request verified successfully"),
 	})
 }
