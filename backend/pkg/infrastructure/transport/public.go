@@ -464,7 +464,7 @@ func (p public) ListBookChapter(ctx echo.Context) error {
 
 	bookChaptersOutput, err := p.bookChapterQueryService.ListByBookID(domainmodel.BookID(input.BookId))
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete book chapter: %s", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list book chapter: %s", err))
 	}
 
 	bookChaptersRespData := make([]api.BookChapter, len(bookChaptersOutput))
@@ -524,7 +524,7 @@ func (p public) GetBookChapterTranslation(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, "Book chapter translation not found")
 	}
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete book chapter: %s", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to get book chapter: %s", err))
 	}
 
 	return ctx.JSON(http.StatusCreated, api.GetBookChapterTranslationResponse{
@@ -547,7 +547,7 @@ func (p public) ListTranslatorsByBookChapterId(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, "Book chapter translation not found")
 	}
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete book chapter: %s", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list translators book chapter: %s", err))
 	}
 
 	translatorsRespID := make([]openapi_types.UUID, len(translatorsID))
