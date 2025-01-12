@@ -19,4 +19,6 @@ var (
 	ErrSessionReadingNotFound = errors.New("session reading not found")
 
 	ErrImageNotFound = errors.New("image not found")
+
+	ErrUserBookFavouritesNotFound = errors.New("user book favourites not found")
 )

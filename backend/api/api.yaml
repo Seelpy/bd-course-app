@@ -1085,6 +1085,148 @@ paths:
               schema:
                 $ref: '#/components/schemas/NotFoundResponse'
 
+  /api/v1/user-book-favourites:
+    get:
+      tags:
+        - UserBookFavourites
+      operationId: "ListUserBookFavouritesByBook"
+      summary: List user book favourites
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListUserBookFavouritesByBookRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUserBookFavouritesByBookResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    post:
+      tags:
+        - UserBookFavourites
+      operationId: "StoreUserBookFavourites"
+      summary: Store user book favourites
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreUserBookFavouritesRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+    delete:
+      tags:
+        - UserBookFavourites
+      operationId: "DeleteUserBookFavourites"
+      summary: Delete user book favourites
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteUserBookFavouritesRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/user-book-favourites/book:
+    get:
+      tags:
+        - UserBookFavourites
+      operationId: "ListBookByUserBookFavourites"
+      summary: List book by user book favourites
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListBookByUserBookFavouritesRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListBookByUserBookFavouritesResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+                
 components:
   schemas:
     SuccessResponse:
@@ -1433,6 +1575,58 @@ components:
           format: uuid
       required:
         - imageId
+    ListUserBookFavouritesByBookRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+      required:
+        - bookId
+    ListUserBookFavouritesByBookResponse:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/UserBookFavouritesType'
+      required:
+        - type
+    ListBookByUserBookFavouritesRequest:
+      type: object
+      properties:
+        types:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserBookFavouritesType'
+      required:
+        - types
+    ListBookByUserBookFavouritesResponse:
+      type: object
+      properties:
+        userBookFavouritesBooks:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserBookFavouritesBooks'
+      required:
+        - userBookFavouritesBooks
+    StoreUserBookFavouritesRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/UserBookFavouritesType'
+      required:
+        - bookId
+        - type
+    DeleteUserBookFavouritesRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+      required:
+        - bookId
     Book:
       type: object
       properties:
@@ -1484,3 +1678,24 @@ components:
         - translatorId
         - bookId
         - sendDateMilli
+    UserBookFavouritesBooks:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/UserBookFavouritesType'
+        books:
+          type: array
+          items:
+            $ref: '#/components/schemas/Book'
+      required:
+        - type
+        - books
+    UserBookFavouritesType:
+      type: string
+      enum:
+        - READING
+        - PLANNED
+        - DEFERRED
+        - READ
+        - DROPPED
+        - FAVORITE

@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/mono83/maybe"
+	model2 "server/pkg/domain/model"
 	"server/pkg/infrastructure/model"
 )
 
@@ -36,10 +37,10 @@ func (service *userQueryService) FindByLogin(login string) (model.User, error) {
 
 	var user sqlxUser
 	err := service.connection.Get(&user, query, login)
+	if errors.Is(err, sql.ErrNoRows) {
+		return model.User{}, model2.ErrUserNotFound
+	}
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return model.User{}, nil
-		}
 		return model.User{}, err
 	}
 

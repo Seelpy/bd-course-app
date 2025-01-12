@@ -10,19 +10,19 @@ import (
 	"time"
 )
 
-type VerifyBookRequestRepository struct {
+type verifyBookRequestRepository struct {
 	connection *sqlx.DB
 }
 
-func NewVerifyBookRequestRepository(connection *sqlx.DB) *VerifyBookRequestRepository {
-	return &VerifyBookRequestRepository{connection: connection}
+func NewVerifyBookRequestRepository(connection *sqlx.DB) *verifyBookRequestRepository {
+	return &verifyBookRequestRepository{connection: connection}
 }
 
-func (repo *VerifyBookRequestRepository) NextID() uuid.UUID {
+func (repo *verifyBookRequestRepository) NextID() uuid.UUID {
 	return uuid.Must(uuid.NewV4())
 }
 
-func (repo *VerifyBookRequestRepository) Store(verifyBookRequest model.VerifyBookRequest) error {
+func (repo *verifyBookRequestRepository) Store(verifyBookRequest model.VerifyBookRequest) error {
 	const query = `
 		INSERT INTO
 			verify_book_request (
@@ -64,10 +64,11 @@ func (repo *VerifyBookRequestRepository) Store(verifyBookRequest model.VerifyBoo
 		isVerified,
 		verifyBookRequest.SendDate(),
 	)
+
 	return err
 }
 
-func (repo *VerifyBookRequestRepository) Delete(verifyBookRequestID model.VerifyBookRequestID) error {
+func (repo *verifyBookRequestRepository) Delete(verifyBookRequestID model.VerifyBookRequestID) error {
 	const query = `DELETE FROM verify_book_request WHERE verify_book_request_id = ?`
 
 	binaryVerifyBookRequestID, err := uuid.UUID(verifyBookRequestID).MarshalBinary()
@@ -88,7 +89,7 @@ func (repo *VerifyBookRequestRepository) Delete(verifyBookRequestID model.Verify
 	return err
 }
 
-func (repo *VerifyBookRequestRepository) FindByID(verifyBookRequestID model.VerifyBookRequestID) (model.VerifyBookRequest, error) {
+func (repo *verifyBookRequestRepository) FindByID(verifyBookRequestID model.VerifyBookRequestID) (model.VerifyBookRequest, error) {
 	const query = `
 		SELECT
 			translator_id,

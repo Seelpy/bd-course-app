@@ -35,6 +35,9 @@ func NewPublicAPI(
 	readingSession service.ReadingSessionService,
 	verifyBookRequestService service.VerifyBookRequestService,
 	imageService service.ImageService,
+	bookRatingService service.BookRatingService,
+	userBookFavouritesService service.UserBookFavouritesService,
+
 	userQueryService query.UserQueryService,
 	bookQueryService query.BookQueryService,
 	bookChapterQueryService query.BookChapterQueryService,
@@ -42,8 +45,9 @@ func NewPublicAPI(
 	verifyBookRequestQueryService query.VerifyBookRequestQueryService,
 	readingSessionQueryService query.ReadingSessionQueryService,
 	imageQueryService query.ImageQueryService,
+	userBookFavouritesQueryService query.UserBookFavouritesQueryService,
+
 	verifyBookRequestProvider provider.VerifyBookRequestProvider,
-	bookRatingService service.BookRatingService,
 ) api.ServerInterface {
 	return &public{
 		userService:                   userService,
@@ -62,6 +66,8 @@ func NewPublicAPI(
 		verifyBookRequestQueryService:      verifyBookRequestQueryService,
 		readingSessionQueryService:         readingSessionQueryService,
 		imageQueryService:                  imageQueryService,
+		userBookFavouritesService:          userBookFavouritesService,
+		userBookFavouritesQueryService:     userBookFavouritesQueryService,
 
 		verifyBookRequestProvider: verifyBookRequestProvider,
 	}
@@ -80,6 +86,7 @@ type public struct {
 	verifyBookRequestService      service.VerifyBookRequestService
 	bookRatingService             service.BookRatingService
 	imageService                  service.ImageService
+	userBookFavouritesService     service.UserBookFavouritesService
 
 	userQueryService                   query.UserQueryService
 	bookQueryService                   query.BookQueryService
@@ -88,6 +95,7 @@ type public struct {
 	verifyBookRequestQueryService      query.VerifyBookRequestQueryService
 	readingSessionQueryService         query.ReadingSessionQueryService
 	imageQueryService                  query.ImageQueryService
+	userBookFavouritesQueryService     query.UserBookFavouritesQueryService
 
 	verifyBookRequestProvider provider.VerifyBookRequestProvider
 }
@@ -344,18 +352,7 @@ func (p public) ListBook(ctx echo.Context, page int, size int) error {
 
 	booksRespData := make([]api.Book, len(bookOutputs))
 	for i, b := range bookOutputs {
-		cover, ok := b.Cover.Get()
-
-		booksRespData[i] = api.Book{
-			BookId:      openapi_types.UUID(b.BookID),
-			Cover:       ptr(cover),
-			Title:       b.Title,
-			Description: b.Description,
-		}
-
-		if !ok {
-			booksRespData[i].Cover = nil
-		}
+		booksRespData[i] = convertBookOutputModelToAPI(b)
 	}
 
 	countBook, err := p.bookQueryService.CountBook(true)
@@ -847,6 +844,143 @@ func (p public) StoreImageUser(ctx echo.Context) error {
 	})
 }
 
+func (p public) ListUserBookFavouritesByBook(ctx echo.Context) error {
+	var input api.ListUserBookFavouritesByBookRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	userID, err := extractUserIDFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	modelType, err := p.userBookFavouritesQueryService.ListUserBookFavouritesByBook(userID, domainmodel.BookID(input.BookId))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list user book favourites: %s", err))
+	}
+
+	apiType, err := convertUserBookFavouritesTypeModelToAPI(modelType)
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(http.StatusOK, api.ListUserBookFavouritesByBookResponse{
+		Type: apiType,
+	})
+}
+
+func (p public) StoreUserBookFavourites(ctx echo.Context) error {
+	var input api.StoreUserBookFavouritesRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	userID, err := extractUserIDFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	modelType, err := convertUserBookFavouritesTypeAPIToModel(input.Type)
+	if err != nil {
+		return err
+	}
+
+	err = p.userBookFavouritesService.StoreUserBookFavourites(service.StoreUserBookFavouritesInput{
+		UserID: userID,
+		BookID: domainmodel.BookID(input.BookId),
+		Type:   modelType,
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to store user book favourites: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
+		Message: ptr("Store user book favourites successfully"),
+	})
+}
+
+func (p public) DeleteUserBookFavourites(ctx echo.Context) error {
+	var input api.DeleteUserBookFavouritesRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	userID, err := extractUserIDFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = p.userBookFavouritesService.DeleteUserBookFavourites(service.DeleteUserBookFavouritesInput{
+		UserID: userID,
+		BookID: domainmodel.BookID(input.BookId),
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete user book favourites: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
+		Message: ptr("Delete user book favourites successfully"),
+	})
+}
+
+func (p public) ListBookByUserBookFavourites(ctx echo.Context) error {
+	var input api.ListBookByUserBookFavouritesRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	userID, err := extractUserIDFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	modelTypes := make([]domainmodel.UserBookFavouritesType, len(input.Types))
+	for i, t := range input.Types {
+		modelType, err2 := convertUserBookFavouritesTypeAPIToModel(t)
+		if err2 != nil {
+			return err2
+		}
+
+		modelTypes[i] = modelType
+	}
+
+	outputs, err := p.userBookFavouritesQueryService.ListBookByUserBookFavourites(userID, modelTypes)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list user book favourites: %s", err))
+	}
+
+	userBookFavouritesBooks := make([]api.UserBookFavouritesBooks, len(outputs))
+	for i, output := range outputs {
+		apiType, err2 := convertUserBookFavouritesTypeModelToAPI(output.Type)
+		if err2 != nil {
+			return err2
+		}
+
+		books := make([]api.Book, len(output.Books))
+		for j, book := range output.Books {
+			books[j] = convertBookOutputModelToAPI(book)
+		}
+
+		userBookFavouritesBooks[i] = api.UserBookFavouritesBooks{
+			Type:  apiType,
+			Books: books,
+		}
+	}
+
+	return ctx.JSON(http.StatusOK, api.ListBookByUserBookFavouritesResponse{
+		UserBookFavouritesBooks: userBookFavouritesBooks,
+	})
+}
+
 func ptr[T any](s T) *T {
 	return &s
 }
@@ -869,4 +1003,59 @@ func extractUserIDFromContext(ctx echo.Context) (domainmodel.UserID, error) {
 	var userID uuid.UUID
 	err = userID.Parse(claims.UserID)
 	return domainmodel.UserID(userID), err
+}
+
+func convertUserBookFavouritesTypeAPIToModel(apiType api.UserBookFavouritesType) (domainmodel.UserBookFavouritesType, error) {
+	switch apiType {
+	case api.READING:
+		return domainmodel.READING, nil
+	case api.PLANNED:
+		return domainmodel.PLANNED, nil
+	case api.DEFERRED:
+		return domainmodel.DEFERRED, nil
+	case api.READ:
+		return domainmodel.READ, nil
+	case api.DROPPED:
+		return domainmodel.DROPPED, nil
+	case api.FAVORITE:
+		return domainmodel.FAVORITE, nil
+	default:
+		return 0, echo.NewHTTPError(http.StatusBadRequest, "Unknown UserBookFavouritesType "+apiType)
+	}
+}
+
+func convertUserBookFavouritesTypeModelToAPI(modelType domainmodel.UserBookFavouritesType) (api.UserBookFavouritesType, error) {
+	switch modelType {
+	case domainmodel.READING:
+		return api.READING, nil
+	case domainmodel.PLANNED:
+		return api.PLANNED, nil
+	case domainmodel.DEFERRED:
+		return api.DEFERRED, nil
+	case domainmodel.READ:
+		return api.READ, nil
+	case domainmodel.DROPPED:
+		return api.DROPPED, nil
+	case domainmodel.FAVORITE:
+		return api.FAVORITE, nil
+	default:
+		return "", echo.NewHTTPError(http.StatusInternalServerError, "Unknown UserBookFavouritesType "+fmt.Sprint(modelType))
+	}
+}
+
+func convertBookOutputModelToAPI(bookOutput query.BookOutput) api.Book {
+	cover, ok := bookOutput.Cover.Get()
+
+	bookAPI := api.Book{
+		BookId:      openapi_types.UUID(bookOutput.BookID),
+		Cover:       ptr(cover),
+		Title:       bookOutput.Title,
+		Description: bookOutput.Description,
+	}
+
+	if !ok {
+		bookAPI.Cover = nil
+	}
+
+	return bookAPI
 }

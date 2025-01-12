@@ -6,8 +6,8 @@ CREATE TABLE user_book_favourites
     book_id BINARY(16) NOT NULL,    -- UUID книги
     type    SMALLINT,               -- Тип избранной книги
     PRIMARY KEY (user_id, book_id), -- Композитный первичный ключ
-    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES user (user_id),
-    CONSTRAINT fk_book FOREIGN KEY (book_id) REFERENCES book (book_id)
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES user (user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_book FOREIGN KEY (book_id) REFERENCES book (book_id) ON DELETE CASCADE
 )
     ENGINE=InnoDB
     CHARACTER SET = utf8mb4
