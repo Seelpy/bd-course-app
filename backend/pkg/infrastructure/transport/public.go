@@ -183,34 +183,57 @@ func (p public) LoginUser(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusNotFound, "User not found")
 	}
 
-	expirationTime := time.Now().Add(5 * time.Hour)
-	claims := &model.Claims{
-		Login:  user.Login,
-		Role:   user.Role,
-		UserID: user.ID.String(),
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	tokenString, err := token.SignedString(JwtKey)
+	accessToken, accessExpirationTime, err := createToken(user, 5*time.Hour)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Could not create token")
+		return echo.NewHTTPError(http.StatusInternalServerError, "Could not create access token")
 	}
 
-	cookie := new(http.Cookie)
-	cookie.Name = "jwt"
-	cookie.Value = tokenString
-	cookie.Expires = expirationTime
-	cookie.Path = "/"
-	cookie.HttpOnly = true
-	cookie.Secure = true
-	cookie.SameSite = http.SameSiteStrictMode
+	refreshToken, refreshExpirationTime, err := createToken(user, 30*24*time.Hour)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Could not create refresh token")
+	}
 
-	ctx.SetCookie(cookie)
+	setCookie(ctx, "access_token", accessToken, accessExpirationTime)
+
+	setCookie(ctx, "refresh_token", refreshToken, refreshExpirationTime)
+
 	return ctx.NoContent(http.StatusOK)
+}
+
+func (p public) RefreshToken(ctx echo.Context) error {
+	refreshTokenCookie, err := ctx.Cookie("refresh_token")
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, "Refresh token not found")
+	}
+
+	claims := &model.Claims{}
+	token, err := jwt.ParseWithClaims(refreshTokenCookie.Value, claims, func(token *jwt.Token) (interface{}, error) {
+		return JwtKey, nil
+	})
+	if err != nil || !token.Valid {
+		return echo.NewHTTPError(http.StatusUnauthorized, "Invalid refresh token")
+	}
+
+	if time.Now().Unix() > claims.ExpiresAt {
+		return echo.NewHTTPError(http.StatusUnauthorized, "Refresh token expired")
+	}
+
+	user, err := p.userQueryService.FindByLogin(claims.Login)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "User not found")
+	}
+
+	accessToken, accessExpirationTime, err := createToken(user, 5*time.Hour)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, "Could not create access token")
+	}
+
+	setCookie(ctx, "access_token", accessToken, accessExpirationTime)
+
+	msg := "Token refreshed successfully"
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
+		Message: ptr(msg),
+	})
 }
 
 func (p public) ListUsers(ctx echo.Context) error {
@@ -1398,4 +1421,37 @@ func convertGenreOutputModelToAPI(output query.GenreOutput) api.Genre {
 		Id:   openapi_types.UUID(output.GenreID),
 		Name: output.Name,
 	}
+}
+
+func createToken(user model.User, expirationTimeDur time.Duration) (string, time.Time, error) {
+	expirationTime := time.Now().Add(expirationTimeDur)
+	claims := &model.Claims{
+		Login:  user.Login,
+		Role:   user.Role,
+		UserID: user.ID.String(),
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString(JwtKey)
+	if err != nil {
+		return "", time.Time{}, err
+	}
+
+	return tokenString, expirationTime, nil
+}
+
+func setCookie(ctx echo.Context, name, value string, expirationTime time.Time) {
+	cookie := new(http.Cookie)
+	cookie.Name = name
+	cookie.Value = value
+	cookie.Expires = expirationTime
+	cookie.Path = "/"
+	cookie.HttpOnly = true
+	cookie.Secure = true
+	cookie.SameSite = http.SameSiteStrictMode
+
+	ctx.SetCookie(cookie)
 }
