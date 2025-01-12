@@ -6,15 +6,15 @@ import (
 	"server/pkg/domain/model"
 )
 
-type BookGenreRepository struct {
+type bookGenreRepository struct {
 	connection *sqlx.DB
 }
 
-func NewBookGenreRepository(connection *sqlx.DB) *BookGenreRepository {
-	return &BookGenreRepository{connection: connection}
+func NewBookGenreRepository(connection *sqlx.DB) *bookGenreRepository {
+	return &bookGenreRepository{connection: connection}
 }
 
-func (repo *BookGenreRepository) Store(bookGenre model.BookGenre) error {
+func (repo *bookGenreRepository) Store(bookGenre model.BookGenre) error {
 	const query = `
 		INSERT INTO book_genre (
 			book_id,
@@ -40,7 +40,7 @@ func (repo *BookGenreRepository) Store(bookGenre model.BookGenre) error {
 	return err
 }
 
-func (repo *BookGenreRepository) Delete(bookID model.BookID, genreID model.GenreID) error {
+func (repo *bookGenreRepository) Delete(bookID model.BookID, genreID model.GenreID) error {
 	const query = `DELETE FROM book_genre WHERE book_id = ? AND genre_id = ?`
 
 	binaryBookID, err := uuid.UUID(bookID).MarshalBinary()

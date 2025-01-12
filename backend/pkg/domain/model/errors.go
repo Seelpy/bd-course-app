@@ -27,4 +27,6 @@ var (
 	ErrGenreNotFound = errors.New("genre not found")
 
 	ErrBookGenreNotFound = errors.New("book genre not found")
+
+	ErrBookAuthorNotFound = errors.New("book author not found")
 )

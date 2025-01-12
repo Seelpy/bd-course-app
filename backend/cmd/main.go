@@ -47,6 +47,7 @@ func main() {
 		dependencyContainer.BookRatingService(),
 		dependencyContainer.UserBookFavouritesService(),
 		dependencyContainer.AuthorService(),
+		dependencyContainer.BookAuthorService(),
 		dependencyContainer.GenreService(),
 		dependencyContainer.BookGenreService(),
 
@@ -95,6 +96,7 @@ type DependencyContainer struct {
 	imageService                  service.ImageService
 	userBookFavouritesService     service.UserBookFavouritesService
 	authorService                 service.AuthorService
+	bookAuthorService             service.BookAuthorService
 	genreService                  service.GenreService
 	bookGenreService              service.BookGenreService
 
@@ -143,6 +145,9 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 	authorRepository := repo.NewAuthorRepository(connection)
 	authorService := service.NewAuthorService(authorRepository)
 
+	bookAuthorRepository := repo.NewBookAuthorRepository(connection)
+	bookAuthorService := service.NewBookAuthorService(bookAuthorRepository)
+
 	genreRepository := repo.NewGenreRepository(connection)
 	genreService := service.NewGenreService(genreRepository)
 
@@ -173,6 +178,7 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 		imageService:                  imageService,
 		userBookFavouritesService:     userBookFavouritesService,
 		authorService:                 authorService,
+		bookAuthorService:             bookAuthorService,
 		genreService:                  genreService,
 		bookGenreService:              bookGenreService,
 
@@ -229,6 +235,10 @@ func (container *DependencyContainer) UserBookFavouritesService() service.UserBo
 
 func (container *DependencyContainer) AuthorService() service.AuthorService {
 	return container.authorService
+}
+
+func (container *DependencyContainer) BookAuthorService() service.BookAuthorService {
+	return container.bookAuthorService
 }
 
 func (container *DependencyContainer) GenreService() service.GenreService {
