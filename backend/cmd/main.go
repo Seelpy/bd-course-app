@@ -48,6 +48,7 @@ func main() {
 		dependencyContainer.UserBookFavouritesService(),
 		dependencyContainer.AuthorService(),
 		dependencyContainer.GenreService(),
+		dependencyContainer.BookGenreService(),
 
 		dependencyContainer.UserQueryService(),
 		dependencyContainer.BookQueryService(),
@@ -95,6 +96,7 @@ type DependencyContainer struct {
 	userBookFavouritesService     service.UserBookFavouritesService
 	authorService                 service.AuthorService
 	genreService                  service.GenreService
+	bookGenreService              service.BookGenreService
 
 	userQueryService                   query.UserQueryService
 	bookQueryService                   query.BookQueryService
@@ -144,6 +146,9 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 	genreRepository := repo.NewGenreRepository(connection)
 	genreService := service.NewGenreService(genreRepository)
 
+	bookGenreRepository := repo.NewBookGenreRepository(connection)
+	bookGenreService := service.NewBookGenreService(bookGenreRepository)
+
 	userQueryService := query.NewUserQueryService(connection)
 	bookQueryService := query.NewBookQueryService(connection)
 	bookChapterQueryService := query.NewBookChapterQueryService(connection)
@@ -169,6 +174,7 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 		userBookFavouritesService:     userBookFavouritesService,
 		authorService:                 authorService,
 		genreService:                  genreService,
+		bookGenreService:              bookGenreService,
 
 		userQueryService:                   userQueryService,
 		bookQueryService:                   bookQueryService,
@@ -227,6 +233,10 @@ func (container *DependencyContainer) AuthorService() service.AuthorService {
 
 func (container *DependencyContainer) GenreService() service.GenreService {
 	return container.genreService
+}
+
+func (container *DependencyContainer) BookGenreService() service.BookGenreService {
+	return container.bookGenreService
 }
 
 func (container *DependencyContainer) UserQueryService() query.UserQueryService {

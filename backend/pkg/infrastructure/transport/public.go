@@ -40,6 +40,7 @@ func NewPublicAPI(
 	userBookFavouritesService service.UserBookFavouritesService,
 	authorService service.AuthorService,
 	genreService service.GenreService,
+	bookGenreService service.BookGenreService,
 
 	userQueryService query.UserQueryService,
 	bookQueryService query.BookQueryService,
@@ -66,6 +67,7 @@ func NewPublicAPI(
 		userBookFavouritesService:     userBookFavouritesService,
 		authorService:                 authorService,
 		genreService:                  genreService,
+		bookGenreService:              bookGenreService,
 
 		userQueryService:                   userQueryService,
 		bookQueryService:                   bookQueryService,
@@ -98,6 +100,7 @@ type public struct {
 	userBookFavouritesService     service.UserBookFavouritesService
 	authorService                 service.AuthorService
 	genreService                  service.GenreService
+	bookGenreService              service.BookGenreService
 
 	userQueryService                   query.UserQueryService
 	bookQueryService                   query.BookQueryService
@@ -1213,6 +1216,42 @@ func (p public) DeleteGenre(ctx echo.Context) error {
 
 	return ctx.JSON(http.StatusOK, api.SuccessResponse{
 		Message: ptr("Genre deleted successfully"),
+	})
+}
+
+func (p public) StoreBookGenre(ctx echo.Context) error {
+	var input api.StoreBookGenreRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.bookGenreService.StoreBookGenre(domainmodel.BookID(input.BookId), domainmodel.GenreID(input.GenreId))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to store book genre: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
+		Message: ptr("Book genre stored successfully"),
+	})
+}
+
+func (p public) DeleteBookGenre(ctx echo.Context) error {
+	var input api.DeleteBookGenreRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.bookGenreService.DeleteBookGenre(domainmodel.BookID(input.BookId), domainmodel.GenreID(input.GenreId))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete book genre: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
+		Message: ptr("Book genre deleted successfully"),
 	})
 }
 

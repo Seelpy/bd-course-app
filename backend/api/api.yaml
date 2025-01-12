@@ -1535,6 +1535,80 @@ paths:
               schema:
                 $ref: '#/components/schemas/NotFoundResponse'
 
+  /api/v1/book-genre:
+    post:
+      tags:
+        - BookGenre
+      operationId: "StoreBookGenre"
+      summary: Store genre book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreBookGenreRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+    delete:
+      tags:
+        - BookGenre
+      operationId: "DeleteBookGenre"
+      summary: Delete genre book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteBookGenreRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
 components:
   schemas:
     SuccessResponse:
@@ -2030,6 +2104,30 @@ components:
             $ref: '#/components/schemas/Genre'
       required:
         - genres
+    StoreBookGenreRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+        genreId:
+          type: string
+          format: uuid
+      required:
+        - bookId
+        - genreId
+    DeleteBookGenreRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+        genreId:
+          type: string
+          format: uuid
+      required:
+        - bookId
+        - genreId
     Book:
       type: object
       properties:
