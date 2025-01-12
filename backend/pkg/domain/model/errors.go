@@ -23,4 +23,6 @@ var (
 	ErrUserBookFavouritesNotFound = errors.New("user book favourites not found")
 
 	ErrAuthorNotFound = errors.New("author not found")
+
+	ErrGenreNotFound = errors.New("genre not found")
 )

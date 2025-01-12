@@ -39,6 +39,7 @@ func NewPublicAPI(
 	bookRatingService service.BookRatingService,
 	userBookFavouritesService service.UserBookFavouritesService,
 	authorService service.AuthorService,
+	genreService service.GenreService,
 
 	userQueryService query.UserQueryService,
 	bookQueryService query.BookQueryService,
@@ -49,6 +50,7 @@ func NewPublicAPI(
 	imageQueryService query.ImageQueryService,
 	userBookFavouritesQueryService query.UserBookFavouritesQueryService,
 	authorQueryService query.AuthorQueryService,
+	genreQueryService query.GenreQueryService,
 
 	verifyBookRequestProvider provider.VerifyBookRequestProvider,
 ) api.ServerInterface {
@@ -63,6 +65,7 @@ func NewPublicAPI(
 		imageService:                  imageService,
 		userBookFavouritesService:     userBookFavouritesService,
 		authorService:                 authorService,
+		genreService:                  genreService,
 
 		userQueryService:                   userQueryService,
 		bookQueryService:                   bookQueryService,
@@ -73,6 +76,7 @@ func NewPublicAPI(
 		imageQueryService:                  imageQueryService,
 		userBookFavouritesQueryService:     userBookFavouritesQueryService,
 		authorQueryService:                 authorQueryService,
+		genreQueryService:                  genreQueryService,
 
 		verifyBookRequestProvider: verifyBookRequestProvider,
 	}
@@ -93,6 +97,7 @@ type public struct {
 	imageService                  service.ImageService
 	userBookFavouritesService     service.UserBookFavouritesService
 	authorService                 service.AuthorService
+	genreService                  service.GenreService
 
 	userQueryService                   query.UserQueryService
 	bookQueryService                   query.BookQueryService
@@ -103,6 +108,7 @@ type public struct {
 	imageQueryService                  query.ImageQueryService
 	userBookFavouritesQueryService     query.UserBookFavouritesQueryService
 	authorQueryService                 query.AuthorQueryService
+	genreQueryService                  query.GenreQueryService
 
 	verifyBookRequestProvider provider.VerifyBookRequestProvider
 }
@@ -1132,6 +1138,84 @@ func (p public) GetAuthor(ctx echo.Context, id string) error {
 	return ctx.JSON(http.StatusOK, convertAuthorOutputModelToAPI(output))
 }
 
+func (p public) ListGenres(ctx echo.Context) error {
+	outputs, err := p.genreQueryService.List()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list genres: %s", err))
+	}
+
+	genresRespData := make([]api.Genre, len(outputs))
+	for i, g := range outputs {
+		genresRespData[i] = convertGenreOutputModelToAPI(g)
+	}
+
+	return ctx.JSON(http.StatusOK, api.ListGenreResponse{
+		Genres: genresRespData,
+	})
+}
+
+func (p public) CreateGenre(ctx echo.Context) error {
+	var input api.CreateGenreRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.genreService.CreateGenre(service.CreateGenreInput{
+		Name: input.Name,
+	})
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to create genre: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
+		Message: ptr("Genre created successfully"),
+	})
+}
+
+func (p public) EditGenre(ctx echo.Context) error {
+	var input api.EditGenreRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.genreService.EditGenre(service.EditGenreInput{
+		ID:   domainmodel.GenreID(input.Id),
+		Name: input.Name,
+	})
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to edit genre: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
+		Message: ptr("Genre edited successfully"),
+	})
+}
+
+func (p public) DeleteGenre(ctx echo.Context) error {
+	var input api.DeleteGenreRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.genreService.DeleteGenre(domainmodel.GenreID(input.Id))
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete genre: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
+		Message: ptr("Genre deleted successfully"),
+	})
+}
+
 func ptr[T any](s T) *T {
 	return &s
 }
@@ -1228,5 +1312,12 @@ func convertAuthorOutputModelToAPI(output query.AuthorOutput) api.Author {
 		SecondName: output.SecondName,
 		MiddleName: middleName,
 		Nickname:   nickname,
+	}
+}
+
+func convertGenreOutputModelToAPI(output query.GenreOutput) api.Genre {
+	return api.Genre{
+		Id:   openapi_types.UUID(output.GenreID),
+		Name: output.Name,
 	}
 }

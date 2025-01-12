@@ -47,6 +47,7 @@ func main() {
 		dependencyContainer.BookRatingService(),
 		dependencyContainer.UserBookFavouritesService(),
 		dependencyContainer.AuthorService(),
+		dependencyContainer.GenreService(),
 
 		dependencyContainer.UserQueryService(),
 		dependencyContainer.BookQueryService(),
@@ -57,6 +58,7 @@ func main() {
 		dependencyContainer.ImageQueryService(),
 		dependencyContainer.UserBookFavouritesQueryService(),
 		dependencyContainer.AuthorQueryService(),
+		dependencyContainer.GenreQueryService(),
 
 		dependencyContainer.VerifyBookRequestProvider(),
 	)
@@ -92,6 +94,7 @@ type DependencyContainer struct {
 	imageService                  service.ImageService
 	userBookFavouritesService     service.UserBookFavouritesService
 	authorService                 service.AuthorService
+	genreService                  service.GenreService
 
 	userQueryService                   query.UserQueryService
 	bookQueryService                   query.BookQueryService
@@ -102,6 +105,7 @@ type DependencyContainer struct {
 	imageQueryService                  query.ImageQueryService
 	userBookFavouritesQueryService     query.UserBookFavouritesQueryService
 	authorQueryService                 query.AuthorQueryService
+	genreQueryService                  query.GenreQueryService
 
 	verifyBookRequestProvider provider.VerifyBookRequestProvider
 }
@@ -137,6 +141,9 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 	authorRepository := repo.NewAuthorRepository(connection)
 	authorService := service.NewAuthorService(authorRepository)
 
+	genreRepository := repo.NewGenreRepository(connection)
+	genreService := service.NewGenreService(genreRepository)
+
 	userQueryService := query.NewUserQueryService(connection)
 	bookQueryService := query.NewBookQueryService(connection)
 	bookChapterQueryService := query.NewBookChapterQueryService(connection)
@@ -146,6 +153,7 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 	imageQueryService := query.NewImageQueryService(connection)
 	userBookFavouritesQueryService := query.NewUserBookFavouritesQueryService(connection)
 	authorQueryService := query.NewAuthorQueryService(connection)
+	genreQueryService := query.NewGenreQueryService(connection)
 
 	verifyBookRequestProvider := provider.NewVerifyBookRequestProvider(connection)
 
@@ -160,6 +168,7 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 		imageService:                  imageService,
 		userBookFavouritesService:     userBookFavouritesService,
 		authorService:                 authorService,
+		genreService:                  genreService,
 
 		userQueryService:                   userQueryService,
 		bookQueryService:                   bookQueryService,
@@ -170,6 +179,7 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 		imageQueryService:                  imageQueryService,
 		userBookFavouritesQueryService:     userBookFavouritesQueryService,
 		authorQueryService:                 authorQueryService,
+		genreQueryService:                  genreQueryService,
 
 		verifyBookRequestProvider: verifyBookRequestProvider,
 	}
@@ -215,6 +225,10 @@ func (container *DependencyContainer) AuthorService() service.AuthorService {
 	return container.authorService
 }
 
+func (container *DependencyContainer) GenreService() service.GenreService {
+	return container.genreService
+}
+
 func (container *DependencyContainer) UserQueryService() query.UserQueryService {
 	return container.userQueryService
 }
@@ -249,6 +263,10 @@ func (container *DependencyContainer) UserBookFavouritesQueryService() query.Use
 
 func (container *DependencyContainer) AuthorQueryService() query.AuthorQueryService {
 	return container.authorQueryService
+}
+
+func (container *DependencyContainer) GenreQueryService() query.GenreQueryService {
+	return container.genreQueryService
 }
 
 func (container *DependencyContainer) VerifyBookRequestProvider() provider.VerifyBookRequestProvider {
