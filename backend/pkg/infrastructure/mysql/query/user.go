@@ -32,7 +32,7 @@ func (service *userQueryService) FindByLogin(login string) (model.User, error) {
 			password,
        		about_me
 		FROM user
-		WHERE login = ?
+		WHERE login = ?;
 `
 
 	var user sqlxUser

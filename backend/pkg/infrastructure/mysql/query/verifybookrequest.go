@@ -34,7 +34,7 @@ func (service *verifyBookRequestQueryService) List() ([]VerifyBookRequestOutput,
 	const query = `
 		SELECT *
 		FROM verify_book_request vbr
-		ORDER BY vbr.send_date DESC
+		ORDER BY vbr.send_date DESC;
 	`
 
 	var sqlxVerifyBooksRequest []sqlxVerifyBookRequest

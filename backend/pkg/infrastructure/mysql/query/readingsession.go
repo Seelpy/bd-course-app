@@ -32,7 +32,7 @@ func (service *readingSessionQueryService) GetLastReadingSession(
 		SELECT rs.book_chapter_id
 		FROM reading_session rs
 		WHERE rs.book_id = ? AND rs.user_id = ?
-		ORDER BY rs.last_read_time DESC
+		ORDER BY rs.last_read_time DESC;
 	`
 
 	binaryBookID, err := uuid.UUID(bookID).MarshalBinary()

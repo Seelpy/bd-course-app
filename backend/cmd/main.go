@@ -46,6 +46,7 @@ func main() {
 		dependencyContainer.ImageService(),
 		dependencyContainer.BookRatingService(),
 		dependencyContainer.UserBookFavouritesService(),
+		dependencyContainer.AuthorService(),
 
 		dependencyContainer.UserQueryService(),
 		dependencyContainer.BookQueryService(),
@@ -55,6 +56,7 @@ func main() {
 		dependencyContainer.ReadingSessionQueryService(),
 		dependencyContainer.ImageQueryService(),
 		dependencyContainer.UserBookFavouritesQueryService(),
+		dependencyContainer.AuthorQueryService(),
 
 		dependencyContainer.VerifyBookRequestProvider(),
 	)
@@ -89,6 +91,7 @@ type DependencyContainer struct {
 	bookRatingService             service.BookRatingService
 	imageService                  service.ImageService
 	userBookFavouritesService     service.UserBookFavouritesService
+	authorService                 service.AuthorService
 
 	userQueryService                   query.UserQueryService
 	bookQueryService                   query.BookQueryService
@@ -98,6 +101,7 @@ type DependencyContainer struct {
 	readingSessionQueryService         query.ReadingSessionQueryService
 	imageQueryService                  query.ImageQueryService
 	userBookFavouritesQueryService     query.UserBookFavouritesQueryService
+	authorQueryService                 query.AuthorQueryService
 
 	verifyBookRequestProvider provider.VerifyBookRequestProvider
 }
@@ -130,6 +134,9 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 	userBookFavouritesRepository := repo.NewUserBookFavouritesRepository(connection)
 	userBookFavouritesService := service.NewUserBookFavouritesService(userBookFavouritesRepository)
 
+	authorRepository := repo.NewAuthorRepository(connection)
+	authorService := service.NewAuthorService(authorRepository)
+
 	userQueryService := query.NewUserQueryService(connection)
 	bookQueryService := query.NewBookQueryService(connection)
 	bookChapterQueryService := query.NewBookChapterQueryService(connection)
@@ -138,6 +145,7 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 	readingSessionQueryService := query.NewReadingSessionQueryService(connection)
 	imageQueryService := query.NewImageQueryService(connection)
 	userBookFavouritesQueryService := query.NewUserBookFavouritesQueryService(connection)
+	authorQueryService := query.NewAuthorQueryService(connection)
 
 	verifyBookRequestProvider := provider.NewVerifyBookRequestProvider(connection)
 
@@ -151,6 +159,7 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 		bookRatingService:             bookRatingService,
 		imageService:                  imageService,
 		userBookFavouritesService:     userBookFavouritesService,
+		authorService:                 authorService,
 
 		userQueryService:                   userQueryService,
 		bookQueryService:                   bookQueryService,
@@ -160,6 +169,7 @@ func NewDependencyContainer(connection *sqlx.DB) *DependencyContainer {
 		readingSessionQueryService:         readingSessionQueryService,
 		imageQueryService:                  imageQueryService,
 		userBookFavouritesQueryService:     userBookFavouritesQueryService,
+		authorQueryService:                 authorQueryService,
 
 		verifyBookRequestProvider: verifyBookRequestProvider,
 	}
@@ -201,6 +211,10 @@ func (container *DependencyContainer) UserBookFavouritesService() service.UserBo
 	return container.userBookFavouritesService
 }
 
+func (container *DependencyContainer) AuthorService() service.AuthorService {
+	return container.authorService
+}
+
 func (container *DependencyContainer) UserQueryService() query.UserQueryService {
 	return container.userQueryService
 }
@@ -231,6 +245,10 @@ func (container *DependencyContainer) ImageQueryService() query.ImageQueryServic
 
 func (container *DependencyContainer) UserBookFavouritesQueryService() query.UserBookFavouritesQueryService {
 	return container.userBookFavouritesQueryService
+}
+
+func (container *DependencyContainer) AuthorQueryService() query.AuthorQueryService {
+	return container.authorQueryService
 }
 
 func (container *DependencyContainer) VerifyBookRequestProvider() provider.VerifyBookRequestProvider {

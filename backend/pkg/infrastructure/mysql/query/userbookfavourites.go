@@ -37,7 +37,7 @@ func (service *userBookFavouritesQueryService) ListUserBookFavouritesByBook(
 		SELECT
 			type
 		FROM user_book_favourites
-		WHERE user_id = ? AND book_id = ?
+		WHERE user_id = ? AND book_id = ?;
 `
 
 	binaryUserID, err := uuid.UUID(userID).MarshalBinary()
@@ -79,7 +79,7 @@ func (service *userBookFavouritesQueryService) ListBookByUserBookFavourites(
 		FROM user_book_favourites ubf
 		LEFT JOIN book b ON ubf.book_id = b.id
 		LEFT JOIN image i ON b.cover_id = i.image_id
-		WHERE user_id = ?
+		WHERE user_id = ?;
 `
 	binaryUserID, err := uuid.UUID(userID).MarshalBinary()
 	if err != nil {

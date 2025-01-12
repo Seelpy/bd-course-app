@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gofrs/uuid"
+	"github.com/mono83/maybe"
 	openapi_types "github.com/oapi-codegen/runtime/types"
 	"math"
 	"net/http"
@@ -37,6 +38,7 @@ func NewPublicAPI(
 	imageService service.ImageService,
 	bookRatingService service.BookRatingService,
 	userBookFavouritesService service.UserBookFavouritesService,
+	authorService service.AuthorService,
 
 	userQueryService query.UserQueryService,
 	bookQueryService query.BookQueryService,
@@ -46,6 +48,7 @@ func NewPublicAPI(
 	readingSessionQueryService query.ReadingSessionQueryService,
 	imageQueryService query.ImageQueryService,
 	userBookFavouritesQueryService query.UserBookFavouritesQueryService,
+	authorQueryService query.AuthorQueryService,
 
 	verifyBookRequestProvider provider.VerifyBookRequestProvider,
 ) api.ServerInterface {
@@ -58,6 +61,8 @@ func NewPublicAPI(
 		verifyBookRequestService:      verifyBookRequestService,
 		bookRatingService:             bookRatingService,
 		imageService:                  imageService,
+		userBookFavouritesService:     userBookFavouritesService,
+		authorService:                 authorService,
 
 		userQueryService:                   userQueryService,
 		bookQueryService:                   bookQueryService,
@@ -66,8 +71,8 @@ func NewPublicAPI(
 		verifyBookRequestQueryService:      verifyBookRequestQueryService,
 		readingSessionQueryService:         readingSessionQueryService,
 		imageQueryService:                  imageQueryService,
-		userBookFavouritesService:          userBookFavouritesService,
 		userBookFavouritesQueryService:     userBookFavouritesQueryService,
+		authorQueryService:                 authorQueryService,
 
 		verifyBookRequestProvider: verifyBookRequestProvider,
 	}
@@ -87,6 +92,7 @@ type public struct {
 	bookRatingService             service.BookRatingService
 	imageService                  service.ImageService
 	userBookFavouritesService     service.UserBookFavouritesService
+	authorService                 service.AuthorService
 
 	userQueryService                   query.UserQueryService
 	bookQueryService                   query.BookQueryService
@@ -96,6 +102,7 @@ type public struct {
 	readingSessionQueryService         query.ReadingSessionQueryService
 	imageQueryService                  query.ImageQueryService
 	userBookFavouritesQueryService     query.UserBookFavouritesQueryService
+	authorQueryService                 query.AuthorQueryService
 
 	verifyBookRequestProvider provider.VerifyBookRequestProvider
 }
@@ -347,7 +354,7 @@ func (p public) DeleteBook(ctx echo.Context) error {
 func (p public) ListBook(ctx echo.Context, page int, size int) error {
 	bookOutputs, err := p.bookQueryService.List(page, size)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete book: %s", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list book: %s", err))
 	}
 
 	booksRespData := make([]api.Book, len(bookOutputs))
@@ -844,6 +851,32 @@ func (p public) StoreImageUser(ctx echo.Context) error {
 	})
 }
 
+func (p public) StoreImageAuthor(ctx echo.Context) error {
+	var input api.StoreAuthorImageRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	imageID, err := p.imageService.StoreImage(input.ImageData)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to store image author: %s", err))
+	}
+
+	err = p.authorService.EditAuthorAvatar(service.EditAuthorAvatarInput{
+		ID:      domainmodel.AuthorID(input.AuthorId),
+		ImageID: imageID,
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to store image author: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
+		Message: ptr("Store author user successfully"),
+	})
+}
+
 func (p public) ListUserBookFavouritesByBook(ctx echo.Context) error {
 	var input api.ListUserBookFavouritesByBookRequest
 	if err := ctx.Bind(&input); err != nil {
@@ -981,6 +1014,124 @@ func (p public) ListBookByUserBookFavourites(ctx echo.Context) error {
 	})
 }
 
+func (p public) ListAuthors(ctx echo.Context) error {
+	outputs, err := p.authorQueryService.List()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list authors: %s", err))
+	}
+
+	authorsRespData := make([]api.Author, len(outputs))
+	for i, a := range outputs {
+		authorsRespData[i] = convertAuthorOutputModelToAPI(a)
+	}
+
+	return ctx.JSON(http.StatusOK, api.ListAuthorResponse{
+		Authors: authorsRespData,
+	})
+}
+
+func (p public) CreateAuthor(ctx echo.Context) error {
+	var input api.CreateAuthorRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	middleName := maybe.Nothing[string]()
+	if input.MiddleName != nil {
+		middleName = maybe.Just(*input.MiddleName)
+	}
+
+	nickName := maybe.Nothing[string]()
+	if input.MiddleName != nil {
+		nickName = maybe.Just(*input.NickName)
+	}
+
+	err := p.authorService.CreateAuthor(service.CreateAuthorInput{
+		FirstName:  input.FirstName,
+		SecondName: input.SecondName,
+		MiddleName: middleName,
+		Nickname:   nickName,
+	})
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to create author: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
+		Message: ptr("Author created successfully"),
+	})
+}
+
+func (p public) EditAuthor(ctx echo.Context) error {
+	var input api.EditAuthorRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	middleName := maybe.Nothing[string]()
+	if input.MiddleName != nil {
+		middleName = maybe.Just(*input.MiddleName)
+	}
+
+	nickName := maybe.Nothing[string]()
+	if input.MiddleName != nil {
+		nickName = maybe.Just(*input.NickName)
+	}
+
+	err := p.authorService.EditAuthor(service.EditAuthorInput{
+		ID:         domainmodel.AuthorID(input.Id),
+		FirstName:  input.FirstName,
+		SecondName: input.SecondName,
+		MiddleName: middleName,
+		Nickname:   nickName,
+	})
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to edit author: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
+		Message: ptr("Author edited successfully"),
+	})
+}
+
+func (p public) DeleteAuthor(ctx echo.Context) error {
+	var input api.DeleteAuthorRequest
+	if err := ctx.Bind(&input); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, api.BadRequestResponse{
+			Message: ptr(fmt.Sprintf("Invalid request: %s", err)),
+		})
+	}
+
+	err := p.authorService.DeleteAuthor(domainmodel.AuthorID(input.Id))
+
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete author: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
+		Message: ptr("Author deleted successfully"),
+	})
+}
+
+func (p public) GetAuthor(ctx echo.Context, id string) error {
+	uid, err := uuid.FromString(id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to get author: %s", err))
+	}
+
+	output, err := p.authorQueryService.FindByID(domainmodel.AuthorID(uid))
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to get author: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, convertAuthorOutputModelToAPI(output))
+}
+
 func ptr[T any](s T) *T {
 	return &s
 }
@@ -1058,4 +1209,24 @@ func convertBookOutputModelToAPI(bookOutput query.BookOutput) api.Book {
 	}
 
 	return bookAPI
+}
+
+func convertAuthorOutputModelToAPI(output query.AuthorOutput) api.Author {
+	var middleName *string
+	if middleNameValue, ok := output.MiddleName.Get(); ok {
+		middleName = &middleNameValue
+	}
+
+	var nickname *string
+	if nicknameValue, ok := output.Nickname.Get(); ok {
+		nickname = &nicknameValue
+	}
+
+	return api.Author{
+		Id:         openapi_types.UUID(output.AuthorID),
+		FirstName:  output.FirstName,
+		SecondName: output.SecondName,
+		MiddleName: middleName,
+		Nickname:   nickname,
+	}
 }

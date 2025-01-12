@@ -1085,6 +1085,39 @@ paths:
               schema:
                 $ref: '#/components/schemas/NotFoundResponse'
 
+  /api/v1/image/author:
+    post:
+      tags:
+        - ImageAuthor
+      operationId: "StoreImageAuthor"
+      summary: Store image author
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreAuthorImageRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+
   /api/v1/user-book-favourites:
     get:
       tags:
@@ -1226,7 +1259,155 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundResponse'
-                
+
+  /api/v1/author:
+    get:
+      tags:
+        - Author
+      operationId: "ListAuthors"
+      summary: List authors
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAuthorResponse'
+    post:
+      tags:
+        - Author
+      operationId: "CreateAuthor"
+      summary: Create author
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAuthorRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+    patch:
+      tags:
+        - Author
+      operationId: "EditAuthor"
+      summary: Edit author
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditAuthorRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    delete:
+      tags:
+        - Author
+      operationId: "DeleteAuthor"
+      summary: Delete author
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteAuthorRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/author/{id}:
+    get:
+      tags:
+        - Author
+      operationId: "GetAuthor"
+      summary: Get author
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+
 components:
   schemas:
     SuccessResponse:
@@ -1567,6 +1748,17 @@ components:
           type: string
       required:
         - imageData
+    StoreAuthorImageRequest:
+      type: object
+      properties:
+        authorId:
+          type: string
+          format: uuid
+        imageData:
+          type: string
+      required:
+        - authorId
+        - imageData
     DeleteImageRequest:
       type: object
       properties:
@@ -1627,6 +1819,55 @@ components:
           format: uuid
       required:
         - bookId
+    DeleteAuthorRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+      required:
+        - id
+    CreateAuthorRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        secondName:
+          type: string
+        middleName:
+          type: string
+        nickName:
+          type: string
+      required:
+        - firstName
+        - secondName
+    EditAuthorRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        secondName:
+          type: string
+        middleName:
+          type: string
+        nickName:
+          type: string
+      required:
+        - id
+        - firstName
+        - secondName
+    ListAuthorResponse:
+      type: object
+      properties:
+        authors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Author'
+      required:
+        - authors
     Book:
       type: object
       properties:
@@ -1699,3 +1940,21 @@ components:
         - READ
         - DROPPED
         - FAVORITE
+    Author:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        secondName:
+          type: string
+        middleName:
+          type: string
+        nickname:
+          type: string
+      required:
+        - id
+        - firstName
+        - secondName

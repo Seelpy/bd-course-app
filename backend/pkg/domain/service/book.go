@@ -59,12 +59,7 @@ func (service *bookService) CreateBook(input CreateBookInput) error {
 		false,
 	)
 
-	err := service.bookRepo.Store(book)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return service.bookRepo.Store(book)
 }
 
 func (service *bookService) EditBook(input EditBookInput) error {

@@ -21,4 +21,6 @@ var (
 	ErrImageNotFound = errors.New("image not found")
 
 	ErrUserBookFavouritesNotFound = errors.New("user book favourites not found")
+
+	ErrAuthorNotFound = errors.New("author not found")
 )
