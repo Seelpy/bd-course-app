@@ -236,6 +236,13 @@ func (p public) RefreshToken(ctx echo.Context) error {
 	})
 }
 
+func (p public) LogoutUser(ctx echo.Context) error {
+	deleteCookie(ctx, "access_token")
+	deleteCookie(ctx, "refresh_token")
+
+	return ctx.NoContent(http.StatusOK)
+}
+
 func (p public) ListUsers(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, User{ID: "1", Name: "Igor", Email: "maks@mail.ru"})
 }
@@ -1453,5 +1460,16 @@ func setCookie(ctx echo.Context, name, value string, expirationTime time.Time) {
 	cookie.Secure = true
 	cookie.SameSite = http.SameSiteStrictMode
 
+	ctx.SetCookie(cookie)
+}
+
+func deleteCookie(ctx echo.Context, name string) {
+	cookie := &http.Cookie{
+		Name:     name,
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+	}
 	ctx.SetCookie(cookie)
 }
