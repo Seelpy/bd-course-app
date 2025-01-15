@@ -1,0 +1,2360 @@
+openapi: 3.0.0
+info:
+  title: API
+  version: 1.0.0
+
+tags:
+  - name: Auth
+    description: Endpoints for authentication
+  - name: User
+    description: Endpoints for managing users
+  - name: Book
+    description: Endpoints for managing books
+  - name: BookRating
+    description: Endpoints for managing book ratings
+
+paths:
+  /api/v1/auth:
+    post:
+      tags:
+        - Auth
+      operationId: "LoginUser"
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginUserRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginUserResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    patch:
+      tags:
+        - Auth
+      operationId: "RefreshToken"
+      summary: Refresh token
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+
+  /api/v1/book/{id}/raiting:
+    post:
+      tags:
+        - BookRating
+      operationId: "UpdateBookRating"
+      summary: Update Book Rating
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateBookRatingRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    delete:
+      tags:
+        - BookRating
+      operationId: "DeleteBookRating"
+      summary: Delete Book Rating
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    get:
+      tags:
+        - BookRating
+      operationId: "GetBookRating"
+      summary: Get Book Rating
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBookRatingResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/user:
+    get:
+      tags:
+        - User
+      operationId: "ListUsers"
+      summary: List users
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+    post:
+      tags:
+        - User
+      operationId: "CreateUser"
+      summary: Create user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+    patch:
+      tags:
+        - User
+      operationId: "EditUser"
+      summary: Edit user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditUserRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    delete:
+      tags:
+        - User
+      operationId: "DeleteUser"
+      summary: Delete user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteUserRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/user/{id}:
+    get:
+      tags:
+        - User
+      operationId: "GetUser"
+      summary: Get user by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+
+  /api/v1/book:
+    post:
+      tags:
+        - Book
+      operationId: "CreateBook"
+      summary: Create book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+    patch:
+      tags:
+        - Book
+      operationId: "EditBook"
+      summary: Edit book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditBookRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    delete:
+      tags:
+        - Book
+      operationId: "DeleteBook"
+      summary: Delete book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteBookRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/book/{page}/{size}:
+    get:
+      tags:
+        - Book
+      operationId: "ListBook"
+      summary: List book paging
+      parameters:
+        - in: path
+          name: page
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: size
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListBookResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+
+  /api/v1/book/{id}:
+    get:
+      tags:
+        - Book
+      operationId: "GetBook"
+      summary: Get book
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBookResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+
+  /api/v1/book-chapter:
+    get:
+      tags:
+        - BookChapter
+      operationId: "ListBookChapter"
+      summary: List book chapter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListBookChapterRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListBookChapterResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+    post:
+      tags:
+        - BookChapter
+      operationId: "CreateBookChapter"
+      summary: Create book chapter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBookChapterRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    patch:
+      tags:
+        - BookChapter
+      operationId: "EditBookChapter"
+      summary: Edit book chapter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditBookChapterRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    delete:
+      tags:
+        - BookChapter
+      operationId: "DeleteBookChapter"
+      summary: Delete book chapter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteBookChapterRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/book-chapter-translation:
+    get:
+      tags:
+        - BookChapterTranslation
+      operationId: "GetBookChapterTranslation"
+      summary: Get book chapter translation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetBookChapterTranslationRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBookChapterTranslationResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    post:
+      tags:
+        - BookChapterTranslation
+      operationId: "StoreBookChapterTranslation"
+      summary: Store book chapter translation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreBookChapterTranslationRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/book-chapter-translation/translator:
+    get:
+      tags:
+        - BookChapterTranslation
+      operationId: "ListTranslatorsByBookChapterId"
+      summary: List translators by book chapter id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListTranslatorsByBookChapterIdRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListTranslatorsByBookChapterIdResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/reading-session:
+    get:
+      tags:
+        - ReadingSession
+      operationId: "GetLastReadingSession"
+      summary: Get last reading session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetLastReadingSessionRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLastReadingSessionResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    post:
+      tags:
+        - ReadingSession
+      operationId: "StoreReadingSession"
+      summary: Store reading session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreReadingSessionRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/verify-book-request:
+    get:
+      tags:
+        - VerifyBookRequest
+      operationId: "ListVerifyBookRequest"
+      summary: List verify book request
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListVerifyBookRequestResponse'
+    post:
+      tags:
+        - VerifyBookRequest
+      operationId: "CreateVerifyBookRequest"
+      summary: Create verify book request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVerifyBookRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    delete:
+      tags:
+        - VerifyBookRequest
+      operationId: "DeleteVerifyBookRequest"
+      summary: Delete verify book request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteVerifyBookRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/verify-book-request/accept:
+    post:
+      tags:
+        - VerifyBookRequest
+      operationId: "AcceptVerifyBookRequest"
+      summary: Accept verify book request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcceptBookChapterRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/image:
+    get:
+      tags:
+        - Image
+      operationId: "GetImage"
+      summary: Get book image
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetImageRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetImageResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    delete:
+      tags:
+        - Image
+      operationId: "DeleteImage"
+      summary: Delete image
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteImageRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/image/book:
+    post:
+      tags:
+        - ImageBook
+      operationId: "StoreImageBook"
+      summary: Store image book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreBookImageRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/image/user:
+    post:
+      tags:
+        - ImageUser
+      operationId: "StoreImageUser"
+      summary: Store image user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreUserImageRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/image/author:
+    post:
+      tags:
+        - ImageAuthor
+      operationId: "StoreImageAuthor"
+      summary: Store image author
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreAuthorImageRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/user-book-favourites:
+    get:
+      tags:
+        - UserBookFavourites
+      operationId: "ListUserBookFavouritesByBook"
+      summary: List user book favourites
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListUserBookFavouritesByBookRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUserBookFavouritesByBookResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    post:
+      tags:
+        - UserBookFavourites
+      operationId: "StoreUserBookFavourites"
+      summary: Store user book favourites
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreUserBookFavouritesRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+    delete:
+      tags:
+        - UserBookFavourites
+      operationId: "DeleteUserBookFavourites"
+      summary: Delete user book favourites
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteUserBookFavouritesRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/user-book-favourites/book:
+    get:
+      tags:
+        - UserBookFavourites
+      operationId: "ListBookByUserBookFavourites"
+      summary: List book by user book favourites
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListBookByUserBookFavouritesRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListBookByUserBookFavouritesResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/author:
+    get:
+      tags:
+        - Author
+      operationId: "ListAuthors"
+      summary: List authors
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListAuthorResponse'
+    post:
+      tags:
+        - Author
+      operationId: "CreateAuthor"
+      summary: Create author
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAuthorRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+    patch:
+      tags:
+        - Author
+      operationId: "EditAuthor"
+      summary: Edit author
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditAuthorRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    delete:
+      tags:
+        - Author
+      operationId: "DeleteAuthor"
+      summary: Delete author
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteAuthorRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/author/{id}:
+    get:
+      tags:
+        - Author
+      operationId: "GetAuthor"
+      summary: Get author
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+
+  /api/v1/book-author:
+    post:
+      tags:
+        - BookAuthor
+      operationId: "StoreBookAuthor"
+      summary: Store book author
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreBookAuthorRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+    delete:
+      tags:
+        - BookAuthor
+      operationId: "DeleteBookAuthor"
+      summary: Delete book author
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteBookAuthorRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/genre:
+    get:
+      tags:
+        - Genre
+      operationId: "ListGenres"
+      summary: List genres
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListGenreResponse'
+    post:
+      tags:
+        - Genre
+      operationId: "CreateGenre"
+      summary: Create genre
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGenreRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+    patch:
+      tags:
+        - Genre
+      operationId: "EditGenre"
+      summary: Edit genre
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditGenreRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+    delete:
+      tags:
+        - Genre
+      operationId: "DeleteGenre"
+      summary: Delete genre
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteGenreRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/book-genre:
+    post:
+      tags:
+        - BookGenre
+      operationId: "StoreBookGenre"
+      summary: Store genre book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreBookGenreRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+    delete:
+      tags:
+        - BookGenre
+      operationId: "DeleteBookGenre"
+      summary: Delete genre book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteBookGenreRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '403':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
+components:
+  schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    BadRequestResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    UnauthorizedResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    NotFoundResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+    LoginUserRequest:
+      type: object
+      properties:
+        login:
+          type: string
+        password:
+          type: string
+      required:
+        - login
+        - password
+    UpdateBookRatingRequest:
+      type: object
+      properties:
+        value:
+          type: integer
+      required:
+        - value
+    GetBookRatingResponse:
+      type: object
+      properties:
+        average:
+          type: integer
+        count:
+          type: integer
+    LoginUserResponse:
+      type: object
+      properties:
+        token:
+          type: string
+      required:
+        - token
+    CreateUserRequest:
+      type: object
+      properties:
+        login:
+          type: string
+        password:
+          type: string
+        aboutMe:
+          type: string
+      required:
+        - login
+        - password
+        - aboutMe
+    EditUserRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        login:
+          type: string
+        password:
+          type: string
+        aboutMe:
+          type: string
+      required:
+        - id
+        - login
+        - password
+        - aboutMe
+    DeleteUserRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+      required:
+        - id
+    CreateBookRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+      required:
+        - title
+        - description
+    EditBookRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        description:
+          type: string
+      required:
+        - id
+        - title
+        - description
+    DeleteBookRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+      required:
+        - id
+    ListBookChapterRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+      required:
+        - bookId
+    ListBookChapterResponse:
+      type: object
+      properties:
+        bookChapters:
+          type: array
+          items:
+            $ref: '#/components/schemas/BookChapter'
+    CreateBookChapterRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+        title:
+          type: string
+      required:
+        - bookId
+        - title
+    EditBookChapterRequest:
+      type: object
+      properties:
+        bookChapterId:
+          type: string
+          format: uuid
+        title:
+          type: string
+      required:
+        - bookChapterId
+        - title
+    DeleteBookChapterRequest:
+      type: object
+      properties:
+        bookChapterId:
+          type: string
+          format: uuid
+      required:
+        - bookChapterId
+    StoreBookChapterTranslationRequest:
+      type: object
+      properties:
+        bookChapterId:
+          type: string
+          format: uuid
+        text:
+          type: string
+      required:
+        - bookChapterId
+        - text
+    GetBookChapterTranslationRequest:
+      type: object
+      properties:
+        bookChapterId:
+          type: string
+          format: uuid
+        translatorId:
+          type: string
+          format: uuid
+      required:
+        - bookChapterId
+        - translatorId
+    GetBookChapterTranslationResponse:
+      type: object
+      properties:
+        text:
+          type: string
+      required:
+        - text
+    ListTranslatorsByBookChapterIdRequest:
+      type: object
+      properties:
+        bookChapterId:
+          type: string
+          format: uuid
+      required:
+        - bookChapterId
+    ListTranslatorsByBookChapterIdResponse:
+      type: object
+      properties:
+        translatorsId:
+          type: array
+          items:
+            type: string
+            format: uuid
+      required:
+        - translatorsId
+    GetLastReadingSessionRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+      required:
+        - bookId
+    GetLastReadingSessionResponse:
+      type: object
+      properties:
+        bookChapterId:
+          type: string
+          format: uuid
+      required:
+        - bookChapterId
+    StoreReadingSessionRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+        bookChapterId:
+          type: string
+          format: uuid
+      required:
+        - bookId
+        - bookChapterId
+    ListVerifyBookRequestResponse:
+      type: object
+      properties:
+        verifyBookRequests:
+          type: array
+          items:
+            $ref: '#/components/schemas/VerifyBookRequest'
+      required:
+        - verifyBookRequests
+    CreateVerifyBookRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+      required:
+        - bookId
+    DeleteVerifyBookRequest:
+      type: object
+      properties:
+        verifyBookRequestId:
+          type: string
+          format: uuid
+      required:
+        - verifyBookRequestId
+    AcceptBookChapterRequest:
+      type: object
+      properties:
+        verifyBookRequestId:
+          type: string
+          format: uuid
+        accept:
+          type: boolean
+      required:
+        - verifyBookRequestId
+        - accept
+    GetBookResponse:
+      type: object
+      properties:
+        book:
+          $ref: "#/components/schemas/Book"
+      required:
+        - book
+    ListBookResponse:
+      type: object
+      properties:
+        books:
+          type: array
+          items:
+            $ref: "#/components/schemas/Book"
+        countPages:
+          type: integer
+      required:
+        - books
+    GetImageRequest:
+      type: object
+      properties:
+        imageId:
+          type: string
+          format: uuid
+      required:
+        - imageId
+    GetImageResponse:
+      type: object
+      properties:
+        imageData:
+          type: string
+      required:
+        - imageData
+    StoreBookImageRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+        imageData:
+          type: string
+      required:
+        - bookId
+        - imageData
+    StoreUserImageRequest:
+      type: object
+      properties:
+        imageData:
+          type: string
+      required:
+        - imageData
+    StoreAuthorImageRequest:
+      type: object
+      properties:
+        authorId:
+          type: string
+          format: uuid
+        imageData:
+          type: string
+      required:
+        - authorId
+        - imageData
+    DeleteImageRequest:
+      type: object
+      properties:
+        imageId:
+          type: string
+          format: uuid
+      required:
+        - imageId
+    ListUserBookFavouritesByBookRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+      required:
+        - bookId
+    ListUserBookFavouritesByBookResponse:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/UserBookFavouritesType'
+      required:
+        - type
+    ListBookByUserBookFavouritesRequest:
+      type: object
+      properties:
+        types:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserBookFavouritesType'
+      required:
+        - types
+    ListBookByUserBookFavouritesResponse:
+      type: object
+      properties:
+        userBookFavouritesBooks:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserBookFavouritesBooks'
+      required:
+        - userBookFavouritesBooks
+    StoreUserBookFavouritesRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/UserBookFavouritesType'
+      required:
+        - bookId
+        - type
+    DeleteUserBookFavouritesRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+      required:
+        - bookId
+    DeleteAuthorRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+      required:
+        - id
+    CreateAuthorRequest:
+      type: object
+      properties:
+        firstName:
+          type: string
+        secondName:
+          type: string
+        middleName:
+          type: string
+        nickName:
+          type: string
+      required:
+        - firstName
+        - secondName
+    EditAuthorRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        secondName:
+          type: string
+        middleName:
+          type: string
+        nickName:
+          type: string
+      required:
+        - id
+        - firstName
+        - secondName
+    ListAuthorResponse:
+      type: object
+      properties:
+        authors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Author'
+      required:
+        - authors
+    StoreBookAuthorRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+        authorId:
+          type: string
+          format: uuid
+      required:
+        - bookId
+        - authorId
+    DeleteBookAuthorRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+        authorId:
+          type: string
+          format: uuid
+      required:
+        - bookId
+        - authorId
+    CreateGenreRequest:
+      type: object
+      properties:
+        name:
+          type: string
+      required:
+        - name
+    EditGenreRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+        - id
+        - name
+    DeleteGenreRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+      required:
+        - id
+    ListGenreResponse:
+      type: object
+      properties:
+        genres:
+          type: array
+          items:
+            $ref: '#/components/schemas/Genre'
+      required:
+        - genres
+    StoreBookGenreRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+        genreId:
+          type: string
+          format: uuid
+      required:
+        - bookId
+        - genreId
+    DeleteBookGenreRequest:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+        genreId:
+          type: string
+          format: uuid
+      required:
+        - bookId
+        - genreId
+    Book:
+      type: object
+      properties:
+        bookId:
+          type: string
+          format: uuid
+        cover:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+      required:
+        - bookId
+        - title
+        - description
+    BookChapter:
+      type: object
+      properties:
+        bookChapterId:
+          type: string
+          format: uuid
+        index:
+          type: integer
+        title:
+          type: string
+      required:
+        - bookChapterId
+        - index
+        - title
+    VerifyBookRequest:
+      type: object
+      properties:
+        verifyBookRequestId:
+          type: string
+          format: uuid
+        translatorId:
+          type: string
+          format: uuid
+        bookId:
+          type: string
+          format: uuid
+        isVerified:
+          type: boolean
+        sendDateMilli:
+          type: integer
+      required:
+        - verifyBookRequestId
+        - translatorId
+        - bookId
+        - sendDateMilli
+    UserBookFavouritesBooks:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/UserBookFavouritesType'
+        books:
+          type: array
+          items:
+            $ref: '#/components/schemas/Book'
+      required:
+        - type
+        - books
+    UserBookFavouritesType:
+      type: string
+      enum:
+        - READING
+        - PLANNED
+        - DEFERRED
+        - READ
+        - DROPPED
+        - FAVORITE
+    Author:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+        secondName:
+          type: string
+        middleName:
+          type: string
+        nickname:
+          type: string
+      required:
+        - id
+        - firstName
+        - secondName
+    Genre:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+      required:
+        - id
+        - name
