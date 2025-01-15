@@ -394,7 +394,12 @@ func (p public) ListBook(ctx echo.Context, page int, size int) error {
 
 	booksRespData := make([]api.Book, len(bookOutputs))
 	for i, b := range bookOutputs {
-		booksRespData[i] = convertBookOutputModelToAPI(b)
+		authors, err2 := p.authorQueryService.ListByBookID(b.BookID)
+		if err2 != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list author: %s", err2))
+		}
+
+		booksRespData[i] = convertBookOutputModelToAPI(b, authors)
 	}
 
 	countBook, err := p.bookQueryService.CountBook(true)
@@ -420,18 +425,12 @@ func (p public) GetBook(ctx echo.Context, id string) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list book: %s", err))
 	}
 
-	cover, ok := book.Cover.Get()
-
-	bookRespData := api.Book{
-		BookId:      openapi_types.UUID(book.BookID),
-		Cover:       ptr(cover),
-		Title:       book.Title,
-		Description: book.Description,
+	authors, err2 := p.authorQueryService.ListByBookID(book.BookID)
+	if err2 != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list author: %s", err2))
 	}
 
-	if !ok {
-		bookRespData.Cover = nil
-	}
+	bookRespData := convertBookOutputModelToAPI(book, authors)
 
 	return ctx.JSON(http.StatusOK, api.GetBookResponse{
 		Book: bookRespData,
@@ -1035,7 +1034,12 @@ func (p public) ListBookByUserBookFavourites(ctx echo.Context) error {
 
 		books := make([]api.Book, len(output.Books))
 		for j, book := range output.Books {
-			books[j] = convertBookOutputModelToAPI(book)
+			authors, err3 := p.authorQueryService.ListByBookID(book.BookID)
+			if err3 != nil {
+				return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list author: %s", err3))
+			}
+
+			books[j] = convertBookOutputModelToAPI(book, authors)
 		}
 
 		userBookFavouritesBooks[i] = api.UserBookFavouritesBooks{
@@ -1379,7 +1383,12 @@ func convertUserBookFavouritesTypeModelToAPI(modelType domainmodel.UserBookFavou
 	}
 }
 
-func convertBookOutputModelToAPI(bookOutput query.BookOutput) api.Book {
+func convertBookOutputModelToAPI(bookOutput query.BookOutput, authors []query.AuthorOutput) api.Book {
+	authorsAPI := make([]api.Author, len(authors))
+	for i, author := range authors {
+		authorsAPI[i] = convertAuthorOutputModelToAPI(author)
+	}
+
 	cover, ok := bookOutput.Cover.Get()
 
 	bookAPI := api.Book{
@@ -1387,6 +1396,7 @@ func convertBookOutputModelToAPI(bookOutput query.BookOutput) api.Book {
 		Cover:       ptr(cover),
 		Title:       bookOutput.Title,
 		Description: bookOutput.Description,
+		Authors:     authorsAPI,
 	}
 
 	if !ok {

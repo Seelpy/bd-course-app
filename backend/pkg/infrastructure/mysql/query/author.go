@@ -12,6 +12,7 @@ import (
 type AuthorQueryService interface {
 	FindByID(authorID model.AuthorID) (AuthorOutput, error)
 	List() ([]AuthorOutput, error)
+	ListByBookID(bookID model.BookID) ([]AuthorOutput, error)
 }
 
 type AuthorOutput struct {
@@ -99,6 +100,61 @@ func (service *authorQueryService) List() ([]AuthorOutput, error) {
 
 	var sqlxAuthors []sqlxAuthor
 	err := service.connection.Select(&sqlxAuthors, query)
+	if err != nil {
+		return nil, err
+	}
+
+	authorOutputs := make([]AuthorOutput, len(sqlxAuthors))
+	for i, a := range sqlxAuthors {
+		avatar := maybe.Nothing[string]()
+		if a.Avatar.Valid {
+			avatar = maybe.Just(a.Avatar.String)
+		}
+
+		middleName := maybe.Nothing[string]()
+		if a.MiddleName.Valid {
+			middleName = maybe.Just(a.MiddleName.String)
+		}
+
+		nickname := maybe.Nothing[string]()
+		if a.Nickname.Valid {
+			nickname = maybe.Just(a.Nickname.String)
+		}
+
+		authorOutputs[i] = AuthorOutput{
+			AuthorID:   a.AuthorID,
+			Avatar:     avatar,
+			FirstName:  a.FirstName,
+			SecondName: a.SecondName,
+			MiddleName: middleName,
+			Nickname:   nickname,
+		}
+	}
+
+	return authorOutputs, nil
+}
+
+func (service *authorQueryService) ListByBookID(bookID model.BookID) ([]AuthorOutput, error) {
+	const query = `
+		SELECT 
+			a.author_id,
+			i.path AS avatar,
+			a.first_name,
+			a.second_name,
+			a.middle_name,
+			a.nickname
+		FROM author a
+		LEFT JOIN book_author ba ON a.author_id = ba.author_id AND ba.book_id = ?;
+		LEFT JOIN image i ON a.avatar_id = i.image_id;
+	`
+
+	binaryBookID, err := uuid.UUID(bookID).MarshalBinary()
+	if err != nil {
+		return nil, err
+	}
+
+	var sqlxAuthors []sqlxAuthor
+	err = service.connection.Select(&sqlxAuthors, query, binaryBookID)
 	if err != nil {
 		return nil, err
 	}
