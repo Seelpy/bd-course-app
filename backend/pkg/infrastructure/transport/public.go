@@ -14,6 +14,7 @@ import (
 	"server/pkg/infrastructure/model"
 	"server/pkg/infrastructure/mysql/provider"
 	"server/pkg/infrastructure/mysql/query"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -393,8 +394,9 @@ func (p public) DeleteBook(ctx echo.Context) error {
 	})
 }
 
-func (p public) ListBook(ctx echo.Context, queryParams api.ListBookParams) error {
-	bookOutputs, err := p.bookQueryService.List(1, 1)
+func (p public) SearchBook(ctx echo.Context, queryParams api.SearchBookParams) error {
+	spec := convertListBookParamsToListSpec(queryParams)
+	bookOutputs, err := p.bookQueryService.List(spec)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list book: %s", err))
 	}
@@ -416,7 +418,7 @@ func (p public) ListBook(ctx echo.Context, queryParams api.ListBookParams) error
 
 	return ctx.JSON(http.StatusOK, api.ListBookResponse{
 		Books:      booksRespData,
-		CountPages: ptr(int(math.Ceil(float64(countBook) / float64(4)))),
+		CountPages: ptr(int(math.Ceil(float64(countBook) / float64(spec.Size)))),
 	})
 }
 
@@ -1438,6 +1440,71 @@ func convertGenreOutputModelToAPI(output query.GenreOutput) api.Genre {
 		Id:   openapi_types.UUID(output.GenreID),
 		Name: output.Name,
 	}
+}
+
+func convertListBookParamsToListSpec(params api.SearchBookParams) query.ListSpec {
+	spec := query.ListSpec{
+		Page: params.Page,
+		Size: params.Size,
+	}
+
+	spec.BookTitle = maybe.Nothing[string]()
+	if params.BookTitle != nil {
+		spec.BookTitle = maybe.Just(*params.BookTitle)
+	}
+
+	spec.AuthorIDs = maybe.Nothing[[]domainmodel.AuthorID]()
+	if params.AuthorIds != nil {
+		uuidStrings := strings.Split(*params.AuthorIds, ",")
+		authorIDs := make([]domainmodel.AuthorID, 0, len(uuidStrings))
+
+		for _, uuidStr := range uuidStrings {
+			uuidStr = strings.TrimSpace(uuidStr)
+			if uuidStr != "" {
+				authorIDs = append(authorIDs, domainmodel.AuthorID(uuid.FromStringOrNil(uuidStr)))
+			}
+		}
+
+		if len(authorIDs) > 0 {
+			spec.AuthorIDs = maybe.Just(authorIDs)
+		}
+	}
+
+	spec.RatingExtreme = maybe.Nothing[query.RatingExtremeType]()
+	if params.Rating != nil {
+		if *params.Rating == api.MINRATING {
+			spec.RatingExtreme = maybe.Just(query.RAITING_EXTREME_MIN)
+		} else if *params.Rating == api.MAXRATING {
+			spec.RatingExtreme = maybe.Just(query.RAITING_EXTREME_MAX)
+		}
+	}
+
+	if params.GenreIds != nil {
+		uuidStrings := strings.Split(*params.GenreIds, ",")
+		genreIDs := make([]domainmodel.GenreID, 0, len(uuidStrings))
+
+		for _, uuidStr := range uuidStrings {
+			uuidStr = strings.TrimSpace(uuidStr)
+			if uuidStr != "" {
+				genreIDs = append(genreIDs, domainmodel.GenreID(uuid.FromStringOrNil(uuidStr)))
+			}
+		}
+
+		if len(genreIDs) > 0 {
+			spec.GenreIDs = maybe.Just(genreIDs)
+		}
+	}
+
+	spec.BookChapterExtreme = maybe.Nothing[query.BookChapterExtremeType]()
+	if params.NumberBookChapter != nil {
+		if *params.NumberBookChapter == api.MINBOOKCHAPTERS {
+			spec.BookChapterExtreme = maybe.Just(query.BOOK_CHAPTER_MIN)
+		} else if *params.NumberBookChapter == api.MAXBOOKCHAPTERS {
+			spec.BookChapterExtreme = maybe.Just(query.BOOK_CHAPTER_MAX)
+		}
+	}
+
+	return spec
 }
 
 func createToken(user model.User, expirationTimeDur time.Duration) (string, time.Time, error) {

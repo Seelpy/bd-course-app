@@ -84,7 +84,7 @@ paths:
     delete:
       tags:
         - Auth
-      operationId: "Logout"
+      operationId: "LogoutUser"
       summary: Logout user
       responses:
         '200':
@@ -498,8 +498,8 @@ paths:
     get:
       tags:
         - Book
-      operationId: "ListBook"
-      summary: List book paging
+      operationId: "SearchBook"
+      summary: Search book
       parameters:
         - in: query
           name: page
@@ -540,8 +540,8 @@ paths:
           schema:
             type: string
             enum:
-              - MIN_CHAPTERS
-              - MAX_CHAPTERS
+              - MIN_BOOK_CHAPTERS
+              - MAX_BOOK_CHAPTERS
       responses:
         '200':
           description: Successful response
