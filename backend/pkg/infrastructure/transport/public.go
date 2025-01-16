@@ -393,8 +393,8 @@ func (p public) DeleteBook(ctx echo.Context) error {
 	})
 }
 
-func (p public) ListBook(ctx echo.Context, page int, size int) error {
-	bookOutputs, err := p.bookQueryService.List(page, size)
+func (p public) ListBook(ctx echo.Context, queryParams api.ListBookParams) error {
+	bookOutputs, err := p.bookQueryService.List(1, 1)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list book: %s", err))
 	}
@@ -416,7 +416,7 @@ func (p public) ListBook(ctx echo.Context, page int, size int) error {
 
 	return ctx.JSON(http.StatusOK, api.ListBookResponse{
 		Books:      booksRespData,
-		CountPages: ptr(int(math.Ceil(float64(countBook) / float64(size)))),
+		CountPages: ptr(int(math.Ceil(float64(countBook) / float64(4)))),
 	})
 }
 
