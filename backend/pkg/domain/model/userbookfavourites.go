@@ -3,12 +3,12 @@ package model
 type UserBookFavouritesType int16
 
 const (
-	Reading UserBookFavouritesType = iota
-	Planned
-	Deferred
-	Read
-	Dropped
-	Favorite
+	READING UserBookFavouritesType = iota
+	PLANNED
+	DEFERRED
+	READ
+	DROPPED
+	FAVORITE
 )
 
 type UserBookFavourites struct {

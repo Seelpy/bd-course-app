@@ -1,0 +1,34 @@
+### Create
+POST http://localhost:8082/api/v1/verify-book-request
+Content-Type: application/json
+
+{
+  "translatorId": "0d871ed0-ca04-11ef-a61e-0242ac130003",
+  "bookId": "a71c7282-e4e9-4cce-bf33-361fdf3255bb"
+}
+###
+
+### Delete
+DELETE http://localhost:8082/api/v1/verify-book-request
+Content-Type: application/json
+
+{
+  "verifyBookRequestId": "20975b21-bed1-4ec9-9ad3-b96335d321a9"
+}
+###
+
+### Accept
+POST http://localhost:8082/api/v1/verify-book-request/accept
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFkbWluIiwicm9sZSI6MCwiZXhwIjoxNzM1OTYwMTIyfQ.YvA2Hb7vfjAGoHeA2Y3QzCoVti5_F5an3SjYc63LHog
+
+{
+  "verifyBookRequestId": "1623c3db-1149-4de3-a050-ab7d321a2899",
+  "accept": false
+}
+###
+
+### list
+GET http://localhost:8082/api/v1/verify-book-request
+Content-Type: application/json
+###

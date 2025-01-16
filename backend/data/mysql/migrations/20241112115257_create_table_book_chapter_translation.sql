@@ -8,7 +8,7 @@ CREATE TABLE book_chapter_translation
     translator_id   BINARY(16) NOT NULL,          -- UUID переводчика
     text            TEXT NOT NULL,                -- Текст перевода
     PRIMARY KEY (book_chapter_id, translator_id), -- Композитный первичный ключ
-    CONSTRAINT fk_book_chapter_translation FOREIGN KEY (book_chapter_id) REFERENCES book_chapter (book_chapter_id),
+    CONSTRAINT fk_book_chapter_translation FOREIGN KEY (book_chapter_id) REFERENCES book_chapter (book_chapter_id) ON DELETE CASCADE,
     CONSTRAINT fk_translator FOREIGN KEY (translator_id) REFERENCES user (user_id)
 )
     ENGINE=InnoDB

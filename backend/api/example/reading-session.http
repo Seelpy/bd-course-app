@@ -1,0 +1,18 @@
+### Create
+POST http://localhost:8082/api/v1/reading-session
+Content-Type: application/json
+
+{
+  "bookId": "a71c7282-e4e9-4cce-bf33-361fdf3255bb",
+  "bookChapterId": "97976b9c-8017-4fd0-bf25-b25c51139539"
+}
+###
+
+### Get
+GET http://localhost:8082/api/v1/reading-session
+Content-Type: application/json
+
+{
+  "bookId": "a71c7282-e4e9-4cce-bf33-361fdf3255bb"
+}
+###

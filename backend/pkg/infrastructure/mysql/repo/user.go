@@ -1,8 +1,11 @@
 package repo
 
 import (
+	"database/sql"
+	"errors"
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx"
+	"github.com/mono83/maybe"
 	"server/pkg/domain/model"
 )
 
@@ -26,20 +29,33 @@ func (repo *UserRepository) Store(user model.User) error {
 			      login,
 			      role,
 			      password,
-			      about_me
+			      about_me,
+			      avatar_id
 			)
-		VALUES (
-			?,
-		    ?,
-		    ?,
-		    ?,
-		    ?
-		)
+		VALUES (?, ?, ?, ?, ?, ?)
+		ON DUPLICATE KEY UPDATE
+			 login = VALUES(login),
+			 role = VALUES(role),
+			 password = VALUES(password),
+			 about_me = VALUES(about_me),
+			 avatar_id = VALUES(avatar_id)
 	`
 
 	binaryUserID, err := uuid.UUID(user.ID()).MarshalBinary()
 	if err != nil {
 		return err
+	}
+
+	var avatarID *[]byte
+	if imageID, ok := user.AvatarID().Get(); ok {
+		uid, err2 := uuid.UUID(imageID).MarshalBinary()
+		if err2 != nil {
+			return err2
+		}
+
+		avatarID = &uid
+	} else {
+		avatarID = nil
 	}
 
 	_, err = repo.connection.Exec(query,
@@ -48,15 +64,71 @@ func (repo *UserRepository) Store(user model.User) error {
 		user.Role(),
 		user.Password(),
 		user.AboutMe(),
+		avatarID,
 	)
 
+	return err
+}
+
+func (repo *UserRepository) Delete(userID model.UserID) error {
+	const query = `DELETE FROM user WHERE user_id = ?`
+
+	binaryUserID, err := uuid.UUID(userID).MarshalBinary()
 	if err != nil {
 		return err
 	}
 
-	return nil
+	result, err := repo.connection.Exec(query, binaryUserID)
+	if err != nil {
+		return err
+	}
+
+	count, err := result.RowsAffected()
+	if count == 0 {
+		return model.ErrUserNotFound
+	}
+
+	return err
 }
 
-func (repo *UserRepository) List(userIDs []model.UserID) ([]model.User, error) {
-	return nil, nil
+func (repo *UserRepository) FindByID(userID model.UserID) (model.User, error) {
+	const query = `
+		SELECT
+			login,
+			role,
+			password,
+			about_me
+		FROM user
+		WHERE user_id = ?
+`
+
+	var user sqlxUser
+	binaryUserID, err := uuid.UUID(userID).MarshalBinary()
+	if err != nil {
+		return model.User{}, err
+	}
+
+	err = repo.connection.Get(&user, query, binaryUserID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return model.User{}, model.ErrUserNotFound
+	}
+	if err != nil {
+		return model.User{}, err
+	}
+
+	return model.NewUser(
+		model.UserID(userID),
+		maybe.Nothing[model.ImageID](),
+		user.Login,
+		model.UserRole(user.Role),
+		user.Password,
+		user.AboutMe,
+	), nil
+}
+
+type sqlxUser struct {
+	Login    string `db:"login"`
+	Role     int    `db:"role"`
+	Password string `db:"password"`
+	AboutMe  string `db:"about_me"`
 }

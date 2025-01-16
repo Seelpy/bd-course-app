@@ -9,7 +9,7 @@ CREATE TABLE book_chapter
     chapter_index   INT UNIQUE   NOT NULL, -- Индекс главы (уникальный)
     title           VARCHAR(255) NOT NULL, -- Заголовок главы
     PRIMARY KEY (book_chapter_id),         -- Первичный ключ
-    CONSTRAINT fk_book_chapter FOREIGN KEY (book_id) REFERENCES book (book_id)
+    CONSTRAINT fk_book_chapter FOREIGN KEY (book_id) REFERENCES book (book_id) ON DELETE CASCADE
 )
     ENGINE=InnoDB
     CHARACTER SET = utf8mb4

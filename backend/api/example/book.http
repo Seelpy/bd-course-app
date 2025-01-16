@@ -1,0 +1,43 @@
+### create book
+POST http://localhost:8082/api/v1/book
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFidSIsInJvbGUiOjEsImV4cCI6MTczMzY5OTU1OX0.mnnB-qLtOF5xguDDiY_F6oOaOiTJh-18cxXRpgXJdLg
+
+{
+  "title": "book4",
+  "description": "bookdesc"
+}
+###
+
+### edit book
+PATCH http://localhost:8082/api/v1/book
+Content-Type: application/json
+Authorization: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dpbiI6ImFidSIsInJvbGUiOjEsImV4cCI6MTczMzY5OTU1OX0.mnnB-qLtOF5xguDDiY_F6oOaOiTJh-18cxXRpgXJdLg
+
+{
+  "id": "74bd6dca-d1f2-4c0b-9a55-be603c3f7555",
+  "title": "book4",
+  "description": "bookdesc1"
+}
+###
+
+### delete book
+DELETE http://localhost:8082/api/v1/book
+Content-Type: application/json
+
+{
+  "id": "e256c95d-7588-49bf-b0b1-8a9c750f7ef9"
+}
+###
+
+### list book
+GET http://localhost:8082/api/v1/book/1/2
+Content-Type: application/json
+###
+
+### get book
+GET http://localhost:8082/api/v1/book/a71c7282-e4e9-4cce-bf33-361fdf3255bb
+Content-Type: application/json
+###
+
+

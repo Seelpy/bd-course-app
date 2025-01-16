@@ -6,6 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/mono83/maybe"
+	model2 "server/pkg/domain/model"
 	"server/pkg/infrastructure/model"
 )
 
@@ -31,44 +32,33 @@ func (service *userQueryService) FindByLogin(login string) (model.User, error) {
 			password,
        		about_me
 		FROM user
-		WHERE login = ?
+		WHERE login = ?;
 `
 
-	var sqlxUser sqlxUser
-
-	row := service.connection.QueryRow(query, login)
-
-	err := row.Scan(
-		&sqlxUser.ID,
-		&sqlxUser.AvatarID,
-		&sqlxUser.Login,
-		&sqlxUser.Role,
-		&sqlxUser.Password,
-		&sqlxUser.AboutMe,
-	)
-
+	var user sqlxUser
+	err := service.connection.Get(&user, query, login)
+	if errors.Is(err, sql.ErrNoRows) {
+		return model.User{}, model2.ErrUserNotFound
+	}
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return model.User{}, nil
-		}
 		return model.User{}, err
 	}
 
 	var avatarID maybe.Maybe[uuid.UUID]
-	if sqlxUser.AvatarID.Valid {
-		id, err2 := uuid.FromString(sqlxUser.AvatarID.String)
+	if user.AvatarID.Valid {
+		id, err2 := uuid.FromString(user.AvatarID.String)
 		if err2 == nil {
 			avatarID = maybe.Just(id)
 		}
 	}
 
 	return model.User{
-		ID:       sqlxUser.ID,
+		ID:       user.ID,
 		AvatarID: avatarID,
-		Login:    sqlxUser.Login,
-		Role:     sqlxUser.Role,
-		Password: sqlxUser.Password,
-		AboutMe:  sqlxUser.AboutMe,
+		Login:    user.Login,
+		Role:     user.Role,
+		Password: user.Password,
+		AboutMe:  user.AboutMe,
 	}, nil
 }
 

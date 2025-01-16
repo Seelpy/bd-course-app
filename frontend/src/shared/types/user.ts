@@ -1,5 +1,22 @@
-export type UserInfo = {
-  userName: string;
+export type User = {
+  id: string;
+  name: string;
   email: string;
-  admin: boolean;
+};
+
+export type CreateUser = {
+  login: string;
+  password: string;
+  aboutMe: string;
+};
+
+export type EditUser = {
+  id: string;
+  login: string;
+  password: string;
+  aboutMe: string;
+};
+
+export type DeleteUser = {
+  id: string;
 };

@@ -1,0 +1,37 @@
+### create
+POST http://localhost:8082/api/v1/book-chapter
+Content-Type: application/json
+
+{
+  "bookId": "a71c7282-e4e9-4cce-bf33-361fdf3255bb",
+  "title": "Я первая глава"
+}
+###
+
+### edit
+PATCH http://localhost:8082/api/v1/book-chapter
+Content-Type: application/json
+
+{
+  "bookChapterId": "7a65d4a9-7d50-4253-a0e2-76908d08ef03",
+  "title": "Я вторая глава скоро удалюсь"
+}
+###
+
+### delete
+DELETE http://localhost:8082/api/v1/book-chapter
+Content-Type: application/json
+
+{
+  "bookChapterId": "9d17984d-b865-417e-a74e-c5ff144abc45"
+}
+###
+
+### list
+GET http://localhost:8082/api/v1/book-chapter
+Content-Type: application/json
+
+{
+  "bookId": "a71c7282-e4e9-4cce-bf33-361fdf3255bb"
+}
+###

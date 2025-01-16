@@ -9,7 +9,7 @@ CREATE TABLE verify_book_request
     send_date              DATETIME DEFAULT CURRENT_TIMESTAMP, -- Дата отправки запроса
     PRIMARY KEY (verify_book_request_id),                      -- Первичный ключ
     CONSTRAINT fk_verify_translator FOREIGN KEY (translator_id) REFERENCES user (user_id),
-    CONSTRAINT fk_verify_book FOREIGN KEY (book_id) REFERENCES book (book_id)
+    CONSTRAINT fk_verify_book FOREIGN KEY (book_id) REFERENCES book (book_id) ON DELETE CASCADE
 )
     ENGINE=InnoDB
     CHARACTER SET = utf8mb4

@@ -1,0 +1,31 @@
+### create user
+POST http://localhost:8082/api/v1/user
+Content-Type: application/json
+
+{
+  "login": "abu",
+  "password": "12345",
+  "aboutMe": "about"
+}
+###
+
+### edit user
+PATCH http://localhost:8082/api/v1/user
+Content-Type: application/json
+
+{
+  "id": "70309d7a-2edc-4ac4-b51b-f80796ca6586",
+  "login": "abu3",
+  "password": "12345",
+  "aboutMe": "about"
+}
+###
+
+### delete user
+DELETE http://localhost:8082/api/v1/user
+Content-Type: application/json
+
+{
+  "id": "70309d7a-2edc-4ac4-b51b-f80796ca6586"
+}
+###
