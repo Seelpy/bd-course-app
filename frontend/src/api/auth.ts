@@ -34,4 +34,19 @@ export const authApi = {
       }
     });
   },
+  logout(): Promise<unknown> {
+    return fetch(this.PREFIX, {
+      method: "DELETE",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((res) => {
+      if (!res.ok) {
+        return handleApiError(res);
+      } else {
+        return res.json();
+      }
+    });
+  },
 } as const;

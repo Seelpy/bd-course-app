@@ -25,63 +25,92 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginUserRequest'
+              $ref: "#/components/schemas/LoginUserRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoginUserResponse'
-        '400':
+                $ref: "#/components/schemas/LoginUserResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
     patch:
       tags:
         - Auth
       operationId: "RefreshToken"
       summary: Refresh token
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
-
+                $ref: "#/components/schemas/NotFoundResponse"
+    delete:
+      tags:
+        - Auth
+      operationId: "Logout"
+      summary: Logout user
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotFoundResponse"
 
   /api/v1/book/{id}/raiting:
     post:
@@ -100,32 +129,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateBookRatingRequest'
+              $ref: "#/components/schemas/UpdateBookRatingRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
     delete:
       tags:
         - BookRating
@@ -138,30 +167,30 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
     get:
       tags:
         - BookRating
@@ -174,30 +203,30 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetBookRatingResponse'
-        '400':
+                $ref: "#/components/schemas/GetBookRatingResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
 
   /api/v1/user:
     get:
@@ -206,14 +235,14 @@ paths:
       operationId: "ListUsers"
       summary: List users
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/User'
+                  $ref: "#/components/schemas/User"
     post:
       tags:
         - User
@@ -224,20 +253,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateUserRequest'
+              $ref: "#/components/schemas/CreateUserRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
+                $ref: "#/components/schemas/BadRequestResponse"
     patch:
       tags:
         - User
@@ -248,38 +277,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditUserRequest'
+              $ref: "#/components/schemas/EditUserRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "403":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
     delete:
       tags:
         - User
@@ -290,38 +319,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DeleteUserRequest'
+              $ref: "#/components/schemas/DeleteUserRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "403":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
 
   /api/v1/user/{id}:
     get:
@@ -336,12 +365,12 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: "#/components/schemas/User"
 
   /api/v1/book:
     post:
@@ -354,32 +383,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateBookRequest'
+              $ref: "#/components/schemas/CreateBookRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "403":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
+                $ref: "#/components/schemas/UnauthorizedResponse"
     patch:
       tags:
         - Book
@@ -390,38 +419,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditBookRequest'
+              $ref: "#/components/schemas/EditBookRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "403":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
     delete:
       tags:
         - Book
@@ -432,38 +461,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DeleteBookRequest'
+              $ref: "#/components/schemas/DeleteBookRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "403":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
 
   /api/v1/book/{page}/{size}:
     get:
@@ -483,24 +512,24 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListBookResponse'
-        '400':
+                $ref: "#/components/schemas/ListBookResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
+                $ref: "#/components/schemas/UnauthorizedResponse"
 
   /api/v1/book/{id}:
     get:
@@ -515,24 +544,24 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetBookResponse'
-        '400':
+                $ref: "#/components/schemas/GetBookResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
+                $ref: "#/components/schemas/UnauthorizedResponse"
 
   /api/v1/book-chapter:
     get:
@@ -545,20 +574,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ListBookChapterRequest'
+              $ref: "#/components/schemas/ListBookChapterRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListBookChapterResponse'
-        '400':
+                $ref: "#/components/schemas/ListBookChapterResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
+                $ref: "#/components/schemas/BadRequestResponse"
     post:
       tags:
         - BookChapter
@@ -569,38 +598,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateBookChapterRequest'
+              $ref: "#/components/schemas/CreateBookChapterRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "403":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
     patch:
       tags:
         - BookChapter
@@ -611,38 +640,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditBookChapterRequest'
+              $ref: "#/components/schemas/EditBookChapterRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "403":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
     delete:
       tags:
         - BookChapter
@@ -653,38 +682,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DeleteBookChapterRequest'
+              $ref: "#/components/schemas/DeleteBookChapterRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "403":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
 
   /api/v1/book-chapter-translation:
     get:
@@ -697,26 +726,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GetBookChapterTranslationRequest'
+              $ref: "#/components/schemas/GetBookChapterTranslationRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetBookChapterTranslationResponse'
-        '400':
+                $ref: "#/components/schemas/GetBookChapterTranslationResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '404':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
     post:
       tags:
         - BookChapterTranslation
@@ -727,32 +756,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StoreBookChapterTranslationRequest'
+              $ref: "#/components/schemas/StoreBookChapterTranslationRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
 
   /api/v1/book-chapter-translation/translator:
     get:
@@ -765,26 +794,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ListTranslatorsByBookChapterIdRequest'
+              $ref: "#/components/schemas/ListTranslatorsByBookChapterIdRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListTranslatorsByBookChapterIdResponse'
-        '400':
+                $ref: "#/components/schemas/ListTranslatorsByBookChapterIdResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '404':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
 
   /api/v1/reading-session:
     get:
@@ -797,32 +826,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GetLastReadingSessionRequest'
+              $ref: "#/components/schemas/GetLastReadingSessionRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetLastReadingSessionResponse'
-        '400':
+                $ref: "#/components/schemas/GetLastReadingSessionResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
     post:
       tags:
         - ReadingSession
@@ -833,32 +862,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StoreReadingSessionRequest'
+              $ref: "#/components/schemas/StoreReadingSessionRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
 
   /api/v1/verify-book-request:
     get:
@@ -867,12 +896,12 @@ paths:
       operationId: "ListVerifyBookRequest"
       summary: List verify book request
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListVerifyBookRequestResponse'
+                $ref: "#/components/schemas/ListVerifyBookRequestResponse"
     post:
       tags:
         - VerifyBookRequest
@@ -883,32 +912,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateVerifyBookRequest'
+              $ref: "#/components/schemas/CreateVerifyBookRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
     delete:
       tags:
         - VerifyBookRequest
@@ -919,32 +948,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DeleteVerifyBookRequest'
+              $ref: "#/components/schemas/DeleteVerifyBookRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
 
   /api/v1/verify-book-request/accept:
     post:
@@ -957,70 +986,70 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AcceptBookChapterRequest'
+              $ref: "#/components/schemas/AcceptBookChapterRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "403":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
 
   /api/v1/image:
     get:
       tags:
         - Image
       operationId: "GetImage"
-      summary: Get book image
+      summary: Get image
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/GetImageRequest'
+              $ref: "#/components/schemas/GetImageRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetImageResponse'
-        '400':
+                $ref: "#/components/schemas/GetImageResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '404':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
     delete:
       tags:
         - Image
@@ -1031,26 +1060,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DeleteImageRequest'
+              $ref: "#/components/schemas/DeleteImageRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '404':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
 
   /api/v1/image/book:
     post:
@@ -1063,26 +1092,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StoreBookImageRequest'
+              $ref: "#/components/schemas/StoreBookImageRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '404':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
 
   /api/v1/image/user:
     post:
@@ -1095,26 +1124,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StoreUserImageRequest'
+              $ref: "#/components/schemas/StoreUserImageRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '404':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
 
   /api/v1/image/author:
     post:
@@ -1127,26 +1156,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StoreAuthorImageRequest'
+              $ref: "#/components/schemas/StoreAuthorImageRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '404':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
 
   /api/v1/user-book-favourites:
     get:
@@ -1159,32 +1188,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ListUserBookFavouritesByBookRequest'
+              $ref: "#/components/schemas/ListUserBookFavouritesByBookRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListUserBookFavouritesByBookResponse'
-        '400':
+                $ref: "#/components/schemas/ListUserBookFavouritesByBookResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
     post:
       tags:
         - UserBookFavourites
@@ -1195,26 +1224,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StoreUserBookFavouritesRequest'
+              $ref: "#/components/schemas/StoreUserBookFavouritesRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
+                $ref: "#/components/schemas/UnauthorizedResponse"
     delete:
       tags:
         - UserBookFavourites
@@ -1225,32 +1254,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DeleteUserBookFavouritesRequest'
+              $ref: "#/components/schemas/DeleteUserBookFavouritesRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
 
   /api/v1/user-book-favourites/book:
     get:
@@ -1263,32 +1292,32 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ListBookByUserBookFavouritesRequest'
+              $ref: "#/components/schemas/ListBookByUserBookFavouritesRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListBookByUserBookFavouritesResponse'
-        '400':
+                $ref: "#/components/schemas/ListBookByUserBookFavouritesResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
 
   /api/v1/author:
     get:
@@ -1297,12 +1326,12 @@ paths:
       operationId: "ListAuthors"
       summary: List authors
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListAuthorResponse'
+                $ref: "#/components/schemas/ListAuthorResponse"
     post:
       tags:
         - Author
@@ -1313,26 +1342,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateAuthorRequest'
+              $ref: "#/components/schemas/CreateAuthorRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '403':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "403":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
+                $ref: "#/components/schemas/UnauthorizedResponse"
     patch:
       tags:
         - Author
@@ -1343,38 +1372,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditAuthorRequest'
+              $ref: "#/components/schemas/EditAuthorRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "403":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
     delete:
       tags:
         - Author
@@ -1385,38 +1414,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DeleteAuthorRequest'
+              $ref: "#/components/schemas/DeleteAuthorRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "403":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
 
   /api/v1/author/{id}:
     get:
@@ -1431,12 +1460,12 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Author'
+                $ref: "#/components/schemas/Author"
 
   /api/v1/book-author:
     post:
@@ -1449,26 +1478,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StoreBookAuthorRequest'
+              $ref: "#/components/schemas/StoreBookAuthorRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '403':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "403":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
+                $ref: "#/components/schemas/UnauthorizedResponse"
     delete:
       tags:
         - BookAuthor
@@ -1479,38 +1508,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DeleteBookAuthorRequest'
+              $ref: "#/components/schemas/DeleteBookAuthorRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "403":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
 
   /api/v1/genre:
     get:
@@ -1519,12 +1548,12 @@ paths:
       operationId: "ListGenres"
       summary: List genres
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ListGenreResponse'
+                $ref: "#/components/schemas/ListGenreResponse"
     post:
       tags:
         - Genre
@@ -1535,26 +1564,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateGenreRequest'
+              $ref: "#/components/schemas/CreateGenreRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '403':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "403":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
+                $ref: "#/components/schemas/UnauthorizedResponse"
     patch:
       tags:
         - Genre
@@ -1565,38 +1594,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditGenreRequest'
+              $ref: "#/components/schemas/EditGenreRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "403":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
     delete:
       tags:
         - Genre
@@ -1607,38 +1636,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DeleteGenreRequest'
+              $ref: "#/components/schemas/DeleteGenreRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "403":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
 
   /api/v1/book-genre:
     post:
@@ -1651,26 +1680,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/StoreBookGenreRequest'
+              $ref: "#/components/schemas/StoreBookGenreRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '403':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "403":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
+                $ref: "#/components/schemas/UnauthorizedResponse"
     delete:
       tags:
         - BookGenre
@@ -1681,38 +1710,38 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/DeleteBookGenreRequest'
+              $ref: "#/components/schemas/DeleteBookGenreRequest"
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-        '400':
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
+                $ref: "#/components/schemas/BadRequestResponse"
+        "401":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '403':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "403":
           description: Unauthorized
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
+                $ref: "#/components/schemas/UnauthorizedResponse"
+        "404":
           description: Not Found
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundResponse'
+                $ref: "#/components/schemas/NotFoundResponse"
 
 components:
   schemas:
@@ -1860,7 +1889,7 @@ components:
         bookChapters:
           type: array
           items:
-            $ref: '#/components/schemas/BookChapter'
+            $ref: "#/components/schemas/BookChapter"
     CreateBookChapterRequest:
       type: object
       properties:
@@ -1973,7 +2002,7 @@ components:
         verifyBookRequests:
           type: array
           items:
-            $ref: '#/components/schemas/VerifyBookRequest'
+            $ref: "#/components/schemas/VerifyBookRequest"
       required:
         - verifyBookRequests
     CreateVerifyBookRequest:
@@ -2085,7 +2114,7 @@ components:
       type: object
       properties:
         type:
-          $ref: '#/components/schemas/UserBookFavouritesType'
+          $ref: "#/components/schemas/UserBookFavouritesType"
       required:
         - type
     ListBookByUserBookFavouritesRequest:
@@ -2094,7 +2123,7 @@ components:
         types:
           type: array
           items:
-            $ref: '#/components/schemas/UserBookFavouritesType'
+            $ref: "#/components/schemas/UserBookFavouritesType"
       required:
         - types
     ListBookByUserBookFavouritesResponse:
@@ -2103,7 +2132,7 @@ components:
         userBookFavouritesBooks:
           type: array
           items:
-            $ref: '#/components/schemas/UserBookFavouritesBooks'
+            $ref: "#/components/schemas/UserBookFavouritesBooks"
       required:
         - userBookFavouritesBooks
     StoreUserBookFavouritesRequest:
@@ -2113,7 +2142,7 @@ components:
           type: string
           format: uuid
         type:
-          $ref: '#/components/schemas/UserBookFavouritesType'
+          $ref: "#/components/schemas/UserBookFavouritesType"
       required:
         - bookId
         - type
@@ -2171,7 +2200,7 @@ components:
         authors:
           type: array
           items:
-            $ref: '#/components/schemas/Author'
+            $ref: "#/components/schemas/Author"
       required:
         - authors
     StoreBookAuthorRequest:
@@ -2230,7 +2259,7 @@ components:
         genres:
           type: array
           items:
-            $ref: '#/components/schemas/Genre'
+            $ref: "#/components/schemas/Genre"
       required:
         - genres
     StoreBookGenreRequest:
@@ -2269,10 +2298,15 @@ components:
           type: string
         description:
           type: string
+        authors:
+          type: array
+          items:
+            $ref: "#/components/schemas/Author"
       required:
         - bookId
         - title
         - description
+        - authors
     BookChapter:
       type: object
       properties:
@@ -2312,11 +2346,11 @@ components:
       type: object
       properties:
         type:
-          $ref: '#/components/schemas/UserBookFavouritesType'
+          $ref: "#/components/schemas/UserBookFavouritesType"
         books:
           type: array
           items:
-            $ref: '#/components/schemas/Book'
+            $ref: "#/components/schemas/Book"
       required:
         - type
         - books

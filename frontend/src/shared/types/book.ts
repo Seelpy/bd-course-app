@@ -1,3 +1,5 @@
+import { Author } from "./author";
+
 export type CreateBook = {
   title: string;
   description: string;
@@ -18,6 +20,7 @@ export type Book = {
   cover?: string;
   title: string;
   description: string;
+  authors: Author[];
 };
 
 export type ListBookResponse = {
