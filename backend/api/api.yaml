@@ -1209,42 +1209,6 @@ paths:
                 $ref: '#/components/schemas/NotFoundResponse'
 
   /api/v1/user-book-favourites:
-    get:
-      tags:
-        - UserBookFavourites
-      operationId: "ListUserBookFavouritesByBook"
-      summary: List user book favourites
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ListUserBookFavouritesByBookRequest'
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ListUserBookFavouritesByBookResponse'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UnauthorizedResponse'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundResponse'
     post:
       tags:
         - UserBookFavourites
@@ -1312,8 +1276,46 @@ paths:
               schema:
                 $ref: '#/components/schemas/NotFoundResponse'
 
+  /api/v1/user-book-favourites/list:
+    post:
+      tags:
+        - UserBookFavourites
+      operationId: "ListUserBookFavouritesByBook"
+      summary: List user book favourites
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListUserBookFavouritesByBookRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListUserBookFavouritesByBookResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
   /api/v1/user-book-favourites/book:
-    get:
+    post:
       tags:
         - UserBookFavourites
       operationId: "ListBookByUserBookFavourites"
