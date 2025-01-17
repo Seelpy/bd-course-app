@@ -746,6 +746,32 @@ paths:
               schema:
                 $ref: '#/components/schemas/NotFoundResponse'
 
+  /api/v1/book-chapter/list:
+    post:
+      tags:
+        - BookChapter
+      operationId: "ListBookChapter"
+      summary: List book chapter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListBookChapterRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ListBookChapterResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+
   /api/v1/book-chapter-translation:
     get:
       tags:
