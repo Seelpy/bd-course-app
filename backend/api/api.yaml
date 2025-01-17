@@ -240,8 +240,6 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
                   $ref: '#/components/schemas/User'
     post:
       tags:
@@ -351,6 +349,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundResponse'
+
+  /api/v1/user/list:
+    get:
+      tags:
+        - User
+      operationId: "ListUser"
+      summary: List user
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
 
   /api/v1/user/{id}:
     get:

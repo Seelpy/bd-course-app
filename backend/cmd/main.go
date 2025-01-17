@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"server/api"
 	"server/data/mysql"
+	domainmodel "server/pkg/domain/model"
 	"server/pkg/domain/service"
 	"server/pkg/infrastructure/model"
 	inframysql "server/pkg/infrastructure/mysql"
@@ -68,7 +69,7 @@ func main() {
 	log.Println("Creating endpoints")
 	api.RegisterHandlersWithBaseURL(e, public, "")
 
-	e.POST("/api/v1/verify-book-request/accept", public.AcceptVerifyBookRequest, MiddlewareRole(0))
+	e.POST("/api/v1/verify-book-request/accept", public.AcceptVerifyBookRequest, MiddlewareRole(int(domainmodel.Admin)))
 
 	e.File("/api/v1/openapi.yaml", "./api/api.yaml")
 
