@@ -595,30 +595,6 @@ paths:
                 $ref: '#/components/schemas/UnauthorizedResponse'
 
   /api/v1/book-chapter:
-    get:
-      tags:
-        - BookChapter
-      operationId: "ListBookChapter"
-      summary: List book chapter
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ListBookChapterRequest'
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ListBookChapterResponse'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BadRequestResponse'
     post:
       tags:
         - BookChapter
