@@ -656,36 +656,6 @@ paths:
                 $ref: '#/components/schemas/NotFoundResponse'
 
   /api/v1/book-chapter-translation:
-    get:
-      tags:
-        - BookChapterTranslation
-      operationId: "GetBookChapterTranslation"
-      summary: Get book chapter translation
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GetBookChapterTranslationRequest'
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GetBookChapterTranslationResponse'
-        '400':
-          description: Bad request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '404':
-          description: Not Found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundResponse'
     post:
       tags:
         - BookChapterTranslation
@@ -723,8 +693,40 @@ paths:
               schema:
                 $ref: '#/components/schemas/NotFoundResponse'
 
+  /api/v1/book-chapter-translation/get:
+    post:
+      tags:
+        - BookChapterTranslation
+      operationId: "GetBookChapterTranslation"
+      summary: Get book chapter translation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetBookChapterTranslationRequest'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBookChapterTranslationResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+
   /api/v1/book-chapter-translation/translator:
-    get:
+    post:
       tags:
         - BookChapterTranslation
       operationId: "ListTranslatorsByBookChapterId"
