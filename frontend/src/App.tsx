@@ -19,7 +19,7 @@ function App() {
       children: [
         {
           path: AppRoute.Root,
-          lazy: () => import("./pages/RootPage.tsx").then((m) => ({ Component: m.RootPage })),
+          lazy: () => import("./pages/RootPage/RootPage.tsx").then((m) => ({ Component: m.RootPage })),
         },
         {
           path: AppRoute.NotFound,
