@@ -3,6 +3,10 @@ import { authApi } from "../auth";
 
 class SelfThrownError extends Error {}
 
+type MessageError = {
+  message: string;
+};
+
 type CustomError = {
   error: string;
 };
@@ -18,8 +22,10 @@ type TitledError = {
 const parseError = (res: Response) => {
   return res
     .json()
-    .then((json: CustomError | SystemError | TitledError) => {
-      if ("error" in json) {
+    .then((json: MessageError | CustomError | SystemError | TitledError) => {
+      if ("message" in json) {
+        return Promise.reject(new SelfThrownError(json.message));
+      } else if ("error" in json) {
         return Promise.reject(new SelfThrownError(json.error));
       } else if ("errors" in json) {
         const parsedErrors = Object.entries(json.errors)

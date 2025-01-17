@@ -15,7 +15,7 @@ export const authApi = {
       if (!res.ok) {
         return handleApiError(res);
       } else {
-        return res.json();
+        return res.text();
       }
     });
   },
@@ -30,7 +30,7 @@ export const authApi = {
       if (!res.ok) {
         return handleApiError(res);
       } else {
-        return res.json();
+        return res.text();
       }
     });
   },
@@ -45,7 +45,7 @@ export const authApi = {
       if (!res.ok) {
         return handleApiError(res);
       } else {
-        return res.json();
+        return res.text();
       }
     });
   },
