@@ -14,6 +14,7 @@ import (
 	"server/pkg/infrastructure/model"
 	"server/pkg/infrastructure/mysql/provider"
 	"server/pkg/infrastructure/mysql/query"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -236,8 +237,39 @@ func (p public) RefreshToken(ctx echo.Context) error {
 	})
 }
 
-func (p public) ListUsers(ctx echo.Context) error {
-	return ctx.JSON(http.StatusOK, User{ID: "1", Name: "Igor", Email: "maks@mail.ru"})
+func (p public) LogoutUser(ctx echo.Context) error {
+	deleteCookie(ctx, "access_token")
+	deleteCookie(ctx, "refresh_token")
+
+	return ctx.NoContent(http.StatusOK)
+}
+
+func (p public) GetLoginUser(ctx echo.Context) error {
+	userID, err := extractUserIDFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	user, err := p.userQueryService.FindByID(userID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to get login user: %s", err))
+	}
+
+	avatarID, ok := user.AvatarID.Get()
+
+	userAPI := api.User{
+		Id:       openapi_types.UUID(userID),
+		AvatarId: ptr(openapi_types.UUID(avatarID)),
+		Login:    user.Login,
+		Role:     user.Role,
+		AboutMe:  user.AboutMe,
+	}
+
+	if !ok {
+		userAPI.AvatarId = nil
+	}
+
+	return ctx.JSON(http.StatusOK, userAPI)
 }
 
 func (p public) CreateUser(ctx echo.Context) error {
@@ -386,15 +418,21 @@ func (p public) DeleteBook(ctx echo.Context) error {
 	})
 }
 
-func (p public) ListBook(ctx echo.Context, page int, size int) error {
-	bookOutputs, err := p.bookQueryService.List(page, size)
+func (p public) SearchBook(ctx echo.Context, queryParams api.SearchBookParams) error {
+	spec := convertListBookParamsToListSpec(queryParams)
+	bookOutputs, err := p.bookQueryService.List(spec)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list book: %s", err))
 	}
 
 	booksRespData := make([]api.Book, len(bookOutputs))
 	for i, b := range bookOutputs {
-		booksRespData[i] = convertBookOutputModelToAPI(b)
+		authors, err2 := p.authorQueryService.ListByBookID(b.BookID)
+		if err2 != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list author: %s", err2))
+		}
+
+		booksRespData[i] = convertBookOutputModelToAPI(b, authors)
 	}
 
 	countBook, err := p.bookQueryService.CountBook(true)
@@ -404,7 +442,7 @@ func (p public) ListBook(ctx echo.Context, page int, size int) error {
 
 	return ctx.JSON(http.StatusOK, api.ListBookResponse{
 		Books:      booksRespData,
-		CountPages: ptr(int(math.Ceil(float64(countBook) / float64(size)))),
+		CountPages: ptr(int(math.Ceil(float64(countBook) / float64(spec.Size)))),
 	})
 }
 
@@ -420,18 +458,12 @@ func (p public) GetBook(ctx echo.Context, id string) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list book: %s", err))
 	}
 
-	cover, ok := book.Cover.Get()
-
-	bookRespData := api.Book{
-		BookId:      openapi_types.UUID(book.BookID),
-		Cover:       ptr(cover),
-		Title:       book.Title,
-		Description: book.Description,
+	authors, err2 := p.authorQueryService.ListByBookID(book.BookID)
+	if err2 != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list author: %s", err2))
 	}
 
-	if !ok {
-		bookRespData.Cover = nil
-	}
+	bookRespData := convertBookOutputModelToAPI(book, authors)
 
 	return ctx.JSON(http.StatusOK, api.GetBookResponse{
 		Book: bookRespData,
@@ -1035,7 +1067,12 @@ func (p public) ListBookByUserBookFavourites(ctx echo.Context) error {
 
 		books := make([]api.Book, len(output.Books))
 		for j, book := range output.Books {
-			books[j] = convertBookOutputModelToAPI(book)
+			authors, err3 := p.authorQueryService.ListByBookID(book.BookID)
+			if err3 != nil {
+				return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list author: %s", err3))
+			}
+
+			books[j] = convertBookOutputModelToAPI(book, authors)
 		}
 
 		userBookFavouritesBooks[i] = api.UserBookFavouritesBooks{
@@ -1379,7 +1416,12 @@ func convertUserBookFavouritesTypeModelToAPI(modelType domainmodel.UserBookFavou
 	}
 }
 
-func convertBookOutputModelToAPI(bookOutput query.BookOutput) api.Book {
+func convertBookOutputModelToAPI(bookOutput query.BookOutput, authors []query.AuthorOutput) api.Book {
+	authorsAPI := make([]api.Author, len(authors))
+	for i, author := range authors {
+		authorsAPI[i] = convertAuthorOutputModelToAPI(author)
+	}
+
 	cover, ok := bookOutput.Cover.Get()
 
 	bookAPI := api.Book{
@@ -1387,6 +1429,7 @@ func convertBookOutputModelToAPI(bookOutput query.BookOutput) api.Book {
 		Cover:       ptr(cover),
 		Title:       bookOutput.Title,
 		Description: bookOutput.Description,
+		Authors:     authorsAPI,
 	}
 
 	if !ok {
@@ -1423,6 +1466,71 @@ func convertGenreOutputModelToAPI(output query.GenreOutput) api.Genre {
 	}
 }
 
+func convertListBookParamsToListSpec(params api.SearchBookParams) query.ListSpec {
+	spec := query.ListSpec{
+		Page: params.Page,
+		Size: params.Size,
+	}
+
+	spec.BookTitle = maybe.Nothing[string]()
+	if params.BookTitle != nil {
+		spec.BookTitle = maybe.Just(*params.BookTitle)
+	}
+
+	spec.AuthorIDs = maybe.Nothing[[]domainmodel.AuthorID]()
+	if params.AuthorIds != nil {
+		uuidStrings := strings.Split(*params.AuthorIds, ",")
+		authorIDs := make([]domainmodel.AuthorID, 0, len(uuidStrings))
+
+		for _, uuidStr := range uuidStrings {
+			uuidStr = strings.TrimSpace(uuidStr)
+			if uuidStr != "" {
+				authorIDs = append(authorIDs, domainmodel.AuthorID(uuid.FromStringOrNil(uuidStr)))
+			}
+		}
+
+		if len(authorIDs) > 0 {
+			spec.AuthorIDs = maybe.Just(authorIDs)
+		}
+	}
+
+	spec.RatingExtreme = maybe.Nothing[query.RatingExtremeType]()
+	if params.Rating != nil {
+		if *params.Rating == api.MINRATING {
+			spec.RatingExtreme = maybe.Just(query.RAITING_EXTREME_MIN)
+		} else if *params.Rating == api.MAXRATING {
+			spec.RatingExtreme = maybe.Just(query.RAITING_EXTREME_MAX)
+		}
+	}
+
+	if params.GenreIds != nil {
+		uuidStrings := strings.Split(*params.GenreIds, ",")
+		genreIDs := make([]domainmodel.GenreID, 0, len(uuidStrings))
+
+		for _, uuidStr := range uuidStrings {
+			uuidStr = strings.TrimSpace(uuidStr)
+			if uuidStr != "" {
+				genreIDs = append(genreIDs, domainmodel.GenreID(uuid.FromStringOrNil(uuidStr)))
+			}
+		}
+
+		if len(genreIDs) > 0 {
+			spec.GenreIDs = maybe.Just(genreIDs)
+		}
+	}
+
+	spec.BookChapterExtreme = maybe.Nothing[query.BookChapterExtremeType]()
+	if params.NumberBookChapter != nil {
+		if *params.NumberBookChapter == api.MINBOOKCHAPTERS {
+			spec.BookChapterExtreme = maybe.Just(query.BOOK_CHAPTER_MIN)
+		} else if *params.NumberBookChapter == api.MAXBOOKCHAPTERS {
+			spec.BookChapterExtreme = maybe.Just(query.BOOK_CHAPTER_MAX)
+		}
+	}
+
+	return spec
+}
+
 func createToken(user model.User, expirationTimeDur time.Duration) (string, time.Time, error) {
 	expirationTime := time.Now().Add(expirationTimeDur)
 	claims := &model.Claims{
@@ -1453,5 +1561,16 @@ func setCookie(ctx echo.Context, name, value string, expirationTime time.Time) {
 	cookie.Secure = true
 	cookie.SameSite = http.SameSiteStrictMode
 
+	ctx.SetCookie(cookie)
+}
+
+func deleteCookie(ctx echo.Context, name string) {
+	cookie := &http.Cookie{
+		Name:     name,
+		Value:    "",
+		Path:     "/",
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+	}
 	ctx.SetCookie(cookie)
 }
