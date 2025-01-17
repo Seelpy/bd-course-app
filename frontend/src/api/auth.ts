@@ -19,6 +19,7 @@ export const authApi = {
       }
     });
   },
+
   refreshToken(): Promise<unknown> {
     return fetch(this.PREFIX, {
       method: "PATCH",
@@ -34,6 +35,7 @@ export const authApi = {
       }
     });
   },
+
   logout(): Promise<unknown> {
     return fetch(this.PREFIX, {
       method: "DELETE",

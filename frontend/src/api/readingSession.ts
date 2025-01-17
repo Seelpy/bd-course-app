@@ -19,6 +19,7 @@ export const readingSessionApi = {
       }
     });
   },
+
   storeReadingSession(body: StoreReadingSession): Promise<unknown> {
     return fetch(this.PREFIX, {
       method: "POST",
