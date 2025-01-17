@@ -4,6 +4,18 @@ import { handleApiError } from "./utils/handleApiError";
 export const userApi = {
   PREFIX: "/api/v1/user",
 
+  getAuthorizedUser(): Promise<User> {
+    return fetch(this.PREFIX, {
+      method: "GET",
+      credentials: "include",
+    }).then((res) => {
+      if (!res.ok) {
+        return handleApiError(res, () => this.getAuthorizedUser());
+      }
+      return res.json();
+    });
+  },
+
   getUser(id: string): Promise<User> {
     return fetch(`${this.PREFIX}/${id}`, {
       method: "GET",
@@ -17,7 +29,7 @@ export const userApi = {
   },
 
   listUsers(): Promise<User[]> {
-    return fetch(this.PREFIX, {
+    return fetch(`${this.PREFIX}/all`, {
       method: "GET",
       credentials: "include",
     }).then((res) => {
