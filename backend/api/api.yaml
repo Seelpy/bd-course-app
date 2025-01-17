@@ -232,8 +232,8 @@ paths:
     get:
       tags:
         - User
-      operationId: "ListUsers"
-      summary: List users
+      operationId: "GetLoginUser"
+      summary: Get login user
       responses:
         '200':
           description: Successful response
@@ -1801,10 +1801,21 @@ components:
       properties:
         id:
           type: string
-        name:
+          format: uuid
+        avatarId:
           type: string
-        email:
+          format: uuid
+        login:
           type: string
+        role:
+          type: integer
+        aboutMe:
+          type: string
+      required:
+        - id
+        - login
+        - role
+        - aboutMe
     LoginUserRequest:
       type: object
       properties:

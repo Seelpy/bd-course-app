@@ -244,8 +244,32 @@ func (p public) LogoutUser(ctx echo.Context) error {
 	return ctx.NoContent(http.StatusOK)
 }
 
-func (p public) ListUsers(ctx echo.Context) error {
-	return ctx.JSON(http.StatusOK, User{ID: "1", Name: "Igor", Email: "maks@mail.ru"})
+func (p public) GetLoginUser(ctx echo.Context) error {
+	userID, err := extractUserIDFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	user, err := p.userQueryService.FindByID(userID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to get login user: %s", err))
+	}
+
+	avatarID, ok := user.AvatarID.Get()
+
+	userAPI := api.User{
+		Id:       openapi_types.UUID(userID),
+		AvatarId: ptr(openapi_types.UUID(avatarID)),
+		Login:    user.Login,
+		Role:     user.Role,
+		AboutMe:  user.AboutMe,
+	}
+
+	if !ok {
+		userAPI.AvatarId = nil
+	}
+
+	return ctx.JSON(http.StatusOK, userAPI)
 }
 
 func (p public) CreateUser(ctx echo.Context) error {
