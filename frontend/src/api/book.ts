@@ -16,13 +16,48 @@ export const bookApi = {
     });
   },
 
-  listBooks(page: number, size: number): Promise<ListBookResponse> {
-    return fetch(`${this.PREFIX}/${page.toString()}/${size.toString()}`, {
+  searchBooks(
+    page: number,
+    size: number,
+    params?: {
+      bookTitle?: string;
+      authorIds?: string[];
+      rating?: "MIN_RATING" | "MAX_RATING";
+      genreIds?: string[];
+      numberBookChapter?: "MIN_BOOK_CHAPTERS" | "MAX_BOOK_CHAPTERS";
+    },
+  ): Promise<ListBookResponse> {
+    const searchParams = new URLSearchParams({
+      page: page.toString(),
+      size: size.toString(),
+    });
+
+    if (params?.bookTitle) {
+      searchParams.append("bookTitle", params.bookTitle);
+    }
+    if (params?.authorIds) {
+      params.authorIds.forEach((id) => {
+        searchParams.append("authorIds[]", id);
+      });
+    }
+    if (params?.rating) {
+      searchParams.append("rating", params.rating);
+    }
+    if (params?.genreIds) {
+      params.genreIds.forEach((id) => {
+        searchParams.append("genreIds[]", id);
+      });
+    }
+    if (params?.numberBookChapter) {
+      searchParams.append("numberBookChapter", params.numberBookChapter);
+    }
+
+    return fetch(`${this.PREFIX}/search?${searchParams}`, {
       method: "GET",
       credentials: "include",
     }).then((res) => {
       if (!res.ok) {
-        return handleApiError(res, () => this.listBooks(page, size));
+        return handleApiError(res, () => this.searchBooks(page, size, params));
       }
       return res.json();
     });
