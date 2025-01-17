@@ -25,6 +25,14 @@ function App() {
           path: AppRoute.NotFound,
           lazy: () => import("./pages/PageNotFound.tsx").then((m) => ({ Component: m.PageNotFound })),
         },
+        {
+          path: AppRoute.Login,
+          lazy: () => import("./pages/LoginPage.tsx").then((m) => ({ Component: m.LoginPage })),
+        },
+        {
+          path: AppRoute.Register,
+          lazy: () => import("./pages/RegisterPage.tsx").then((m) => ({ Component: m.RegisterPage })),
+        },
       ],
     },
   ]);

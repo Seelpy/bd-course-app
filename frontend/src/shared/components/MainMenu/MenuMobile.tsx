@@ -16,6 +16,7 @@ import { Menu as MenuIcon, Person, Login, Logout, Close } from "@mui/icons-mater
 import { useNavigate } from "react-router-dom";
 import ThemeButton from "../ThemeButton/ThemeButton";
 import { User } from "@shared/types/user";
+import { AppRoute } from "@shared/constants/routes";
 
 type MenuMobileProps = {
   userInfo: User | null;
@@ -91,7 +92,7 @@ export const MenuMobile = ({ userInfo, handleLogout, menuItems }: MenuMobileProp
             <ListItem>
               <ListItemButton
                 onClick={() => {
-                  navigate("/login");
+                  navigate(AppRoute.Login);
                   setDrawerOpen(false);
                 }}
               >

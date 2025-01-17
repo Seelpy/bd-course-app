@@ -88,7 +88,7 @@ export const MenuDesktop = ({ userInfo, handleLogout, menuItems }: MenuDesktopPr
             <Button
               color="inherit"
               onClick={() => {
-                navigate("/login");
+                navigate(AppRoute.Login);
               }}
             >
               Login

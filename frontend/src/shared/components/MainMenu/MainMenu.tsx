@@ -7,6 +7,7 @@ import { authApi } from "@api/auth";
 import { useSnackbar } from "notistack";
 import { MenuDesktop } from "./MenuDesktop";
 import { MenuMobile } from "./MenuMobile";
+import { useShallow } from "zustand/shallow";
 
 export const MainMenu = () => {
   const theme = useTheme();
@@ -14,8 +15,12 @@ export const MainMenu = () => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
-  const userInfo = useUserStore((state) => state.userInfo);
-  const setUserInfo = useUserStore((state) => state.setUserInfo);
+  const { userInfo, setUserInfo } = useUserStore(
+    useShallow((state) => ({
+      userInfo: state.userInfo,
+      setUserInfo: state.setUserInfo,
+    })),
+  );
 
   const handleLogout = () => {
     authApi
