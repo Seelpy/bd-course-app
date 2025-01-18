@@ -51,12 +51,12 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_rsa -p 222 $SERVER_USER@$SERVER_IP << 'EOF'
             cd /opt/bd-course-app
-            docker-compose down -v
-            docker system prune
-            docker-compose up --build -d
+            docker compose down -v
+            docker system prune -f
+            docker compose up --build -d
             docker cp db_server:/app/api/api.gen.go ./backend/api/api.gen.go
             docker cp db_server:/app/vendor ./backend/vendor
-            docker-compose restart
+            docker compose restart
           EOF
         env:
           SERVER_IP: ${{ secrets.HOST }}
