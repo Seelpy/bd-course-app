@@ -297,13 +297,16 @@ func (container *DependencyContainer) VerifyBookRequestProvider() provider.Verif
 func MiddlewareRole(requiredRole int) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			tokenString := c.Request().Header.Get("Authorization")
-			if tokenString == "" {
+			tokenString, err := c.Cookie("access_token")
+			if err != nil {
+				return err
+			}
+			if tokenString.Value == "" {
 				return echo.NewHTTPError(http.StatusUnauthorized, "Missing token")
 			}
 
 			claims := &model.Claims{}
-			token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+			token, err := jwt.ParseWithClaims(tokenString.Value, claims, func(token *jwt.Token) (interface{}, error) {
 				return transport.JwtKey, nil
 			})
 
