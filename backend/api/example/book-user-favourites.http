@@ -1,0 +1,8 @@
+### list book
+POST http://localhost:8082/api/v1/user-book-favourites/book
+Content-Type: application/json
+
+{
+  "types": ["READING"]
+}
+###

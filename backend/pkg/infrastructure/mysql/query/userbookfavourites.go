@@ -8,7 +8,6 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/mono83/maybe"
 	"server/pkg/domain/model"
-	"strings"
 )
 
 type UserBookFavouritesQueryService interface {
@@ -69,6 +68,7 @@ func (service *userBookFavouritesQueryService) ListBookByUserBookFavourites(
 		return nil, nil
 	}
 
+	// Базовый запрос
 	query := `
 		SELECT
 			ubf.type,
@@ -77,25 +77,37 @@ func (service *userBookFavouritesQueryService) ListBookByUserBookFavourites(
 			b.title,
 			b.description
 		FROM user_book_favourites ubf
-		LEFT JOIN book b ON ubf.book_id = b.id
+		LEFT JOIN book b ON ubf.book_id = b.book_id
 		LEFT JOIN image i ON b.cover_id = i.image_id
-		WHERE ubf.user_id = ?;
-`
+		WHERE ubf.user_id = ?
+	`
+
 	binaryUserID, err := uuid.UUID(userID).MarshalBinary()
 	if err != nil {
 		return nil, err
 	}
 
-	query += " AND ubf.type IN (?)"
-	values := make([]string, len(userBookFavouritesTypes))
+	// Преобразуем userBookFavouritesTypes в срез интерфейсов
+	values := make([]interface{}, len(userBookFavouritesTypes))
 	for i, v := range userBookFavouritesTypes {
 		values[i] = fmt.Sprintf("%v", v)
 	}
-	valuesStr := strings.Join(values, ", ")
-	query = strings.Replace(query, "?", valuesStr, 1)
 
+	// Добавляем оператор IN в запрос
+	query += " AND ubf.type IN (?)"
+
+	// Используем sqlx.In для обработки оператора IN
+	query, args, err := sqlx.In(query, binaryUserID, values)
+	if err != nil {
+		return nil, err
+	}
+
+	// Пересобираем запрос для конкретного диалекта базы данных
+	query = service.connection.Rebind(query)
+
+	// Выполняем запрос
 	var userBookFavouritesBooksOutput []sqlxUserBookFavouritesBooksOutput
-	err = service.connection.Select(&userBookFavouritesBooksOutput, query, binaryUserID)
+	err = service.connection.Select(&userBookFavouritesBooksOutput, query, args...)
 	if errors.Is(err, sql.ErrNoRows) {
 		return nil, model.ErrUserBookFavouritesNotFound
 	}
