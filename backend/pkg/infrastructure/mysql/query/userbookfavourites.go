@@ -79,14 +79,14 @@ func (service *userBookFavouritesQueryService) ListBookByUserBookFavourites(
 		FROM user_book_favourites ubf
 		LEFT JOIN book b ON ubf.book_id = b.id
 		LEFT JOIN image i ON b.cover_id = i.image_id
-		WHERE user_id = ?;
+		WHERE ubf.user_id = ?;
 `
 	binaryUserID, err := uuid.UUID(userID).MarshalBinary()
 	if err != nil {
 		return nil, err
 	}
 
-	query += " AND IN (?)"
+	query += " AND ubf.type IN (?)"
 	values := make([]string, len(userBookFavouritesTypes))
 	for i, v := range userBookFavouritesTypes {
 		values[i] = fmt.Sprintf("%v", v)
