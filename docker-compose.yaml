@@ -34,12 +34,13 @@ services:
       MYSQL_DATABASE: mydatabase
       MYSQL_USER: user
       MYSQL_PASSWORD: userpassword
+      MYSQL_ROOT_HOST: '%'
     ports:
       - "3307:3306"
     networks:
       - app-network
     volumes:
-      - db-data:/var/lib/mysql
+      - ~/db-data:/var/lib/mysql
       - ./my.cnf:/etc/mysql/conf.d/my.cnf
 
 networks:

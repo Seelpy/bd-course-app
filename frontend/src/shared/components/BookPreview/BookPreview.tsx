@@ -1,5 +1,6 @@
-import { Box, styled } from "@mui/material";
+import { Box, styled, Typography } from "@mui/material";
 import { Book } from "@shared/types/book";
+import placeholderCover from "@assets/placeholder-cover.png";
 
 const BOOK_WIDTH = 135;
 const BOOK_HEIGHT = 190;
@@ -23,4 +24,22 @@ type BookPreviewProps = {
   book: Book;
 };
 
-export const MenuDesktop = ({ book }: BookPreviewProps) => {};
+export const BookPreview = ({ book }: BookPreviewProps) => {
+  return (
+    <BookCard key={book.bookId}>
+      <BookCover src={book.cover ?? placeholderCover} alt={book.title} />
+      <Typography
+        variant="body2"
+        sx={{
+          width: "100%",
+          textAlign: "center",
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {book.title}
+      </Typography>
+    </BookCard>
+  );
+};
