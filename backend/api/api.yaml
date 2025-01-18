@@ -1990,6 +1990,9 @@ components:
         bookChapterId:
           type: string
           format: uuid
+        translaterId:
+          type: string
+          format: uuid
         text:
           type: string
       required:
@@ -2370,11 +2373,14 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Author"
+        isLoggedUserTranslator:
+          type: boolean
       required:
         - bookId
         - title
         - description
         - authors
+        - isLoggedUserTranslator
     BookChapter:
       type: object
       properties:

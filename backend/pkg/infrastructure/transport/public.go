@@ -584,6 +584,10 @@ func (p public) StoreBookChapterTranslation(ctx echo.Context) error {
 		return err
 	}
 
+	if input.TranslaterId != nil {
+		translatorID = domainmodel.UserID(*input.TranslaterId)
+	}
+
 	err = p.bookChapterTranslationService.StoreBookChapterTranslation(service.StoreBookChapterTranslationInput{
 		BookChapterID: domainmodel.BookChapterID(input.BookChapterId),
 		TranslatorID:  translatorID,
@@ -1430,11 +1434,12 @@ func convertBookOutputModelToAPI(bookOutput query.BookOutput, authors []query.Au
 	cover, ok := bookOutput.Cover.Get()
 
 	bookAPI := api.Book{
-		BookId:      openapi_types.UUID(bookOutput.BookID),
-		Cover:       ptr(cover),
-		Title:       bookOutput.Title,
-		Description: bookOutput.Description,
-		Authors:     authorsAPI,
+		BookId:                 openapi_types.UUID(bookOutput.BookID),
+		Cover:                  ptr(cover),
+		Title:                  bookOutput.Title,
+		Description:            bookOutput.Description,
+		Authors:                authorsAPI,
+		IsLoggedUserTranslator: true,
 	}
 
 	if !ok {
