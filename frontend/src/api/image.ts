@@ -6,7 +6,7 @@ export const imageApi = {
 
   getImage(body: GetImage): Promise<Image> {
     return fetch(this.PREFIX, {
-      method: "GET",
+      method: "POST",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",

@@ -12,7 +12,7 @@ export const bookChapterApi = {
 
   listBookChapters(body: ListBookChapter): Promise<ListBookChapterResponse> {
     return fetch(this.PREFIX, {
-      method: "GET",
+      method: "POST",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",

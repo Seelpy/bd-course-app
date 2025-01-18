@@ -6,7 +6,7 @@ export const readingSessionApi = {
 
   getLastReadingSession(body: GetReadingSession): Promise<GetReadingSessionResponse> {
     return fetch(this.PREFIX, {
-      method: "GET",
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
       },

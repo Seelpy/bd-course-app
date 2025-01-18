@@ -12,7 +12,7 @@ export const bookChapterTranslationApi = {
 
   getTranslation(body: GetBookChapterTranslation): Promise<BookChapterTranslation> {
     return fetch(this.PREFIX, {
-      method: "GET",
+      method: "POST",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
@@ -44,7 +44,7 @@ export const bookChapterTranslationApi = {
 
   listTranslators(body: ListTranslatorsByBookChapterId): Promise<ListTranslatorsByBookChapterIdResponse> {
     return fetch(`${this.PREFIX}/translator`, {
-      method: "GET",
+      method: "POST",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",

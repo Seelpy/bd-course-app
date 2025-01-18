@@ -13,7 +13,7 @@ export const userBookFavoritesApi = {
 
   getFavoriteTypeByBook(body: GetFavoriteTypeByBook): Promise<UserBookFavoritesType> {
     return fetch(this.PREFIX, {
-      method: "GET",
+      method: "POST",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
@@ -29,7 +29,7 @@ export const userBookFavoritesApi = {
 
   listBooksByFavorites(body: ListBookByUserBookFavorites): Promise<Book[]> {
     return fetch(`${this.PREFIX}/book`, {
-      method: "GET",
+      method: "POST",
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
