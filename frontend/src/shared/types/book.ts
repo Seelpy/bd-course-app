@@ -21,6 +21,7 @@ export type Book = {
   title: string;
   description: string;
   authors: Author[];
+  isLoggedUserTranslator: string;
 };
 
 export type ListBookResponse = {

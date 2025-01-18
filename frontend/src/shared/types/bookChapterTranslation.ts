@@ -1,5 +1,6 @@
 export type StoreBookChapterTranslation = {
   bookChapterId: string;
+  translaterId: string;
   text: string;
 };
 
