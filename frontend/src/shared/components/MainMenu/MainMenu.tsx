@@ -61,7 +61,7 @@ export const MainMenu = () => {
       text: "Requests",
       icon: <LibraryAddCheck />,
       onClick: () => {
-        console.log("TODO");
+        navigate(AppRoute.Requests);
       },
     },
   ];

@@ -4,4 +4,5 @@ export enum AppRoute {
   Login = "/login",
   Register = "/register",
   Profile = "/profile/:id",
+  Requests = "/requests",
 }

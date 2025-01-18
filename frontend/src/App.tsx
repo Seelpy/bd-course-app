@@ -60,9 +60,15 @@ function App() {
           path: AppRoute.Profile,
           lazy: () => import("./pages/ProfilePage.tsx").then((m) => ({ Component: m.ProfilePage })),
         },
+        {
+          path: AppRoute.Requests,
+          lazy: () => import("./pages/RequestsPage.tsx").then((m) => ({ Component: m.RequestsPage })),
+        },
       ],
     },
   ]);
+
+  console.log(routes);
 
   return (
     <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
