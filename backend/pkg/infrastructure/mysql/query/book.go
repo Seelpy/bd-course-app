@@ -203,8 +203,8 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 		}
 	}
 
+	query += " GROUP BY b.book_id, i.path, b.title, b.description"
 	query += " ORDER BY b.title LIMIT ? OFFSET ?"
-	query += " GROUP BY b.book_id, i.path, b.title, b.description;"
 	offset := (spec.Page - 1) * spec.Size
 	args = append(args, spec.Size, offset)
 
