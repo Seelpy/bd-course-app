@@ -365,13 +365,26 @@ func (p public) CreateBook(ctx echo.Context) error {
 		})
 	}
 
-	err := p.bookService.CreateBook(service.CreateBookInput{
+	bookID, err := p.bookService.CreateBook(service.CreateBookInput{
 		Title:       input.Title,
 		Description: input.Description,
 	})
 
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to create book: %s", err))
+	}
+
+	userID, err := extractUserIDFromContext(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = p.verifyBookRequestService.CreateVerifyBookRequest(service.CreateVerifyBookRequestInput{
+		TranslatorID: userID,
+		BookID:       bookID,
+	})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to create verify book request: %s", err))
 	}
 
 	return ctx.JSON(http.StatusOK, api.SuccessResponse{
@@ -582,6 +595,10 @@ func (p public) StoreBookChapterTranslation(ctx echo.Context) error {
 	translatorID, err := extractUserIDFromContext(ctx)
 	if err != nil {
 		return err
+	}
+
+	if input.TranslaterId != nil {
+		translatorID = domainmodel.UserID(*input.TranslaterId)
 	}
 
 	err = p.bookChapterTranslationService.StoreBookChapterTranslation(service.StoreBookChapterTranslationInput{
@@ -1430,11 +1447,12 @@ func convertBookOutputModelToAPI(bookOutput query.BookOutput, authors []query.Au
 	cover, ok := bookOutput.Cover.Get()
 
 	bookAPI := api.Book{
-		BookId:      openapi_types.UUID(bookOutput.BookID),
-		Cover:       ptr(cover),
-		Title:       bookOutput.Title,
-		Description: bookOutput.Description,
-		Authors:     authorsAPI,
+		BookId:                 openapi_types.UUID(bookOutput.BookID),
+		Cover:                  ptr(cover),
+		Title:                  bookOutput.Title,
+		Description:            bookOutput.Description,
+		Authors:                authorsAPI,
+		IsLoggedUserTranslator: true,
 	}
 
 	if !ok {
