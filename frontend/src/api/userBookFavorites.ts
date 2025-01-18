@@ -4,8 +4,8 @@ import {
   StoreUserBookFavorites,
   DeleteUserBookFavorites,
   UserBookFavoritesType,
+  ListBookByUserBookFavouritesResponse,
 } from "@shared/types/userBookFavorites";
-import { Book } from "@shared/types/book";
 import { handleApiError } from "./utils/handleApiError";
 
 export const userBookFavoritesApi = {
@@ -27,7 +27,7 @@ export const userBookFavoritesApi = {
     });
   },
 
-  listBooksByFavorites(body: ListBookByUserBookFavorites): Promise<Book[]> {
+  listBooksByFavorites(body: ListBookByUserBookFavorites): Promise<ListBookByUserBookFavouritesResponse> {
     return fetch(`${this.PREFIX}/book`, {
       method: "POST",
       credentials: "include",

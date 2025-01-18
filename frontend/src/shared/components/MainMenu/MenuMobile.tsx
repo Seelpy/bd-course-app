@@ -11,8 +11,9 @@ import {
   ListItemText,
   Divider,
   ListItemIcon,
+  Avatar,
 } from "@mui/material";
-import { Menu as MenuIcon, Person, Login, Logout, Close } from "@mui/icons-material";
+import { Menu as MenuIcon, Login, Logout, Close } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import ThemeButton from "../ThemeButton/ThemeButton";
 import { User } from "@shared/types/user";
@@ -20,6 +21,7 @@ import { AppRoute } from "@shared/constants/routes";
 
 type MenuMobileProps = {
   userInfo: User | null;
+  avatar: string;
   handleLogout: () => void;
   menuItems: {
     text: string;
@@ -28,7 +30,7 @@ type MenuMobileProps = {
   }[];
 };
 
-export const MenuMobile = ({ userInfo, handleLogout, menuItems }: MenuMobileProps) => {
+export const MenuMobile = ({ userInfo, avatar, handleLogout, menuItems }: MenuMobileProps) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -45,7 +47,14 @@ export const MenuMobile = ({ userInfo, handleLogout, menuItems }: MenuMobileProp
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{ flexGrow: 1, cursor: "pointer" }}
+            onClick={() => {
+              navigate(AppRoute.Root);
+            }}
+          >
             NovelRead
           </Typography>
         </Toolbar>
@@ -83,7 +92,7 @@ export const MenuMobile = ({ userInfo, handleLogout, menuItems }: MenuMobileProp
                 }}
               >
                 <ListItemIcon>
-                  <Person />
+                  <Avatar src={avatar} sx={{ width: 24, height: 24 }} />
                 </ListItemIcon>
                 <ListItemText primary={userInfo.login} />
               </ListItemButton>

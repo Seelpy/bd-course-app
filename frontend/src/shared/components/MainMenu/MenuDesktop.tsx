@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { AppBar, Box, Toolbar, Typography, Button, Menu, MenuItem } from "@mui/material";
-import { Person } from "@mui/icons-material";
+import { AppBar, Box, Toolbar, Typography, Button, Menu, MenuItem, Avatar } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { AppRoute } from "@shared/constants/routes";
 import { User } from "@shared/types/user";
@@ -8,6 +7,7 @@ import ThemeButton from "../ThemeButton/ThemeButton";
 
 type MenuDesktopProps = {
   userInfo: User | null;
+  avatar: string;
   handleLogout: () => void;
   menuItems: {
     text: string;
@@ -16,7 +16,7 @@ type MenuDesktopProps = {
   }[];
 };
 
-export const MenuDesktop = ({ userInfo, handleLogout, menuItems }: MenuDesktopProps) => {
+export const MenuDesktop = ({ userInfo, avatar, handleLogout, menuItems }: MenuDesktopProps) => {
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
 
@@ -59,7 +59,7 @@ export const MenuDesktop = ({ userInfo, handleLogout, menuItems }: MenuDesktopPr
               <Button
                 variant="text"
                 color="inherit"
-                startIcon={<Person />}
+                startIcon={<Avatar src={avatar} sx={{ width: 32, height: 32 }} />}
                 onClick={(e) => {
                   setUserMenuAnchor(e.currentTarget);
                 }}

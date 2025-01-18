@@ -21,8 +21,8 @@ export const RootPage = () => {
     if (userInfo) {
       userBookFavoritesApi
         .listBooksByFavorites({ types: ["READING"] })
-        .then((books) => {
-          setContinueReadingBooks(books);
+        .then((data) => {
+          setContinueReadingBooks(data.userBookFavouritesBooks.flatMap((item) => item.books));
         })
         .catch((error: Error) => {
           enqueueSnackbar(error.message);
@@ -30,8 +30,8 @@ export const RootPage = () => {
 
       userBookFavoritesApi
         .listBooksByFavorites({ types: ["PLANNED"] })
-        .then((books) => {
-          setPlannedBooks(books);
+        .then((data) => {
+          setPlannedBooks(data.userBookFavouritesBooks.flatMap((item) => item.books));
         })
         .catch((error: Error) => {
           enqueueSnackbar(error.message);

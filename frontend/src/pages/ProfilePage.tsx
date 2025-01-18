@@ -1,6 +1,25 @@
 import { useEffect, useState } from "react";
-import { useParams, Navigate, useNavigate } from "react-router-dom";
-import { Container, Paper, Avatar, Typography, Box, Tabs, Tab, Grid2, useMediaQuery, useTheme } from "@mui/material";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  Container,
+  Paper,
+  Avatar,
+  Typography,
+  Box,
+  Tabs,
+  Tab,
+  Grid2,
+  useMediaQuery,
+  useTheme,
+  IconButton,
+  Button,
+  Stack,
+  TextareaAutosize,
+  styled,
+} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import { useUserStore } from "@shared/stores/userStore";
+import { useShallow } from "zustand/shallow";
 import { userApi } from "@api/user";
 import { imageApi } from "@api/image";
 import { userBookFavoritesApi } from "@api/userBookFavorites";
@@ -11,6 +30,24 @@ import { useSnackbar } from "notistack";
 import { AppRoute } from "@shared/constants/routes";
 
 type FavoriteType = UserBookFavoritesType | "ALL";
+
+const StyledTextarea = styled(TextareaAutosize)(({ theme }) => ({
+  width: "100%",
+  padding: "8px 12px",
+  borderRadius: "4px",
+  borderColor: theme.palette.divider,
+  backgroundColor: theme.palette.background.paper,
+  color: theme.palette.text.primary,
+  fontFamily: theme.typography.fontFamily,
+  fontSize: theme.typography.body1.fontSize,
+  resize: "none",
+  "&:focus": {
+    outline: "none",
+    borderColor: theme.palette.primary.main,
+    borderWidth: "2px",
+  },
+  transition: theme.transitions.create(["border-color", "box-shadow"]),
+}));
 
 export function ProfilePage() {
   const { id } = useParams<{ id: string }>();
@@ -23,6 +60,11 @@ export function ProfilePage() {
   const [avatar, setAvatar] = useState<string>("");
   const [books, setBooks] = useState<Book[]>([]);
   const [selectedType, setSelectedType] = useState<FavoriteType>("ALL");
+  const [isEditing, setIsEditing] = useState(false);
+  const [newAboutMe, setNewAboutMe] = useState("");
+  const { userInfo } = useUserStore(useShallow((state) => ({ userInfo: state.userInfo })));
+
+  const isOwnProfile = userInfo?.id === id;
 
   useEffect(() => {
     if (id) {
@@ -45,9 +87,8 @@ export function ProfilePage() {
         .then((data) => {
           setAvatar(data.imageData);
         })
-        .catch((error: Error) => {
-          enqueueSnackbar(error.message);
-        });
+        // eslint-disable-next-line @typescript-eslint/no-empty-function
+        .catch(() => {});
     }
   }, [user?.avatarId]);
 
@@ -57,12 +98,38 @@ export function ProfilePage() {
         selectedType === "ALL" ? ["READING", "PLANNED", "DEFERRED", "READ", "DROPPED", "FAVORITE"] : [selectedType];
       userBookFavoritesApi
         .listBooksByFavorites({ types })
-        .then(setBooks)
+        .then((data) => {
+          setBooks(data.userBookFavouritesBooks.flatMap((item) => item.books));
+        })
         .catch((error: Error) => {
           enqueueSnackbar(error.message);
         });
     }
   }, [id, selectedType]);
+
+  useEffect(() => {
+    if (user?.aboutMe) {
+      setNewAboutMe(user.aboutMe);
+    }
+  }, [user?.aboutMe]);
+
+  const handleEditSubmit = async () => {
+    if (!user || !userInfo) return;
+
+    try {
+      await userApi.editUser({
+        id: userInfo.id,
+        login: userInfo.login,
+        aboutMe: newAboutMe,
+        password: "", // пустая строка, так как не меняем пароль
+      });
+      setUser({ ...user, aboutMe: newAboutMe });
+      setIsEditing(false);
+      enqueueSnackbar("Profile updated successfully", { variant: "success" });
+    } catch (error) {
+      enqueueSnackbar((error as Error).message, { variant: "error" });
+    }
+  };
 
   return (
     <Box sx={{ width: "100%", py: 4 }}>
@@ -70,13 +137,51 @@ export function ProfilePage() {
         <Paper elevation={3} sx={{ p: 3, mb: 4, borderRadius: 4 }}>
           <Box display="flex" alignItems="center" gap={3}>
             <Avatar src={avatar} sx={{ width: 120, height: 120 }} />
-            <Box>
+            <Box sx={{ flex: 1 }}>
               <Typography variant="h4" gutterBottom>
                 {user?.login}
               </Typography>
-              <Typography variant="body1" color="text.secondary">
-                {user?.aboutMe}
-              </Typography>
+              {isEditing ? (
+                <Box sx={{ display: "flex", gap: 1, alignItems: "flex-start" }}>
+                  <StyledTextarea
+                    value={newAboutMe}
+                    onChange={(e) => {
+                      setNewAboutMe(e.target.value);
+                    }}
+                    minRows={3}
+                  />
+                  <Stack direction="column" spacing={1}>
+                    <Button variant="contained" onClick={handleEditSubmit}>
+                      Save
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      onClick={() => {
+                        setIsEditing(false);
+                        setNewAboutMe(user?.aboutMe ?? "");
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </Stack>
+                </Box>
+              ) : (
+                <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
+                  <Typography variant="body1" color="text.secondary">
+                    {user?.aboutMe}
+                  </Typography>
+                  {isOwnProfile && (
+                    <IconButton
+                      size="small"
+                      onClick={() => {
+                        setIsEditing(true);
+                      }}
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  )}
+                </Box>
+              )}
             </Box>
           </Box>
         </Paper>
