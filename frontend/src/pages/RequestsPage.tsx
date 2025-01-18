@@ -26,23 +26,25 @@ export function RequestsPage() {
     loadRequests();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    try {
-      await bookApi.createBook({
+    bookApi
+      .createBook({
         title,
         description,
+      })
+      .then(() => {
+        enqueueSnackbar("Book verification request created successfully", {
+          variant: "success",
+        });
+        setTitle("");
+        setDescription("");
+        loadRequests();
+      })
+      .catch((error: Error) => {
+        enqueueSnackbar(error.message, { variant: "error" });
       });
-      enqueueSnackbar("Book verification request created successfully", {
-        variant: "success",
-      });
-      setTitle("");
-      setDescription("");
-      loadRequests();
-    } catch (error) {
-      enqueueSnackbar((error as Error).message, { variant: "error" });
-    }
   };
 
   return (
@@ -96,10 +98,10 @@ export function RequestsPage() {
               <Card elevation={2}>
                 <CardContent>
                   <Typography variant="h6" gutterBottom>
-                    Book ID: {request.bookId}
+                    {request.book.title}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Translator ID: {request.translatorId}
+                    {request.book.description}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Status: {request.isVerified ? "Verified" : "Pending"}

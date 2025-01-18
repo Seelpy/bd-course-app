@@ -1,7 +1,9 @@
+import { Book } from "./book";
+
 export type VerifyBookRequest = {
   verifyBookRequestId: string;
   translatorId: string;
-  bookId: string;
+  book: Book;
   isVerified: boolean;
   sendDateMilli: number;
 };
