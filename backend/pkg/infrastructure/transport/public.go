@@ -474,8 +474,11 @@ func (p public) GetBook(ctx echo.Context, id string) error {
 	}
 
 	book, err := p.bookQueryService.FindByID(domainmodel.BookID(bookID))
+	if errors.Is(err, domainmodel.ErrBookNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "Book not found")
+	}
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list book: %s", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to get book: %s", err))
 	}
 
 	authors, err2 := p.authorQueryService.ListByBookID(book.BookID)

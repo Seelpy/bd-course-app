@@ -2,6 +2,7 @@ package query
 
 import (
 	"database/sql"
+	"errors"
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/mono83/maybe"
@@ -73,6 +74,9 @@ func (service *bookQueryService) FindByID(bookID model.BookID) (BookOutput, erro
 
 	var book sqlxBook
 	err = service.connection.Get(&book, query, binaryBookID)
+	if errors.Is(err, sql.ErrNoRows) {
+		return BookOutput{}, model.ErrBookNotFound
+	}
 	if err != nil {
 		return BookOutput{}, err
 	}
