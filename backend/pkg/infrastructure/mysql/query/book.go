@@ -6,6 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	"github.com/mono83/maybe"
 	"server/pkg/domain/model"
+	"strings"
 )
 
 type RatingExtremeType int16
@@ -91,24 +92,28 @@ func (service *bookQueryService) ListByIDs(bookIDs []model.BookID) ([]BookOutput
 		return nil, nil
 	}
 
-	const query = `
-		SELECT b.book_id, i.path, b.title, b.description
-		FROM book b
-		LEFT OUTER JOIN image i ON b.cover_id = i.image_id
-		WHERE b.book_id = ?;
-	`
-
-	binaryBookIDs := make([][]byte, 0, len(bookIDs))
+	// Convert bookIDs to UUIDs and prepare the query placeholders
+	placeholders := make([]string, 0, len(bookIDs))
+	args := make([]interface{}, 0, len(bookIDs))
 	for _, id := range bookIDs {
 		binaryBookID, err := uuid.UUID(id).MarshalBinary()
 		if err != nil {
 			return nil, err
 		}
-		binaryBookIDs = append(binaryBookIDs, binaryBookID)
+		placeholders = append(placeholders, "?")
+		args = append(args, binaryBookID)
 	}
 
+	// Construct the query with the appropriate number of placeholders
+	query := `
+		SELECT b.book_id, i.path, b.title, b.description
+		FROM book b
+		LEFT OUTER JOIN image i ON b.cover_id = i.image_id
+		WHERE b.book_id IN (` + strings.Join(placeholders, ",") + `);
+	`
+
 	var books []sqlxBook
-	err := service.connection.Select(&books, query, binaryBookIDs)
+	err := service.connection.Select(&books, query, args...)
 	if err != nil {
 		return nil, err
 	}
