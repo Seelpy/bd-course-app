@@ -32,7 +32,7 @@ export const RegisterPage = () => {
     if (userInfo) {
       navigate(AppRoute.Root);
     }
-  }, [userInfo, navigate]);
+  }, [userInfo]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

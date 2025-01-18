@@ -3,4 +3,5 @@ export enum AppRoute {
   NotFound = "/*",
   Login = "/login",
   Register = "/register",
+  Profile = "/profile/:id",
 }

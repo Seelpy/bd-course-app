@@ -24,7 +24,7 @@ export const LoginPage = () => {
     if (userInfo) {
       navigate(AppRoute.Root);
     }
-  }, [userInfo, navigate]);
+  }, [userInfo]);
 
   const [form, setForm] = useState<AuthForm>({ login: "", password: "" });
 

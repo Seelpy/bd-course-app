@@ -33,7 +33,7 @@ function App() {
           setUserInfo(null);
         });
     }
-  }, [setUserInfo, userInfo]);
+  }, []);
 
   const routes = createBrowserRouter([
     {
@@ -55,6 +55,10 @@ function App() {
         {
           path: AppRoute.Register,
           lazy: () => import("./pages/RegisterPage.tsx").then((m) => ({ Component: m.RegisterPage })),
+        },
+        {
+          path: AppRoute.Profile,
+          lazy: () => import("./pages/ProfilePage.tsx").then((m) => ({ Component: m.ProfilePage })),
         },
       ],
     },

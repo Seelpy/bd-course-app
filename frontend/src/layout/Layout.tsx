@@ -6,7 +6,9 @@ export default function Layout() {
   return (
     <main className={styles.layout}>
       <MainMenu />
-      <Outlet />
+      <div className={styles.container}>
+        <Outlet />
+      </div>
     </main>
   );
 }

@@ -78,7 +78,7 @@ export const MenuMobile = ({ userInfo, handleLogout, menuItems }: MenuMobileProp
             <ListItem>
               <ListItemButton
                 onClick={() => {
-                  navigate("/profile");
+                  navigate(`/profile/${userInfo.id}`);
                   setDrawerOpen(false);
                 }}
               >

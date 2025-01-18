@@ -75,7 +75,7 @@ export const MenuDesktop = ({ userInfo, handleLogout, menuItems }: MenuDesktopPr
               >
                 <MenuItem
                   onClick={() => {
-                    navigate("/profile");
+                    navigate(`/profile/${userInfo.id}`);
                     setUserMenuAnchor(null);
                   }}
                 >
