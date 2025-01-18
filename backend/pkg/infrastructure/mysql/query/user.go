@@ -11,6 +11,7 @@ import (
 )
 
 type UserQueryService interface {
+	List() ([]model.User, error)
 	FindByLogin(login string) (model.User, error)
 	FindByID(userID model2.UserID) (model.User, error)
 }
@@ -21,6 +22,50 @@ type userQueryService struct {
 
 func NewUserQueryService(connection *sqlx.DB) *userQueryService {
 	return &userQueryService{connection}
+}
+
+func (service *userQueryService) List() ([]model.User, error) {
+	const query = `
+		SELECT
+			user_id,
+			avatar_id,
+			login,
+			role,
+			password,
+       		about_me
+		FROM user
+`
+
+	var sqlxUsers []sqlxUser
+	err := service.connection.Select(&sqlxUsers, query)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, model2.ErrUserNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	users := make([]model.User, len(sqlxUsers))
+	for i, user := range sqlxUsers {
+		var avatarID maybe.Maybe[uuid.UUID]
+		if user.AvatarID.Valid {
+			id, err2 := uuid.FromString(user.AvatarID.String)
+			if err2 == nil {
+				avatarID = maybe.Just(id)
+			}
+		}
+
+		users[i] = model.User{
+			ID:       user.ID,
+			AvatarID: avatarID,
+			Login:    user.Login,
+			Role:     user.Role,
+			Password: user.Password,
+			AboutMe:  user.AboutMe,
+		}
+	}
+
+	return users, nil
 }
 
 func (service *userQueryService) FindByLogin(login string) (model.User, error) {

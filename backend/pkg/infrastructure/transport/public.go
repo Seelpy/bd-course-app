@@ -255,21 +255,7 @@ func (p public) GetLoginUser(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to get login user: %s", err))
 	}
 
-	avatarID, ok := user.AvatarID.Get()
-
-	userAPI := api.User{
-		Id:       openapi_types.UUID(userID),
-		AvatarId: ptr(openapi_types.UUID(avatarID)),
-		Login:    user.Login,
-		Role:     user.Role,
-		AboutMe:  user.AboutMe,
-	}
-
-	if !ok {
-		userAPI.AvatarId = nil
-	}
-
-	return ctx.JSON(http.StatusOK, userAPI)
+	return ctx.JSON(http.StatusOK, convertUserModelToAPI(user))
 }
 
 func (p public) CreateUser(ctx echo.Context) error {
@@ -346,8 +332,29 @@ func (p public) DeleteUser(ctx echo.Context) error {
 }
 
 func (p public) GetUser(ctx echo.Context, id string) error {
-	//TODO implement me
-	panic("implement me")
+	user, err := p.userQueryService.FindByID(domainmodel.UserID(uuid.FromStringOrNil(id)))
+	if errors.Is(err, domainmodel.ErrUserNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "User not found")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to edit user: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, convertUserModelToAPI(user))
+}
+
+func (p public) ListUser(ctx echo.Context) error {
+	usersOutput, err := p.userQueryService.List()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to edit user: %s", err))
+	}
+
+	users := make([]api.User, len(usersOutput))
+	for i, user := range usersOutput {
+		users[i] = convertUserModelToAPI(user)
+	}
+
+	return ctx.JSON(http.StatusOK, users)
 }
 
 func (p public) CreateBook(ctx echo.Context) error {
@@ -1532,6 +1539,24 @@ func convertListBookParamsToListSpec(params api.SearchBookParams) query.ListSpec
 	}
 
 	return spec
+}
+
+func convertUserModelToAPI(user model.User) api.User {
+	avatarID, ok := user.AvatarID.Get()
+
+	userAPI := api.User{
+		Id:       openapi_types.UUID(user.ID),
+		AvatarId: ptr(openapi_types.UUID(avatarID)),
+		Login:    user.Login,
+		Role:     user.Role,
+		AboutMe:  user.AboutMe,
+	}
+
+	if !ok {
+		userAPI.AvatarId = nil
+	}
+
+	return userAPI
 }
 
 func createToken(user model.User, expirationTimeDur time.Duration) (string, time.Time, error) {
