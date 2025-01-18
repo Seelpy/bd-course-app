@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import { AuthForm } from "@shared/types/auth";
@@ -13,11 +13,18 @@ export const LoginPage = () => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
-  const { setUserInfo } = useUserStore(
+  const { userInfo, setUserInfo } = useUserStore(
     useShallow((state) => ({
+      userInfo: state.userInfo,
       setUserInfo: state.setUserInfo,
     })),
   );
+
+  useEffect(() => {
+    if (userInfo) {
+      navigate(AppRoute.Root);
+    }
+  }, [userInfo, navigate]);
 
   const [form, setForm] = useState<AuthForm>({ login: "", password: "" });
 

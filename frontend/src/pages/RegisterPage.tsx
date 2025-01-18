@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Button, Container, TextField, Typography } from "@mui/material";
 import { userApi } from "@api/user";
 import { CreateUser } from "@shared/types/user";
 import { AppRoute } from "@shared/constants/routes";
 import { useSnackbar } from "notistack";
+import { useUserStore } from "@shared/stores/userStore";
+import { useShallow } from "zustand/shallow";
 
 type RegisterFormData = CreateUser & { confirmPassword: string };
 
@@ -12,13 +14,25 @@ export const RegisterPage = () => {
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
+  const [passwordsMismatch, setPasswordsMismatch] = useState(false);
   const [form, setForm] = useState<RegisterFormData>({
     login: "",
     password: "",
     aboutMe: "",
     confirmPassword: "",
   });
-  const [passwordsMismatch, setPasswordsMismatch] = useState(false);
+
+  const { userInfo } = useUserStore(
+    useShallow((state) => ({
+      userInfo: state.userInfo,
+    })),
+  );
+
+  useEffect(() => {
+    if (userInfo) {
+      navigate(AppRoute.Root);
+    }
+  }, [userInfo, navigate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
