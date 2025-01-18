@@ -39,5 +39,8 @@ export const RootPage = () => {
     }
   }, [userInfo]);
 
+  console.log(continueReadingBooks);
+  console.log(plannedBooks);
+
   return <></>;
 };
