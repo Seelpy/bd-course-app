@@ -7,10 +7,33 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { AppRoute } from "@shared/constants/routes";
 import { SnackbarProvider } from "notistack";
 import ErrorBoundary from "./pages/ErrorBoundary.tsx";
+import { useEffect } from "react";
+import { userApi } from "@api/user.ts";
+import { useUserStore } from "@shared/stores/userStore.ts";
+import { useShallow } from "zustand/shallow";
 
 function App() {
-  const { mode, theme } = useTheme();
-  console.log(mode);
+  const { theme } = useTheme();
+
+  const { userInfo, setUserInfo } = useUserStore(
+    useShallow((state) => ({
+      userInfo: state.userInfo,
+      setUserInfo: state.setUserInfo,
+    })),
+  );
+
+  useEffect(() => {
+    if (userInfo) {
+      userApi
+        .getAuthorizedUser()
+        .then((data) => {
+          setUserInfo(data);
+        })
+        .catch(() => {
+          setUserInfo(null);
+        });
+    }
+  }, [setUserInfo, userInfo]);
 
   const routes = createBrowserRouter([
     {
