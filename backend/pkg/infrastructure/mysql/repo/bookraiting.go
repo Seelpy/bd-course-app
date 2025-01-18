@@ -99,7 +99,7 @@ func (repo *bookRatingRepository) Find(bookID model.BookID, userID model.UserID)
 	return model.NewBookRating(bookID, userID, ratingValue), nil
 }
 
-func (repo *bookRatingRepository) AverageByBookID(bookID model.BookID) (int, error) {
+func (repo *bookRatingRepository) AverageByBookID(bookID model.BookID) (float64, error) {
 	const query = `
 		SELECT AVG(value) FROM book_rating WHERE book_id = ?
 	`
@@ -118,7 +118,7 @@ func (repo *bookRatingRepository) AverageByBookID(bookID model.BookID) (int, err
 		return 0, err
 	}
 
-	return int(avg), nil
+	return avg, nil
 }
 
 func (repo *bookRatingRepository) CountByBookID(bookID model.BookID) (int, error) {

@@ -165,7 +165,7 @@ func (p public) GetBookRating(ctx echo.Context, id string) error {
 	stat, err := p.bookRatingService.GetStatistics(bookID)
 
 	return ctx.JSON(http.StatusOK, api.GetBookRatingResponse{
-		Average: ptr(stat.Average),
+		Average: ptr(float32(stat.Average)),
 		Count:   ptr(stat.Count),
 	})
 }
@@ -1472,6 +1472,7 @@ func convertBookOutputModelToAPI(bookOutput query.BookOutput, authors []query.Au
 		Description:            bookOutput.Description,
 		Authors:                authorsAPI,
 		IsLoggedUserTranslator: true,
+		Rating:                 float32(bookOutput.AverageRating),
 	}
 
 	if !ok {

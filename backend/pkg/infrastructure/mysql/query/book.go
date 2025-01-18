@@ -41,10 +41,11 @@ type ListSpec struct {
 }
 
 type BookOutput struct {
-	BookID      uuid.UUID
-	Cover       maybe.Maybe[string]
-	Title       string
-	Description string
+	BookID        uuid.UUID
+	Cover         maybe.Maybe[string]
+	AverageRating float64
+	Title         string
+	Description   string
 }
 
 type bookQueryService struct {
@@ -57,9 +58,10 @@ func NewBookQueryService(connection *sqlx.DB) *bookQueryService {
 
 func (service *bookQueryService) FindByID(bookID model.BookID) (BookOutput, error) {
 	const query = `
-		SELECT b.book_id, i.path, b.title, b.description
+		SELECT b.book_id, i.path, b.title, b.description, AVG(br.value) as average_rating
 		FROM book b
-		LEFT OUTER JOIN image i ON b.cover_id = i.image_id
+		LEFT JOIN image i ON b.cover_id = i.image_id
+		LEFT JOIN book_rating br ON br.book_id = b.book_id
 		WHERE b.book_id = ?;
 	`
 
@@ -80,10 +82,11 @@ func (service *bookQueryService) FindByID(bookID model.BookID) (BookOutput, erro
 	}
 
 	return BookOutput{
-		BookID:      book.BookID,
-		Cover:       cover,
-		Title:       book.Title,
-		Description: book.Description,
+		BookID:        book.BookID,
+		Cover:         cover,
+		AverageRating: book.AverageRating,
+		Title:         book.Title,
+		Description:   book.Description,
 	}, nil
 }
 
@@ -92,7 +95,6 @@ func (service *bookQueryService) ListByIDs(bookIDs []model.BookID) ([]BookOutput
 		return nil, nil
 	}
 
-	// Convert bookIDs to UUIDs and prepare the query placeholders
 	placeholders := make([]string, 0, len(bookIDs))
 	args := make([]interface{}, 0, len(bookIDs))
 	for _, id := range bookIDs {
@@ -104,11 +106,11 @@ func (service *bookQueryService) ListByIDs(bookIDs []model.BookID) ([]BookOutput
 		args = append(args, binaryBookID)
 	}
 
-	// Construct the query with the appropriate number of placeholders
 	query := `
-		SELECT b.book_id, i.path, b.title, b.description
+		SELECT b.book_id, i.path, b.title, b.description, AVG(br.value) as average_rating
 		FROM book b
-		LEFT OUTER JOIN image i ON b.cover_id = i.image_id
+		LEFT JOIN image i ON b.cover_id = i.image_id
+		LEFT JOIN book_rating br ON br.book_id = b.book_id
 		WHERE b.book_id IN (` + strings.Join(placeholders, ",") + `);
 	`
 
@@ -126,10 +128,11 @@ func (service *bookQueryService) ListByIDs(bookIDs []model.BookID) ([]BookOutput
 		}
 
 		result = append(result, BookOutput{
-			BookID:      sqlBook.BookID,
-			Cover:       cover,
-			Title:       sqlBook.Title,
-			Description: sqlBook.Description,
+			BookID:        sqlBook.BookID,
+			Cover:         cover,
+			AverageRating: sqlBook.AverageRating,
+			Title:         sqlBook.Title,
+			Description:   sqlBook.Description,
 		})
 	}
 
@@ -138,9 +141,10 @@ func (service *bookQueryService) ListByIDs(bookIDs []model.BookID) ([]BookOutput
 
 func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 	query := `
-		SELECT b.book_id, i.path, b.title, b.description
+		SELECT b.book_id, i.path, b.title, b.description, AVG(br.value) as average_rating
 		FROM book b
-		LEFT OUTER JOIN image i ON b.cover_id = i.image_id
+		LEFT JOIN image i ON b.cover_id = i.image_id
+		LEFT JOIN book_rating br ON br.book_id = b.book_id
 		WHERE b.is_publish = 1
 	`
 
@@ -215,10 +219,11 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 		}
 
 		bookOutputs[i] = BookOutput{
-			BookID:      b.BookID,
-			Cover:       cover,
-			Title:       b.Title,
-			Description: b.Description,
+			BookID:        b.BookID,
+			Cover:         cover,
+			AverageRating: b.AverageRating,
+			Title:         b.Title,
+			Description:   b.Description,
 		}
 	}
 
@@ -238,8 +243,9 @@ func (service *bookQueryService) CountBook(isPublished bool) (int, error) {
 }
 
 type sqlxBook struct {
-	BookID      uuid.UUID      `db:"book_id"`
-	Cover       sql.NullString `db:"path"`
-	Title       string         `db:"title"`
-	Description string         `db:"description"`
+	BookID        uuid.UUID      `db:"book_id"`
+	Cover         sql.NullString `db:"path"`
+	AverageRating float64        `db:"average_rating"`
+	Title         string         `db:"title"`
+	Description   string         `db:"description"`
 }

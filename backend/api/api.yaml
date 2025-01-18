@@ -1859,7 +1859,7 @@ components:
       type: object
       properties:
         average:
-          type: integer
+          type: number
         count:
           type: integer
     LoginUserResponse:
@@ -2375,12 +2375,15 @@ components:
             $ref: "#/components/schemas/Author"
         isLoggedUserTranslator:
           type: boolean
+        rating:
+          type: number
       required:
         - bookId
         - title
         - description
         - authors
         - isLoggedUserTranslator
+        - rating
     BookChapter:
       type: object
       properties:

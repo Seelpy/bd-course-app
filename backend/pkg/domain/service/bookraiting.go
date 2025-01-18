@@ -24,7 +24,7 @@ type BookRatingRepository interface {
 	Store(bookRating model.BookRating) error
 	Delete(bookID model.BookID, userID model.UserID) error
 	Find(bookID model.BookID, userID model.UserID) (model.BookRating, error)
-	AverageByBookID(bookID model.BookID) (int, error)
+	AverageByBookID(bookID model.BookID) (float64, error)
 	CountByBookID(bookID model.BookID) (int, error)
 }
 
@@ -35,7 +35,7 @@ type StoreBookRatingInput struct {
 }
 
 type StatisticsBookRatingOutput struct {
-	Average int
+	Average float64
 	Count   int
 }
 
