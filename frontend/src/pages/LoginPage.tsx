@@ -7,6 +7,7 @@ import { AppRoute } from "@shared/constants/routes";
 import { useSnackbar } from "notistack";
 import { useUserStore } from "@shared/stores/userStore";
 import { useShallow } from "zustand/shallow";
+import { userApi } from "@api/user";
 
 export const LoginPage = () => {
   const navigate = useNavigate();
@@ -26,9 +27,16 @@ export const LoginPage = () => {
     authApi
       .login(form)
       .then(() => {
-        enqueueSnackbar("Login successful", { variant: "success" });
-        setUserInfo({ id: "test", name: form.login, email: "mock@gmail.com" });
-        navigate(AppRoute.Root);
+        userApi
+          .getAuthorizedUser()
+          .then((user) => {
+            setUserInfo(user);
+            enqueueSnackbar("Login successful", { variant: "success" });
+            navigate(AppRoute.Root);
+          })
+          .catch((error: Error) => {
+            enqueueSnackbar(error.message, { variant: "error" });
+          });
       })
       .catch((error: Error) => {
         enqueueSnackbar(error.message, { variant: "error" });

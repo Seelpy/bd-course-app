@@ -85,7 +85,7 @@ export const MenuMobile = ({ userInfo, handleLogout, menuItems }: MenuMobileProp
                 <ListItemIcon>
                   <Person />
                 </ListItemIcon>
-                <ListItemText primary={userInfo.name} />
+                <ListItemText primary={userInfo.login} />
               </ListItemButton>
             </ListItem>
           ) : (

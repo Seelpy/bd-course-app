@@ -64,7 +64,7 @@ export const MenuDesktop = ({ userInfo, handleLogout, menuItems }: MenuDesktopPr
                   setUserMenuAnchor(e.currentTarget);
                 }}
               >
-                {userInfo.name}
+                {userInfo.login}
               </Button>
               <Menu
                 anchorEl={userMenuAnchor}

@@ -1,7 +1,14 @@
+export enum UserRole {
+  Admin = 0,
+  Client = 1,
+}
+
 export type User = {
   id: string;
-  name: string;
-  email: string;
+  login: string;
+  role: UserRole;
+  aboutMe: string;
+  avatarId: string;
 };
 
 export type CreateUser = {
