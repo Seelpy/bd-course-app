@@ -2188,8 +2188,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/UserBookFavouritesType'
+        userId:
+          type: string
+          format: uuid
       required:
         - types
+        - userId
     ListBookByUserBookFavouritesResponse:
       type: object
       properties:

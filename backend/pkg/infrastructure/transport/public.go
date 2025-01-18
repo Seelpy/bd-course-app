@@ -1045,11 +1045,6 @@ func (p public) ListBookByUserBookFavourites(ctx echo.Context) error {
 		})
 	}
 
-	userID, err := extractUserIDFromContext(ctx)
-	if err != nil {
-		return err
-	}
-
 	modelTypes := make([]domainmodel.UserBookFavouritesType, len(input.Types))
 	for i, t := range input.Types {
 		modelType, err2 := convertUserBookFavouritesTypeAPIToModel(t)
@@ -1060,7 +1055,7 @@ func (p public) ListBookByUserBookFavourites(ctx echo.Context) error {
 		modelTypes[i] = modelType
 	}
 
-	outputs, err := p.userBookFavouritesQueryService.ListBookByUserBookFavourites(userID, modelTypes)
+	outputs, err := p.userBookFavouritesQueryService.ListBookByUserBookFavourites(domainmodel.UserID(input.UserId), modelTypes)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list user book favourites: %s", err))
 	}
