@@ -20,7 +20,7 @@ export const RootPage = () => {
   useEffect(() => {
     if (userInfo) {
       userBookFavoritesApi
-        .listBooksByFavorites({ types: ["READING"] })
+        .listBooksByFavorites({ types: ["READING"], userId: userInfo.id })
         .then((data) => {
           setContinueReadingBooks(data.userBookFavouritesBooks.flatMap((item) => item.books));
         })
@@ -29,7 +29,7 @@ export const RootPage = () => {
         });
 
       userBookFavoritesApi
-        .listBooksByFavorites({ types: ["PLANNED"] })
+        .listBooksByFavorites({ types: ["PLANNED"], userId: userInfo.id })
         .then((data) => {
           setPlannedBooks(data.userBookFavouritesBooks.flatMap((item) => item.books));
         })

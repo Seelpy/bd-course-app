@@ -97,7 +97,7 @@ export function ProfilePage() {
       const types: UserBookFavoritesType[] =
         selectedType === "ALL" ? ["READING", "PLANNED", "DEFERRED", "READ", "DROPPED", "FAVORITE"] : [selectedType];
       userBookFavoritesApi
-        .listBooksByFavorites({ types })
+        .listBooksByFavorites({ types, userId: id })
         .then((data) => {
           setBooks(data.userBookFavouritesBooks.flatMap((item) => item.books));
         })
@@ -170,7 +170,7 @@ export function ProfilePage() {
                   <Typography variant="body1" color="text.secondary">
                     {user?.aboutMe}
                   </Typography>
-                  {isOwnProfile && (
+                  {isOwnProfile && user?.aboutMe.trim() && (
                     <IconButton
                       size="small"
                       onClick={() => {
@@ -179,6 +179,18 @@ export function ProfilePage() {
                     >
                       <EditIcon fontSize="small" />
                     </IconButton>
+                  )}
+                  {isOwnProfile && !user?.aboutMe.trim() && (
+                    <Button
+                      variant="text"
+                      endIcon={<EditIcon />}
+                      sx={{ marginLeft: -1 }}
+                      onClick={() => {
+                        setIsEditing(true);
+                      }}
+                    >
+                      Write something about yourself
+                    </Button>
                   )}
                 </Box>
               )}
