@@ -7,7 +7,7 @@ import (
 )
 
 type BookService interface {
-	CreateBook(input CreateBookInput) error
+	CreateBook(input CreateBookInput) (model.BookID, error)
 	EditBook(input EditBookInput) error
 	EditBookImage(input EditBookImageInput) error
 	PublishBook(input PublishBookInput) error
@@ -50,16 +50,18 @@ type EditBookImageInput struct {
 	ImageID model.ImageID
 }
 
-func (service *bookService) CreateBook(input CreateBookInput) error {
+func (service *bookService) CreateBook(input CreateBookInput) (model.BookID, error) {
+	bookID := model.BookID(service.bookRepo.NextID())
+
 	book := model.NewBook(
-		model.BookID(service.bookRepo.NextID()),
+		bookID,
 		maybe.Nothing[model.ImageID](),
 		input.Title,
 		input.Description,
 		false,
 	)
 
-	return service.bookRepo.Store(book)
+	return bookID, service.bookRepo.Store(book)
 }
 
 func (service *bookService) EditBook(input EditBookInput) error {
