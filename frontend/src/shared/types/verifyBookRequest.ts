@@ -4,7 +4,7 @@ export type VerifyBookRequest = {
   verifyBookRequestId: string;
   translatorId: string;
   book: Book;
-  isVerified: boolean;
+  isVerified?: boolean;
   sendDateMilli: number;
 };
 
