@@ -32,6 +32,7 @@ export default tseslint.config(
       ...react.configs["jsx-runtime"].rules,
       "@typescript-eslint/consistent-type-definitions": ["error", "type"],
       "@typescript-eslint/use-unknown-in-catch-callback-variable": "off",
+      "react-hooks/exhaustive-deps": "off",
       "@typescript-eslint/no-misused-promises": [
         "error",
         {
