@@ -58,11 +58,12 @@ func NewBookQueryService(connection *sqlx.DB) *bookQueryService {
 
 func (service *bookQueryService) FindByID(bookID model.BookID) (BookOutput, error) {
 	const query = `
-		SELECT b.book_id, i.path, b.title, b.description, AVG(br.value) as average_rating
+		SELECT b.book_id, i.path, b.title, b.description, COALESCE(AVG(br.value), 0) as average_rating
 		FROM book b
 		LEFT JOIN image i ON b.cover_id = i.image_id
 		LEFT JOIN book_rating br ON br.book_id = b.book_id
-		WHERE b.book_id = ?;
+		WHERE b.book_id = ?
+		GROUP BY b.book_id, i.path, b.title, b.description;
 	`
 
 	binaryBookID, err := uuid.UUID(bookID).MarshalBinary()
@@ -107,11 +108,12 @@ func (service *bookQueryService) ListByIDs(bookIDs []model.BookID) ([]BookOutput
 	}
 
 	query := `
-		SELECT b.book_id, i.path, b.title, b.description, AVG(br.value) as average_rating
+		SELECT b.book_id, i.path, b.title, b.description,  COALESCE(AVG(br.value), 0) as average_rating
 		FROM book b
 		LEFT JOIN image i ON b.cover_id = i.image_id
 		LEFT JOIN book_rating br ON br.book_id = b.book_id
-		WHERE b.book_id IN (` + strings.Join(placeholders, ",") + `);
+		WHERE b.book_id IN (` + strings.Join(placeholders, ",") + `)
+		GROUP BY b.book_id, i.path, b.title, b.description;
 	`
 
 	var books []sqlxBook
@@ -141,7 +143,7 @@ func (service *bookQueryService) ListByIDs(bookIDs []model.BookID) ([]BookOutput
 
 func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 	query := `
-		SELECT b.book_id, i.path, b.title, b.description, AVG(br.value) as average_rating
+		SELECT b.book_id, i.path, b.title, b.description,  COALESCE(AVG(br.value), 0) as average_rating
 		FROM book b
 		LEFT JOIN image i ON b.cover_id = i.image_id
 		LEFT JOIN book_rating br ON br.book_id = b.book_id
@@ -202,6 +204,7 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 	}
 
 	query += " ORDER BY b.title LIMIT ? OFFSET ?"
+	query += " GROUP BY b.book_id, i.path, b.title, b.description;"
 	offset := (spec.Page - 1) * spec.Size
 	args = append(args, spec.Size, offset)
 

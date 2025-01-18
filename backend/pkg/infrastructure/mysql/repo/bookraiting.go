@@ -101,7 +101,7 @@ func (repo *bookRatingRepository) Find(bookID model.BookID, userID model.UserID)
 
 func (repo *bookRatingRepository) AverageByBookID(bookID model.BookID) (float64, error) {
 	const query = `
-		SELECT AVG(value) FROM book_rating WHERE book_id = ?
+		SELECT COALESCE(AVG(value), 0) FROM book_rating WHERE book_id = ?
 	`
 
 	var avg float64
