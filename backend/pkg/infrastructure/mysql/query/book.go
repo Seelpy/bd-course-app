@@ -25,6 +25,7 @@ const (
 type BookQueryService interface {
 	FindByID(bookID model.BookID) (BookOutput, error)
 	List(spec ListSpec) ([]BookOutput, error)
+	ListByIDs(bookIDs []model.BookID) ([]BookOutput, error)
 	CountBook(isPublished bool) (int, error)
 }
 
@@ -83,6 +84,51 @@ func (service *bookQueryService) FindByID(bookID model.BookID) (BookOutput, erro
 		Title:       book.Title,
 		Description: book.Description,
 	}, nil
+}
+
+func (service *bookQueryService) ListByIDs(bookIDs []model.BookID) ([]BookOutput, error) {
+	if len(bookIDs) == 0 {
+		return nil, nil
+	}
+
+	const query = `
+		SELECT b.book_id, i.path, b.title, b.description
+		FROM book b
+		LEFT OUTER JOIN image i ON b.cover_id = i.image_id
+		WHERE b.book_id = ?;
+	`
+
+	binaryBookIDs := make([][]byte, 0, len(bookIDs))
+	for _, id := range bookIDs {
+		binaryBookID, err := uuid.UUID(id).MarshalBinary()
+		if err != nil {
+			return nil, err
+		}
+		binaryBookIDs = append(binaryBookIDs, binaryBookID)
+	}
+
+	var books []sqlxBook
+	err := service.connection.Select(&books, query, binaryBookIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]BookOutput, 0)
+	for _, sqlBook := range books {
+		cover := maybe.Nothing[string]()
+		if sqlBook.Cover.Valid {
+			cover = maybe.Just(sqlBook.Cover.String)
+		}
+
+		result = append(result, BookOutput{
+			BookID:      sqlBook.BookID,
+			Cover:       cover,
+			Title:       sqlBook.Title,
+			Description: sqlBook.Description,
+		})
+	}
+
+	return result, nil
 }
 
 func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
