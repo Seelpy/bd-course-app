@@ -2404,9 +2404,8 @@ components:
         translatorId:
           type: string
           format: uuid
-        bookId:
-          type: string
-          format: uuid
+        book:
+          $ref: "#/components/schemas/Book"
         isVerified:
           type: boolean
         sendDateMilli:
@@ -2414,7 +2413,7 @@ components:
       required:
         - verifyBookRequestId
         - translatorId
-        - bookId
+        - book
         - sendDateMilli
     UserBookFavouritesBooks:
       type: object

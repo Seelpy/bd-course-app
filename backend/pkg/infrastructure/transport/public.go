@@ -726,18 +726,37 @@ func (p public) ListVerifyBookRequest(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list verify book request session: %s", err))
 	}
 
+	bookIDs := make([]domainmodel.BookID, 0)
+	for _, verifyBooksRequest := range verifyBooksRequests {
+		bookIDs = append(bookIDs, verifyBooksRequest.BookID)
+	}
+
+	books, err := p.bookQueryService.ListByIDs(bookIDs)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list verify book request session: %s", err))
+	}
+	bookIDToBookMap := make(map[domainmodel.BookID]query.BookOutput)
+	for _, book := range books {
+		bookIDToBookMap[book.BookID] = book
+	}
+
 	verifyBookRespRequests := make([]api.VerifyBookRequest, len(verifyBooksRequests))
 	for i, v := range verifyBooksRequests {
 		isVerified, ok := v.IsVerified.Get()
 
 		sendDateMilli := int(v.SendDate.UnixNano() / int64(time.Millisecond))
 
+		authors, err2 := p.authorQueryService.ListByBookID(v.BookID)
+		if err2 != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list author: %s", err2))
+		}
+
 		verifyBookRespRequests[i] = api.VerifyBookRequest{
 			VerifyBookRequestId: openapi_types.UUID(v.VerifyBookRequestID),
 			TranslatorId:        openapi_types.UUID(v.TranslatorID),
-			BookId:              openapi_types.UUID(v.BookID),
 			IsVerified:          ptr(isVerified),
 			SendDateMilli:       sendDateMilli,
+			Book:                convertBookOutputModelToAPI(bookIDToBookMap[v.BookID], authors),
 		}
 
 		if !ok {
