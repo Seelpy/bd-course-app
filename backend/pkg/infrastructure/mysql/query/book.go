@@ -164,7 +164,13 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 				query += ", "
 			}
 			query += "?"
-			args = append(args, authorID)
+
+			binaryAuthorID, err := uuid.UUID(authorID).MarshalBinary()
+			if err != nil {
+				return nil, err
+			}
+
+			args = append(args, binaryAuthorID)
 		}
 		query += "))"
 	}
@@ -176,7 +182,13 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 				query += ", "
 			}
 			query += "?"
-			args = append(args, genreID)
+
+			binaryGenreID, err := uuid.UUID(genreID).MarshalBinary()
+			if err != nil {
+				return nil, err
+			}
+
+			args = append(args, binaryGenreID)
 		}
 		query += "))"
 	}

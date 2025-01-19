@@ -144,7 +144,7 @@ func (service *authorQueryService) ListByBookID(bookID model.BookID) ([]AuthorOu
 			a.middle_name,
 			a.nickname
 		FROM author a
-		LEFT JOIN book_author ba ON a.author_id = ba.author_id AND ba.book_id = ?
+		INNER JOIN book_author ba ON a.author_id = ba.author_id AND ba.book_id = ?
 		LEFT JOIN image i ON a.avatar_id = i.image_id;
 	`
 
