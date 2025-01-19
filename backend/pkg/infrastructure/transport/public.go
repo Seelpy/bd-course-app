@@ -1088,7 +1088,7 @@ func (p public) ListUserBookFavouritesByBook(ctx echo.Context) error {
 	}
 
 	modelType, err := p.userBookFavouritesQueryService.ListUserBookFavouritesByBook(userID, domainmodel.BookID(input.BookId))
-	if err != nil {
+	if err != nil && !errors.Is(err, domainmodel.ErrUserBookFavouritesNotFound) {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list user book favourites: %s", err))
 	}
 
@@ -1179,7 +1179,7 @@ func (p public) ListBookByUserBookFavourites(ctx echo.Context) error {
 	}
 
 	outputs, err := p.userBookFavouritesQueryService.ListBookByUserBookFavourites(domainmodel.UserID(input.UserId), modelTypes)
-	if err != nil {
+	if err != nil && !errors.Is(err, domainmodel.ErrUserBookFavouritesNotFound) {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list user book favourites: %s", err))
 	}
 
