@@ -5,4 +5,5 @@ export enum AppRoute {
   Register = "/register",
   Profile = "/profile/:id",
   Requests = "/requests",
+  Catalog = "/catalog",
 }

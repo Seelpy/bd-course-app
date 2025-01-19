@@ -32,10 +32,13 @@ export const BookPreview = ({ book }: BookPreviewProps) => {
         variant="body2"
         sx={{
           width: "100%",
-          textAlign: "center",
           overflow: "hidden",
           textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
+          display: "-webkit-box",
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: "vertical",
+          height: "2.4em",
+          lineHeight: "1.2em",
         }}
       >
         {book.title}

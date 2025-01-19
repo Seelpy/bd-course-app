@@ -3,7 +3,7 @@ import { Box, IconButton, Paper, Typography, styled } from "@mui/material";
 import { ChevronLeft, ChevronRight } from "@mui/icons-material";
 import { useSwipeable } from "react-swipeable";
 import { useState } from "react";
-import placeholderCover from "@assets/placeholder-cover.png";
+import { BookPreview } from "@shared/components/BookPreview/BookPreview";
 
 type BookSlider = Book & { chapterChip?: string };
 
@@ -14,7 +14,6 @@ type BooksSliderProps = {
 
 const SLIDER_HEIGHT = 220;
 const BOOK_WIDTH = 135;
-const BOOK_HEIGHT = 190;
 const BUTTON_SIZE = SLIDER_HEIGHT * 0.2;
 
 const SliderContainer = styled(Paper)(({ theme }) => ({
@@ -46,21 +45,6 @@ const NavigationButton = styled(IconButton)(({ theme }) => ({
   },
   zIndex: 2,
 }));
-
-const BookCard = styled(Box)({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  width: BOOK_WIDTH,
-  gap: 8,
-});
-
-const BookCover = styled("img")({
-  width: BOOK_WIDTH,
-  height: BOOK_HEIGHT,
-  objectFit: "cover",
-  borderRadius: 8,
-});
 
 export const BooksSlider = ({ sliderName, books }: BooksSliderProps) => {
   const [offset, setOffset] = useState(0);
@@ -104,21 +88,7 @@ export const BooksSlider = ({ sliderName, books }: BooksSliderProps) => {
       <Box overflow="hidden">
         <BooksContainer {...handlers} sx={{ transform: `translateX(${offset.toString()}px)` }}>
           {books.map((book) => (
-            <BookCard key={book.bookId}>
-              <BookCover src={book.cover ?? placeholderCover} alt={book.title} />
-              <Typography
-                variant="body2"
-                sx={{
-                  width: "100%",
-                  textAlign: "center",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {book.title}
-              </Typography>
-            </BookCard>
+            <BookPreview key={book.bookId} book={book} />
           ))}
         </BooksContainer>
       </Box>

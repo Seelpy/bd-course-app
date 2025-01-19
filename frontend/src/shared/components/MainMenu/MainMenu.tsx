@@ -54,7 +54,7 @@ export const MainMenu = () => {
       text: "Catalog",
       icon: <AutoStories />,
       onClick: () => {
-        console.log("TODO");
+        navigate(AppRoute.Catalog);
       },
     },
     {
