@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -22,13 +23,16 @@ import { useUserStore } from "@shared/stores/userStore";
 import { useShallow } from "zustand/shallow";
 import { userApi } from "@api/user";
 import { userBookFavoritesApi } from "@api/userBookFavorites";
-import { User } from "@shared/types/user";
+import { User, UserRole } from "@shared/types/user";
 import { Book } from "@shared/types/book";
 import { UserBookFavoritesType } from "@shared/types/userBookFavorites";
 import { useSnackbar } from "notistack";
 import { AppRoute } from "@shared/constants/routes";
 import { BookPreview } from "@shared/components/BookPreview/BookPreview";
 import { useBookWidth } from "@shared/hooks/useBookWidth";
+import { PhotoCamera } from "@mui/icons-material";
+import { imageApi } from "@api/image";
+import { UploadImageDialog } from "@shared/components/UploadImageDialog";
 
 type FavoriteType = UserBookFavoritesType | "ALL";
 
@@ -62,6 +66,7 @@ export function ProfilePage() {
   const [selectedType, setSelectedType] = useState<FavoriteType>("ALL");
   const [isEditing, setIsEditing] = useState(false);
   const [newAboutMe, setNewAboutMe] = useState("");
+  const [isUploadImageOpen, setIsUploadImageOpen] = useState(false);
   const { userInfo } = useUserStore(useShallow((state) => ({ userInfo: state.userInfo })));
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -123,7 +128,7 @@ export function ProfilePage() {
     if (!user || !userInfo) return;
     userApi
       .editUser({
-        id: userInfo.id,
+        id: user.id,
         aboutMe: newAboutMe,
       })
       .then(() => {
@@ -136,12 +141,38 @@ export function ProfilePage() {
       });
   };
 
+  const handleUploadAvatar = (base64: string) => {
+    imageApi
+      .storeUserImage({ imageData: base64 })
+      .then(() => {
+        setUser((prev) => (prev ? { ...prev, avatar: base64 } : prev));
+        enqueueSnackbar("Avatar updated successfully", { variant: "success" });
+      })
+      .catch((error: Error) => {
+        enqueueSnackbar(error.message, { variant: "error" });
+      });
+    setIsUploadImageOpen(false);
+  };
+
   return (
     <Box sx={{ width: "100%", py: 4 }}>
       <Container>
         <Paper elevation={3} sx={{ p: 3, mb: 4, borderRadius: 4 }}>
           <Box display="flex" alignItems="center" gap={3}>
             <Avatar src={user?.avatar} sx={{ width: 120, height: 120 }} />
+            {id === userInfo?.id && (
+              <IconButton
+                sx={{
+                  position: "absolute",
+                  transform: "translate(80px, -50px)",
+                }}
+                onClick={() => {
+                  setIsUploadImageOpen(true);
+                }}
+              >
+                <PhotoCamera />
+              </IconButton>
+            )}
             <Box sx={{ flex: 1 }}>
               <Typography variant="h4" gutterBottom>
                 {user?.login}
@@ -175,7 +206,7 @@ export function ProfilePage() {
                   <Typography variant="body1" color="text.secondary">
                     {user?.aboutMe}
                   </Typography>
-                  {isOwnProfile && user?.aboutMe.trim() && (
+                  {((isOwnProfile && user?.aboutMe.trim()) || userInfo?.role === UserRole.Admin) && (
                     <IconButton
                       size="small"
                       onClick={() => {
@@ -246,6 +277,15 @@ export function ProfilePage() {
           </Grid2>
         </Paper>
       </Container>
+
+      <UploadImageDialog
+        open={isUploadImageOpen}
+        onClose={() => {
+          setIsUploadImageOpen(false);
+        }}
+        onUpload={handleUploadAvatar}
+        title="Upload User Avatar"
+      />
     </Box>
   );
 }
