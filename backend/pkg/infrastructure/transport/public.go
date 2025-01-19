@@ -304,20 +304,32 @@ func (p public) EditUser(ctx echo.Context) error {
 		return err
 	}
 
-	if user.Password != input.ConfirmPassword && !isAdmin {
-		return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("Failed to edit user password: %s", err))
-	}
-
-	if user.Login != input.Login && !isAdmin {
-		return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("Failed to edit user login: %s", err))
-	}
-
-	err = p.userService.EditUser(service.EditUserInput{
+	editUserInput := service.EditUserInput{
 		ID:       domainmodel.UserID(input.Id),
-		AboutMe:  input.AboutMe,
-		Login:    input.Login,
-		Password: input.Password,
-	})
+		AboutMe:  user.AboutMe,
+		Login:    user.Login,
+		Password: user.Password,
+	}
+
+	if input.Password != nil && input.ConfirmPassword != nil {
+		if user.Password != *input.ConfirmPassword && !isAdmin {
+			return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("Failed to edit user password: %s", err))
+		}
+		editUserInput.Password = *input.Password
+	}
+
+	if input.Login != nil {
+		if user.Login != *input.Login && !isAdmin {
+			return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("Failed to edit user login: %s", err))
+		}
+		editUserInput.Login = *input.Login
+	}
+
+	if input.AboutMe != nil {
+		editUserInput.Login = *input.AboutMe
+	}
+
+	err = p.userService.EditUser(editUserInput)
 	if errors.Is(err, domainmodel.ErrUserNotFound) {
 		return echo.NewHTTPError(http.StatusNotFound, "User not found")
 	}

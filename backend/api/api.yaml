@@ -1933,10 +1933,6 @@ components:
           type: string
       required:
         - id
-        - login
-        - password
-        - confirmPassword
-        - aboutMe
     DeleteUserRequest:
       type: object
       properties:
