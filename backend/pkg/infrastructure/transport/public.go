@@ -291,7 +291,24 @@ func (p public) EditUser(ctx echo.Context) error {
 		})
 	}
 
-	err := p.userService.EditUser(service.EditUserInput{
+	user, err := p.userQueryService.FindByID(domainmodel.UserID(input.Id))
+	if errors.Is(err, domainmodel.ErrUserNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "User not found")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to edit user: %s", err))
+	}
+
+	isAdmin, err := checkIsAdmin(ctx)
+	if err != nil {
+		return err
+	}
+
+	if user.Password != input.ConfirmPassword && !isAdmin {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to edit user: %s", err))
+	}
+
+	err = p.userService.EditUser(service.EditUserInput{
 		ID:       domainmodel.UserID(input.Id),
 		AboutMe:  input.AboutMe,
 		Login:    input.Login,
@@ -1407,12 +1424,32 @@ func ptr[T any](s T) *T {
 }
 
 func extractUserIDFromContext(ctx echo.Context) (domainmodel.UserID, error) {
-	tokenString, err := ctx.Cookie("access_token")
+	claims, err := parseClaims(ctx)
 	if err != nil {
 		return domainmodel.UserID{}, err
 	}
+
+	var userID uuid.UUID
+	err = userID.Parse(claims.UserID)
+	return domainmodel.UserID(userID), err
+}
+
+func checkIsAdmin(ctx echo.Context) (bool, error) {
+	claims, err := parseClaims(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	return domainmodel.UserRole(claims.Role) == domainmodel.Admin, nil
+}
+
+func parseClaims(ctx echo.Context) (model.Claims, error) {
+	tokenString, err := ctx.Cookie("access_token")
+	if err != nil {
+		return model.Claims{}, err
+	}
 	if tokenString.Value == "" {
-		return domainmodel.UserID{}, echo.NewHTTPError(http.StatusUnauthorized, "Missing token")
+		return model.Claims{}, echo.NewHTTPError(http.StatusUnauthorized, "Missing token")
 	}
 
 	claims := &model.Claims{}
@@ -1421,12 +1458,10 @@ func extractUserIDFromContext(ctx echo.Context) (domainmodel.UserID, error) {
 	})
 
 	if err != nil || !token.Valid {
-		return domainmodel.UserID{}, echo.NewHTTPError(http.StatusUnauthorized, "Invalid token")
+		return model.Claims{}, echo.NewHTTPError(http.StatusUnauthorized, "Invalid token")
 	}
 
-	var userID uuid.UUID
-	err = userID.Parse(claims.UserID)
-	return domainmodel.UserID(userID), err
+	return *claims, nil
 }
 
 func convertUserBookFavouritesTypeAPIToModel(apiType api.UserBookFavouritesType) (domainmodel.UserBookFavouritesType, error) {
