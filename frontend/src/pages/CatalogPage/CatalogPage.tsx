@@ -11,7 +11,6 @@ import {
   FormControl,
   FormLabel,
   Drawer,
-  IconButton,
   useTheme,
   useMediaQuery,
   Chip,
@@ -22,16 +21,17 @@ import {
 } from "@mui/material";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import SortIcon from "@mui/icons-material/Sort";
-import CloseIcon from "@mui/icons-material/Close";
 import { bookApi } from "@api/book";
 import { authorApi } from "@api/author";
 import { genreApi } from "@api/genre";
-import { Book } from "@shared/types/book";
+import { Book, SortBy, SortType } from "@shared/types/book";
 import { Author } from "@shared/types/author";
 import { Genre } from "@shared/types/genre";
 import { BookPreview } from "@shared/components/BookPreview/BookPreview";
+import { BookPreviewSkeleton } from "@shared/components/BookPreview/BookPreviewSkeleton";
 import { useSnackbar } from "notistack";
 import { debounce } from "lodash";
+import { useBookWidth } from "@shared/hooks/useBookWidth";
 
 const HalfedTextField = styled(TextField)({
   width: "50%",
@@ -44,9 +44,6 @@ const HalfedTextField = styled(TextField)({
 });
 
 const BOOKS_PER_PAGE = 20;
-
-type SortBy = "TITLE" | "RATING" | "RATING_COUNT" | "CHAPTERS_COUNT";
-type SortType = "ASC" | "DESC";
 
 type Range = {
   from?: number;
@@ -62,9 +59,27 @@ export function CatalogPage() {
   const [authors, setAuthors] = useState<Author[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef<IntersectionObserver>();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.offsetWidth);
+      }
+    };
+
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => {
+      window.removeEventListener("resize", updateWidth);
+    };
+  }, []);
+
+  const { bookWidth } = useBookWidth(containerWidth);
 
   // Search params
   const [searchTitle, setSearchTitle] = useState("");
@@ -91,7 +106,7 @@ export function CatalogPage() {
       if (loading || (!hasMore && !newSearch)) return;
 
       setLoading(true);
-      const currentPage = newSearch ? 0 : page;
+      const currentPage = newSearch ? 1 : page;
 
       bookApi
         .searchBooks(currentPage, BOOKS_PER_PAGE, {
@@ -187,140 +202,165 @@ export function CatalogPage() {
   );
 
   const FiltersContent = (
-    <Box sx={{ width: isMediumUp ? 300 : "100%", height: "100%" }}>
-      <Typography variant="h5" gutterBottom>
+    <Box
+      sx={{
+        width: isMediumUp ? 300 : "100%",
+        height: "auto",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Typography variant="h5" sx={{ mb: 2, flex: "0 0 auto" }}>
         Filters
       </Typography>
 
-      {authors.length > 0 && (
+      <Box
+        sx={{
+          overflow: "auto",
+          flex: 1,
+          // Стилизация скроллбара
+          "&::-webkit-scrollbar": {
+            width: "8px",
+          },
+          "&::-webkit-scrollbar-track": {
+            background: "transparent",
+          },
+          "&::-webkit-scrollbar-thumb": {
+            background: (theme) => theme.palette.divider,
+            borderRadius: "4px",
+          },
+        }}
+      >
+        {authors.length > 0 && (
+          <Box sx={{ mb: 3 }}>
+            <Typography gutterBottom>Authors</Typography>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+              {authors.map((author) => (
+                <Chip
+                  key={author.id}
+                  label={`${author.firstName} ${author.secondName}`}
+                  onClick={() => {
+                    setSelectedAuthorIds((prev) =>
+                      prev.includes(author.id) ? prev.filter((id) => id !== author.id) : [...prev, author.id],
+                    );
+                  }}
+                  color={selectedAuthorIds.includes(author.id) ? "primary" : "default"}
+                />
+              ))}
+            </Box>
+          </Box>
+        )}
+
+        {genres.length > 0 && (
+          <Box sx={{ mb: 3 }}>
+            <Typography gutterBottom>Genres</Typography>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+              {genres.map((genre) => (
+                <Chip
+                  key={genre.id}
+                  label={genre.name}
+                  onClick={() => {
+                    setSelectedGenreIds((prev) =>
+                      prev.includes(genre.id) ? prev.filter((id) => id !== genre.id) : [...prev, genre.id],
+                    );
+                  }}
+                  color={selectedGenreIds.includes(genre.id) ? "primary" : "default"}
+                />
+              ))}
+            </Box>
+          </Box>
+        )}
+
         <Box sx={{ mb: 3 }}>
-          <Typography gutterBottom>Authors</Typography>
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-            {authors.map((author) => (
-              <Chip
-                key={author.id}
-                label={`${author.firstName} ${author.secondName}`}
-                onClick={() => {
-                  setSelectedAuthorIds((prev) =>
-                    prev.includes(author.id) ? prev.filter((id) => id !== author.id) : [...prev, author.id],
-                  );
-                }}
-                color={selectedAuthorIds.includes(author.id) ? "primary" : "default"}
-              />
-            ))}
+          <Typography marginBottom={2}>Chapters count</Typography>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <HalfedTextField
+              type="number"
+              size="small"
+              placeholder="From"
+              value={chaptersRange.from ?? ""}
+              onChange={(e) => {
+                const value = e.target.value === "" ? undefined : Number(e.target.value);
+                setChaptersRange((prev) => ({ ...prev, from: value }));
+              }}
+            />
+            <HalfedTextField
+              type="number"
+              size="small"
+              placeholder="To"
+              value={chaptersRange.to ?? ""}
+              onChange={(e) => {
+                const value = e.target.value === "" ? undefined : Number(e.target.value);
+                setChaptersRange((prev) => ({ ...prev, to: value }));
+              }}
+            />
           </Box>
         </Box>
-      )}
 
-      {genres.length > 0 && (
         <Box sx={{ mb: 3 }}>
-          <Typography gutterBottom>Genres</Typography>
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-            {genres.map((genre) => (
-              <Chip
-                key={genre.id}
-                label={genre.name}
-                onClick={() => {
-                  setSelectedGenreIds((prev) =>
-                    prev.includes(genre.id) ? prev.filter((id) => id !== genre.id) : [...prev, genre.id],
-                  );
-                }}
-                color={selectedGenreIds.includes(genre.id) ? "primary" : "default"}
-              />
-            ))}
+          <Typography marginBottom={2}>Rating</Typography>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <HalfedTextField
+              type="number"
+              size="small"
+              placeholder="From"
+              value={ratingRange.from ?? ""}
+              onChange={(e) => {
+                const value = e.target.value === "" ? undefined : Number(e.target.value);
+                setRatingRange((prev) => ({ ...prev, from: value }));
+              }}
+            />
+            <HalfedTextField
+              type="number"
+              size="small"
+              placeholder="To"
+              value={ratingRange.to ?? ""}
+              onChange={(e) => {
+                const value = e.target.value === "" ? undefined : Number(e.target.value);
+                setRatingRange((prev) => ({ ...prev, to: value }));
+              }}
+            />
           </Box>
         </Box>
-      )}
 
-      <Box sx={{ mb: 3 }}>
-        <Typography marginBottom={2}>Chapters count</Typography>
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <HalfedTextField
-            type="number"
-            size="small"
-            placeholder="From"
-            value={chaptersRange.from ?? ""}
-            onChange={(e) => {
-              const value = e.target.value === "" ? undefined : Number(e.target.value);
-              setChaptersRange((prev) => ({ ...prev, from: value }));
-            }}
-          />
-          <HalfedTextField
-            type="number"
-            size="small"
-            placeholder="To"
-            value={chaptersRange.to ?? ""}
-            onChange={(e) => {
-              const value = e.target.value === "" ? undefined : Number(e.target.value);
-              setChaptersRange((prev) => ({ ...prev, to: value }));
-            }}
-          />
+        <Box sx={{ mb: 3 }}>
+          <Typography marginBottom={2}>Rating count</Typography>
+          <Box sx={{ display: "flex", gap: 1 }}>
+            <HalfedTextField
+              type="number"
+              size="small"
+              placeholder="From"
+              value={ratingCountRange.from ?? ""}
+              onChange={(e) => {
+                const value = e.target.value === "" ? undefined : Number(e.target.value);
+                setRatingCountRange((prev) => ({ ...prev, from: value }));
+              }}
+            />
+            <HalfedTextField
+              type="number"
+              size="small"
+              placeholder="To"
+              value={ratingCountRange.to ?? ""}
+              onChange={(e) => {
+                const value = e.target.value === "" ? undefined : Number(e.target.value);
+                setRatingCountRange((prev) => ({ ...prev, to: value }));
+              }}
+            />
+          </Box>
         </Box>
-      </Box>
 
-      <Box sx={{ mb: 3 }}>
-        <Typography marginBottom={2}>Rating</Typography>
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <HalfedTextField
-            type="number"
-            size="small"
-            placeholder="From"
-            value={ratingRange.from ?? ""}
-            onChange={(e) => {
-              const value = e.target.value === "" ? undefined : Number(e.target.value);
-              setRatingRange((prev) => ({ ...prev, from: value }));
+        {!isMediumUp && (
+          <Button
+            variant="contained"
+            fullWidth
+            onClick={() => {
+              setIsFilterOpen(false);
             }}
-          />
-          <HalfedTextField
-            type="number"
-            size="small"
-            placeholder="To"
-            value={ratingRange.to ?? ""}
-            onChange={(e) => {
-              const value = e.target.value === "" ? undefined : Number(e.target.value);
-              setRatingRange((prev) => ({ ...prev, to: value }));
-            }}
-          />
-        </Box>
+          >
+            Apply
+          </Button>
+        )}
       </Box>
-
-      <Box sx={{ mb: 3 }}>
-        <Typography marginBottom={2}>Rating count</Typography>
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <HalfedTextField
-            type="number"
-            size="small"
-            placeholder="From"
-            value={ratingCountRange.from ?? ""}
-            onChange={(e) => {
-              const value = e.target.value === "" ? undefined : Number(e.target.value);
-              setRatingCountRange((prev) => ({ ...prev, from: value }));
-            }}
-          />
-          <HalfedTextField
-            type="number"
-            size="small"
-            placeholder="To"
-            value={ratingCountRange.to ?? ""}
-            onChange={(e) => {
-              const value = e.target.value === "" ? undefined : Number(e.target.value);
-              setRatingCountRange((prev) => ({ ...prev, to: value }));
-            }}
-          />
-        </Box>
-      </Box>
-
-      {!isMediumUp && (
-        <Button
-          variant="contained"
-          fullWidth
-          onClick={() => {
-            setIsFilterOpen(false);
-          }}
-        >
-          Apply
-        </Button>
-      )}
     </Box>
   );
 
@@ -414,23 +454,34 @@ export function CatalogPage() {
             sx={{ mb: 3 }}
           />
 
-          <Grid2 container spacing={2}>
-            {books.map((book, index) => (
-              <Grid2
-                key={book.bookId}
-                ref={index === books.length - 1 ? lastBookElementRef : undefined}
-                sx={{ display: "flex", justifyContent: "center" }}
-              >
-                <BookPreview book={book} />
-              </Grid2>
-            ))}
-          </Grid2>
-
-          {loading && <Typography sx={{ mt: 2 }}>Loading...</Typography>}
+          <Box ref={containerRef}>
+            <Grid2 container spacing={2}>
+              {books.map((book, index) => (
+                <Grid2 key={book.bookId} ref={index === books.length - 1 ? lastBookElementRef : undefined}>
+                  <BookPreview book={book} width={bookWidth} />
+                </Grid2>
+              ))}
+              {loading &&
+                Array.from(new Array(6)).map((_, index) => (
+                  <Grid2 key={index}>
+                    <BookPreviewSkeleton width={bookWidth} />
+                  </Grid2>
+                ))}
+            </Grid2>
+          </Box>
         </Paper>
 
         {isMediumUp ? (
-          <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+          <Paper
+            elevation={3}
+            sx={{
+              flexGrow: 0,
+              p: 3,
+              borderRadius: 2,
+              position: "sticky",
+              alignSelf: "flex-start",
+            }}
+          >
             {FiltersContent}
           </Paper>
         ) : (

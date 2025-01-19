@@ -2,32 +2,30 @@ import { Box, styled, Typography } from "@mui/material";
 import { Book } from "@shared/types/book";
 import placeholderCover from "@assets/placeholder-cover.png";
 
-const BOOK_WIDTH = 135;
-const BOOK_HEIGHT = 190;
-
-const BookCard = styled(Box)({
+const BookCard = styled(Box)<{ $width: number }>(({ $width }) => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  width: BOOK_WIDTH,
+  width: $width,
   gap: 8,
-});
+}));
 
-const BookCover = styled("img")({
-  width: BOOK_WIDTH,
-  height: BOOK_HEIGHT,
+const BookCover = styled("img")<{ $width: number }>(({ $width }) => ({
+  width: $width,
+  height: $width * 1.4,
   objectFit: "cover",
   borderRadius: 8,
-});
+}));
 
 type BookPreviewProps = {
   book: Book;
+  width?: number;
 };
 
-export const BookPreview = ({ book }: BookPreviewProps) => {
+export const BookPreview = ({ book, width = 150 }: BookPreviewProps) => {
   return (
-    <BookCard key={book.bookId}>
-      <BookCover src={book.cover ?? placeholderCover} alt={book.title} />
+    <BookCard $width={width}>
+      <BookCover $width={width} src={book.cover ?? placeholderCover} alt={book.title} />
       <Typography
         variant="body2"
         sx={{

@@ -1,5 +1,8 @@
 import { Author } from "./author";
 
+export type SortBy = "TITLE" | "RATING" | "RATING_COUNT" | "CHAPTERS_COUNT";
+export type SortType = "ASC" | "DESC";
+
 export type CreateBook = {
   title: string;
   description: string;

@@ -1,4 +1,4 @@
-import { CreateBook, EditBook, DeleteBook, Book, ListBookResponse } from "@shared/types/book";
+import { CreateBook, EditBook, DeleteBook, Book, ListBookResponse, SortBy, SortType } from "@shared/types/book";
 import { handleApiError } from "./utils/handleApiError";
 
 export const bookApi = {
@@ -29,8 +29,8 @@ export const bookApi = {
       maxRating?: number;
       minRatingCount?: number;
       maxRatingCount?: number;
-      sortBy?: "TITLE" | "RATING" | "RATING_COUNT" | "CHAPTERS_COUNT";
-      sortType?: "ASC" | "DESC";
+      sortBy?: SortBy;
+      sortType?: SortType;
     },
   ): Promise<ListBookResponse> {
     const searchParams = new URLSearchParams({
