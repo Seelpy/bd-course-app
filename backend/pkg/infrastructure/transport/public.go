@@ -305,7 +305,11 @@ func (p public) EditUser(ctx echo.Context) error {
 	}
 
 	if user.Password != input.ConfirmPassword && !isAdmin {
-		return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("Failed to edit user: %s", err))
+		return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("Failed to edit user password: %s", err))
+	}
+
+	if user.Login != input.Login && !isAdmin {
+		return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("Failed to edit user login: %s", err))
 	}
 
 	err = p.userService.EditUser(service.EditUserInput{
