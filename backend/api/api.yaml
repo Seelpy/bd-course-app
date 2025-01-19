@@ -534,7 +534,7 @@ paths:
           name: authorIds
           required: false
           schema:
-            type: array
+            type: string
             items:
               type: string
         - in: query

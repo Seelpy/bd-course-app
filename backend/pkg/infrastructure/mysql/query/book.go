@@ -148,13 +148,11 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 
 	var args []interface{}
 
-	// Фильтр по названию книги
 	if bookTitle, ok := spec.BookTitle.Get(); ok {
 		query += " AND b.title LIKE ?"
 		args = append(args, "%"+bookTitle+"%")
 	}
 
-	// Фильтр по авторам
 	if authorIDs, ok := spec.AuthorIDs.Get(); ok && len(authorIDs) > 0 {
 		query += " AND b.book_id IN (SELECT ba.book_id FROM book_author ba WHERE ba.author_id IN ("
 		for i, authorID := range authorIDs {
@@ -167,7 +165,6 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 		query += "))"
 	}
 
-	// Фильтр по жанрам
 	if genreIDs, ok := spec.GenreIDs.Get(); ok && len(genreIDs) > 0 {
 		query += " AND b.book_id IN (SELECT bg.book_id FROM book_genre bg WHERE bg.genre_id IN ("
 		for i, genreID := range genreIDs {
@@ -180,7 +177,6 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 		query += "))"
 	}
 
-	// Фильтр по рейтингу (минимальный и максимальный)
 	if minRating, ok := spec.MinRating.Get(); ok {
 		query += " AND b.rating >= ?"
 		args = append(args, minRating)
@@ -190,7 +186,6 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 		args = append(args, maxRating)
 	}
 
-	// Фильтр по количеству глав (минимальное и максимальное)
 	if minChaptersCount, ok := spec.MinChaptersCount.Get(); ok {
 		query += " AND (SELECT COUNT(*) FROM chapter c WHERE c.book_id = b.book_id) >= ?"
 		args = append(args, minChaptersCount)
@@ -200,16 +195,13 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 		args = append(args, maxChaptersCount)
 	}
 
-	// Фильтр по количеству оценок (минимальное и максимальное)
 	if minRatingCount, ok := spec.MinRatingCount.Get(); ok {
 		query += " AND (SELECT COUNT(*) FROM book_rating br WHERE br.book_id = b.book_id) >= ?"
 		args = append(args, minRatingCount)
 	}
 
-	// Группировка и агрегация
 	query += " GROUP BY b.book_id, i.path, b.title, b.description"
 
-	// Сортировка
 	if sortBy, ok := spec.SortBy.Get(); ok {
 		switch sortBy {
 		case "TITLE":
@@ -229,12 +221,10 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 		query += " ORDER BY b.title" // Сортировка по умолчанию
 	}
 
-	// Пагинация
 	offset := (spec.Page - 1) * spec.Size
 	query += " LIMIT ? OFFSET ?"
 	args = append(args, spec.Size, offset)
 
-	// Выполнение запроса
 	var sqlxBooks []sqlxBook
 	err := service.connection.Select(&sqlxBooks, query, args...)
 	if err != nil {
@@ -245,7 +235,6 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 		args = append(args, maxRatingCount)
 	}
 
-	// Преобразование результата
 	bookOutputs := make([]BookOutput, len(sqlxBooks))
 	for i, b := range sqlxBooks {
 		cover := maybe.Nothing[string]()
