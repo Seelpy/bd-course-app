@@ -3,17 +3,18 @@ import { Book } from "@shared/types/book";
 import placeholderCover from "@assets/placeholder-cover.png";
 import { useNavigate } from "react-router-dom";
 
-const BookCard = styled(Box)<{ $width: number }>(({ $width }) => ({
+const BookCard = styled(Box)<{ width: number }>(({ width }) => ({
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  width: $width,
+  width: width,
   gap: 8,
+  cursor: "pointer",
 }));
 
-const BookCover = styled("img")<{ $width: number }>(({ $width }) => ({
-  width: $width,
-  height: $width * 1.4,
+const BookCover = styled("img")<{ width: number }>(({ width }) => ({
+  width: width,
+  height: width * 1.4,
   objectFit: "cover",
   borderRadius: 8,
 }));
@@ -28,16 +29,17 @@ export const BookPreview = ({ book, width = 150 }: BookPreviewProps) => {
 
   return (
     <BookCard
-      $width={width}
+      width={width}
       onClick={() => {
         navigate(`/book/${book.bookId}`);
       }}
     >
-      <BookCover $width={width} src={book.cover ?? placeholderCover} alt={book.title} />
+      <BookCover width={width} src={book.cover ?? placeholderCover} alt={book.title} />
       <Typography
         variant="body2"
         sx={{
           width: "100%",
+          paddingX: 0.5,
           overflow: "hidden",
           textOverflow: "ellipsis",
           display: "-webkit-box",

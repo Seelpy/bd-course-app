@@ -3,7 +3,7 @@ import {
   ListBookByUserBookFavorites,
   StoreUserBookFavorites,
   DeleteUserBookFavorites,
-  UserBookFavoritesType,
+  GetUserBookFavorityType,
   ListBookByUserBookFavouritesResponse,
 } from "@shared/types/userBookFavorites";
 import { handleApiError } from "./utils/handleApiError";
@@ -11,8 +11,8 @@ import { handleApiError } from "./utils/handleApiError";
 export const userBookFavoritesApi = {
   PREFIX: "/api/v1/user-book-favourites",
 
-  getFavoriteTypeByBook(body: GetFavoriteTypeByBook): Promise<UserBookFavoritesType> {
-    return fetch(this.PREFIX, {
+  getFavoriteTypeByBook(body: GetFavoriteTypeByBook): Promise<GetUserBookFavorityType> {
+    return fetch(`${this.PREFIX}/list`, {
       method: "POST",
       credentials: "include",
       headers: {

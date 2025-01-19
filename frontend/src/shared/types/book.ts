@@ -27,7 +27,7 @@ export type Book = {
   authors: Author[];
   isLoggedUserTranslator: string;
   rating: string;
-  genres?: Genre[];
+  genres: Genre[];
 };
 
 export type GetBookResponse = {

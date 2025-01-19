@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Container,
@@ -27,6 +27,8 @@ import { Book } from "@shared/types/book";
 import { UserBookFavoritesType } from "@shared/types/userBookFavorites";
 import { useSnackbar } from "notistack";
 import { AppRoute } from "@shared/constants/routes";
+import { BookPreview } from "@shared/components/BookPreview/BookPreview";
+import { useBookWidth } from "@shared/hooks/useBookWidth";
 
 type FavoriteType = UserBookFavoritesType | "ALL";
 
@@ -62,6 +64,24 @@ export function ProfilePage() {
   const [newAboutMe, setNewAboutMe] = useState("");
   const { userInfo } = useUserStore(useShallow((state) => ({ userInfo: state.userInfo })));
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.offsetWidth);
+      }
+    };
+
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => {
+      window.removeEventListener("resize", updateWidth);
+    };
+  }, []);
+
+  const { bookWidth } = useBookWidth(containerWidth);
   const isOwnProfile = userInfo?.id === id;
 
   useEffect(() => {
@@ -216,17 +236,10 @@ export function ProfilePage() {
                 <Tab label="Favorite" value="FAVORITE" />
               </Tabs>
             </Grid2>
-            <Grid2 size={{ xs: 12, sm: 9, md: 10 }} order={{ xs: 2, sm: 2 }}>
+            <Grid2 size={{ xs: 12, sm: 9, md: 10 }} order={{ xs: 2, sm: 2 }} ref={containerRef}>
               <Grid2 container spacing={2}>
                 {books.map((book) => (
-                  <Grid2 size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={book.bookId}>
-                    <Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
-                      <Typography variant="h6">{book.title}</Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {book.description}
-                      </Typography>
-                    </Paper>
-                  </Grid2>
+                  <BookPreview key={book.bookId} book={book} width={bookWidth} />
                 ))}
               </Grid2>
             </Grid2>
