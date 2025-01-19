@@ -46,12 +46,7 @@ func (service *bookRatingService) StoreRating(input StoreBookRatingInput) error 
 		input.Value,
 	)
 
-	err := service.bookRatingRepo.Store(bookRating)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return service.bookRatingRepo.Store(bookRating)
 }
 
 func (service *bookRatingService) DeleteRating(bookID model.BookID, userID model.UserID) error {

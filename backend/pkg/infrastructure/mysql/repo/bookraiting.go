@@ -42,7 +42,7 @@ func (repo *bookRatingRepository) Store(bookRating model.BookRating) error {
 		return err
 	}
 
-	_, err = repo.connection.Exec(query, binaryBookID, binaryUserID, bookRating.Value)
+	_, err = repo.connection.Exec(query, binaryBookID, binaryUserID, bookRating.Value())
 	return err
 }
 
