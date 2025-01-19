@@ -57,13 +57,29 @@ func (repo *AuthorRepository) Store(author model.Author) error {
 		binaryAvatarID = nil
 	}
 
+	// Handle Maybe[string] for middle name
+	var middleName *string
+	if mn, ok := author.MiddleName().Get(); ok {
+		middleName = &mn
+	} else {
+		middleName = nil
+	}
+
+	// Handle Maybe[string] for middle name
+	var nickName *string
+	if nn, ok := author.Nickname().Get(); ok {
+		nickName = &nn
+	} else {
+		nickName = nil
+	}
+
 	_, err = repo.connection.Exec(query,
 		binaryAuthorID,
 		binaryAvatarID,
 		author.FirstName(),
 		author.SecondName(),
-		author.MiddleName(),
-		author.Nickname(),
+		middleName,
+		nickName,
 	)
 
 	return err

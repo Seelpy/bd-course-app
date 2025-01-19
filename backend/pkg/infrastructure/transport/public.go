@@ -169,18 +169,29 @@ func (p public) DeleteBookRating(ctx echo.Context, id string) error {
 }
 
 func (p public) GetBookRating(ctx echo.Context, id string) error {
+	userID := maybe.Nothing[domainmodel.UserID]()
+	loginUserID, err := extractUserIDFromContext(ctx)
+	if err == nil {
+		userID = maybe.Just(loginUserID)
+	}
+
 	var bookID uuid.UUID
-	err := bookID.Parse(id)
+	err = bookID.Parse(id)
 	if err != nil {
 		return err
 	}
 
-	stat, err := p.bookRatingService.GetStatistics(bookID)
+	stat, err := p.bookRatingService.GetStatistics(bookID, userID)
 
-	return ctx.JSON(http.StatusOK, api.GetBookRatingResponse{
+	getBookRatingResponse := api.GetBookRatingResponse{
 		Average: ptr(float32(stat.Average)),
 		Count:   ptr(stat.Count),
-	})
+	}
+	if value, ok := stat.UserLoginRating.Get(); ok {
+		getBookRatingResponse.UserLoginRating = ptr(value)
+	}
+
+	return ctx.JSON(http.StatusOK, getBookRatingResponse)
 }
 
 func (p public) LoginUser(ctx echo.Context) error {
