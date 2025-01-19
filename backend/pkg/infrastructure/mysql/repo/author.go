@@ -131,20 +131,30 @@ func (repo *AuthorRepository) FindByID(authorID model.AuthorID) (model.Author, e
 		return model.Author{}, err
 	}
 
+	middleName := maybe.Nothing[string]()
+	if author.MiddleName.Valid {
+		middleName = maybe.Just(author.MiddleName.String)
+	}
+
+	nickName := maybe.Nothing[string]()
+	if author.Nickname.Valid {
+		nickName = maybe.Just(author.Nickname.String)
+	}
+
 	return model.NewAuthor(
 		authorID,
 		maybe.Nothing[model.ImageID](),
 		author.FirstName,
 		author.SecondName,
-		maybe.Just(author.MiddleName),
-		maybe.Just(author.Nickname),
+		middleName,
+		nickName,
 	), nil
 }
 
 // sqlxAuthor представляет структуру автора, используемую для сканирования данных из базы данных
 type sqlxAuthor struct {
-	FirstName  string `db:"first_name"`
-	SecondName string `db:"second_name"`
-	MiddleName string `db:"middle_name"`
-	Nickname   string `db:"nickname"`
+	FirstName  string         `db:"first_name"`
+	SecondName string         `db:"second_name"`
+	MiddleName sql.NullString `db:"middle_name"`
+	Nickname   sql.NullString `db:"nickname"`
 }
