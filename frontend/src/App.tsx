@@ -68,6 +68,10 @@ function App() {
           path: AppRoute.Requests,
           lazy: () => import("./pages/RequestsPage.tsx").then((m) => ({ Component: m.RequestsPage })),
         },
+        {
+          path: AppRoute.Book,
+          lazy: () => import("./pages/BookPage/BookPage.tsx").then((m) => ({ Component: m.BookPage })),
+        },
       ],
     },
   ]);

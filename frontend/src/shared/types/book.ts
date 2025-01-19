@@ -1,4 +1,5 @@
 import { Author } from "./author";
+import { Genre } from "./genre";
 
 export type SortBy = "TITLE" | "RATING" | "RATING_COUNT" | "CHAPTERS_COUNT";
 export type SortType = "ASC" | "DESC";
@@ -26,6 +27,7 @@ export type Book = {
   authors: Author[];
   isLoggedUserTranslator: string;
   rating: string;
+  genres?: Genre[];
 };
 
 export type ListBookResponse = {

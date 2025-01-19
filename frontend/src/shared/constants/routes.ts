@@ -6,4 +6,5 @@ export enum AppRoute {
   Profile = "/profile/:id",
   Requests = "/requests",
   Catalog = "/catalog",
+  Book = "/book/:id",
 }

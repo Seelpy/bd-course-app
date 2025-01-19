@@ -1,6 +1,7 @@
 import { Box, styled, Typography } from "@mui/material";
 import { Book } from "@shared/types/book";
 import placeholderCover from "@assets/placeholder-cover.png";
+import { useNavigate } from "react-router-dom";
 
 const BookCard = styled(Box)<{ $width: number }>(({ $width }) => ({
   display: "flex",
@@ -23,8 +24,15 @@ type BookPreviewProps = {
 };
 
 export const BookPreview = ({ book, width = 150 }: BookPreviewProps) => {
+  const navigate = useNavigate();
+
   return (
-    <BookCard $width={width}>
+    <BookCard
+      $width={width}
+      onClick={() => {
+        navigate(`/book/${book.bookId}`);
+      }}
+    >
       <BookCover $width={width} src={book.cover ?? placeholderCover} alt={book.title} />
       <Typography
         variant="body2"
