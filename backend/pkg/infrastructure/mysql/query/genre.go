@@ -52,8 +52,8 @@ func (service *genreQueryService) List() ([]GenreOutput, error) {
 func (service *genreQueryService) ListByBookID(bookID model.BookID) ([]GenreOutput, error) {
 	const query = `
 		SELECT 
-			genre_id,
-			name
+			g.genre_id,
+			g.name
 		FROM genre g
 		LEFT JOIN book_genre bg ON bg.genre_id = g.genre_id
 		WHERE bg.book_id = ?;

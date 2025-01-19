@@ -311,9 +311,14 @@ func (p public) EditUser(ctx echo.Context) error {
 		Password: user.Password,
 	}
 
-	if input.Password != nil && input.ConfirmPassword != nil {
-		if user.Password != *input.ConfirmPassword && !isAdmin {
-			return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("Failed to edit user password: %s", err))
+	if input.Password != nil {
+		if !isAdmin {
+			if input.ConfirmPassword == nil {
+				return echo.NewHTTPError(http.StatusForbidden, "Failed to edit user password: confirm password is required")
+			}
+			if user.Password != *input.ConfirmPassword {
+				return echo.NewHTTPError(http.StatusForbidden, "Failed to edit user password: confirm password does not match")
+			}
 		}
 		editUserInput.Password = *input.Password
 	}
@@ -326,7 +331,7 @@ func (p public) EditUser(ctx echo.Context) error {
 	}
 
 	if input.AboutMe != nil {
-		editUserInput.Login = *input.AboutMe
+		editUserInput.AboutMe = *input.AboutMe
 	}
 
 	err = p.userService.EditUser(editUserInput)
