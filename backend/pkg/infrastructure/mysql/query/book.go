@@ -3,11 +3,12 @@ package query
 import (
 	"database/sql"
 	"errors"
+	"server/pkg/domain/model"
+	"strings"
+
 	"github.com/gofrs/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/mono83/maybe"
-	"server/pkg/domain/model"
-	"strings"
 )
 
 type BookQueryService interface {
@@ -227,20 +228,20 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 	if sortBy, ok := spec.SortBy.Get(); ok {
 		switch sortBy {
 		case "TITLE":
-			query += " ORDER BY b.title"
+			query += " ORDER BY b.title, b.book_id"
 		case "RATING":
-			query += " ORDER BY average_rating"
+			query += " ORDER BY average_rating, b.book_id"
 		case "RATING_COUNT":
-			query += " ORDER BY (SELECT COUNT(*) FROM book_rating br WHERE br.book_id = b.book_id)"
+			query += " ORDER BY (SELECT COUNT(*) FROM book_rating br WHERE br.book_id = b.book_id), b.book_id"
 		case "CHAPTERS_COUNT":
-			query += " ORDER BY (SELECT COUNT(*) FROM book_chapter bc WHERE bc.book_id = b.book_id)"
+			query += " ORDER BY (SELECT COUNT(*) FROM book_chapter bc WHERE bc.book_id = b.book_id), b.book_id"
 		}
 
 		if sortType, ok := spec.SortType.Get(); ok {
 			query += " " + sortType
 		}
 	} else {
-		query += " ORDER BY b.title"
+		query += " ORDER BY b.title, b.book_id"
 	}
 
 	offset := (spec.Page - 1) * spec.Size
