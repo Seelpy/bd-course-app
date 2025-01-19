@@ -176,11 +176,14 @@ func (p public) LoginUser(ctx echo.Context) error {
 	}
 
 	user, err := p.userQueryService.FindByLogin(userReq.Login)
-	if err != nil {
-		return err
+	if errors.Is(err, domainmodel.ErrUserNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "User not found")
 	}
 	if user == (model.User{}) || user.Password != userReq.Password {
 		return echo.NewHTTPError(http.StatusNotFound, "User not found")
+	}
+	if err != nil {
+		return err
 	}
 
 	accessToken, accessExpirationTime, err := createToken(user, 5*time.Hour)
