@@ -67,15 +67,16 @@ export function CatalogPage() {
   const [containerWidth, setContainerWidth] = useState(0);
 
   useEffect(() => {
-    const updateWidth = () => {
+    const updateWidth = debounce(() => {
       if (containerRef.current) {
         setContainerWidth(containerRef.current.offsetWidth);
       }
-    };
+    }, 50);
 
     updateWidth();
     window.addEventListener("resize", updateWidth);
     return () => {
+      updateWidth.cancel();
       window.removeEventListener("resize", updateWidth);
     };
   }, []);
