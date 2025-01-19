@@ -131,10 +131,15 @@ export function CatalogPage() {
         sortType,
       })
       .then((result) => {
-        const filteredBooks = result.books;
-
-        setBooks((prev) => (!newSearch ? [...prev, ...filteredBooks] : filteredBooks));
-        setHasMore(filteredBooks.length === BOOKS_PER_PAGE);
+          const filteredBooks = result.books.filter((book) => {
+            const hasSelectedAuthors =
+              selectedAuthorIds.length === 0 || book.authors.some((author) => selectedAuthorIds.includes(author.id));
+            const hasSelectedGenres =
+              selectedGenreIds.length === 0 || book.genres.some((genre) => selectedGenreIds.includes(genre.id));
+            return hasSelectedAuthors && hasSelectedGenres;
+          });
+          setBooks((prev) => (!newSearch ? [...prev, ...filteredBooks] : filteredBooks));
+          setHasMore(filteredBooks.length === BOOKS_PER_PAGE);
       })
       .catch((error: Error) => {
         enqueueSnackbar(error.message, { variant: "error" });
