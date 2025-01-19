@@ -5,4 +5,5 @@ export type UpdateBookRating = {
 export type GetBookRatingResponse = {
   average: number;
   count: number;
+  userLoginRating: number;
 };

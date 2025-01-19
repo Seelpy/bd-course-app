@@ -76,8 +76,6 @@ function App() {
     },
   ]);
 
-  console.log(routes);
-
   return (
     <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
       <ThemeProvider theme={theme}>

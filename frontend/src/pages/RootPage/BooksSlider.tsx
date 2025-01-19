@@ -12,8 +12,8 @@ type BooksSliderProps = {
   books: BookSlider[];
 };
 
-const SLIDER_HEIGHT = 220;
-const BOOK_WIDTH = 135;
+const SLIDER_HEIGHT = 200;
+const BOOK_WIDTH = 90;
 const BUTTON_SIZE = SLIDER_HEIGHT * 0.2;
 
 const SliderContainer = styled(Paper)(({ theme }) => ({
@@ -30,7 +30,6 @@ const BooksContainer = styled(Box)({
   gap: 16,
   height: "100%",
   transition: "transform 0.3s ease-out",
-  paddingTop: 24,
 });
 
 const NavigationButton = styled(IconButton)(({ theme }) => ({
@@ -60,38 +59,37 @@ export const BooksSlider = ({ sliderName, books }: BooksSliderProps) => {
   });
 
   return (
-    <SliderContainer elevation={2}>
-      <Typography variant="h6" sx={{ position: "absolute", top: 16, left: 16 }}>
-        {sliderName}
-      </Typography>
+    <>
+      <Typography variant="h6">{sliderName}</Typography>
+      <SliderContainer elevation={2}>
+        <NavigationButton
+          sx={{ left: 8 }}
+          onClick={() => {
+            setOffset((curr) => Math.min(0, curr + BOOK_WIDTH + 16));
+          }}
+          disabled={offset === 0}
+        >
+          <ChevronLeft />
+        </NavigationButton>
 
-      <NavigationButton
-        sx={{ left: 8 }}
-        onClick={() => {
-          setOffset((curr) => Math.min(0, curr + BOOK_WIDTH + 16));
-        }}
-        disabled={offset === 0}
-      >
-        <ChevronLeft />
-      </NavigationButton>
+        <NavigationButton
+          sx={{ right: 8 }}
+          onClick={() => {
+            setOffset((curr) => Math.max(maxOffset, curr - BOOK_WIDTH - 16));
+          }}
+          disabled={offset <= maxOffset}
+        >
+          <ChevronRight />
+        </NavigationButton>
 
-      <NavigationButton
-        sx={{ right: 8 }}
-        onClick={() => {
-          setOffset((curr) => Math.max(maxOffset, curr - BOOK_WIDTH - 16));
-        }}
-        disabled={offset <= maxOffset}
-      >
-        <ChevronRight />
-      </NavigationButton>
-
-      <Box overflow="hidden">
-        <BooksContainer {...handlers} sx={{ transform: `translateX(${offset.toString()}px)` }}>
-          {books.map((book) => (
-            <BookPreview key={book.bookId} book={book} />
-          ))}
-        </BooksContainer>
-      </Box>
-    </SliderContainer>
+        <Box overflow="hidden">
+          <BooksContainer {...handlers} sx={{ transform: `translateX(${offset.toString()}px)` }}>
+            {books.map((book) => (
+              <BookPreview key={book.bookId} book={book} width={BOOK_WIDTH} />
+            ))}
+          </BooksContainer>
+        </Box>
+      </SliderContainer>
+    </>
   );
 };

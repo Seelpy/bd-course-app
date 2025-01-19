@@ -8,10 +8,12 @@ import {
   TextField,
   Button,
   Stack,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import CheckIcon from "@mui/icons-material/Check";
 import { useState, useMemo } from "react";
-import { Add } from "@mui/icons-material";
+import { Add, MoreVert, Edit, Delete } from "@mui/icons-material";
 
 type Item = {
   id: string;
@@ -30,6 +32,8 @@ type Props = {
   searchPlaceholder?: string;
   createButtonText?: string;
   forceCreateNewButton?: boolean;
+  onEdit?: (item: Item) => void;
+  onDelete?: (item: Item) => void;
 };
 
 export const SelectionModal = ({
@@ -44,8 +48,12 @@ export const SelectionModal = ({
   searchPlaceholder = "Search...",
   createButtonText = "Create New",
   forceCreateNewButton = false,
+  onEdit,
+  onDelete,
 }: Props) => {
   const [search, setSearch] = useState("");
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
 
   const filteredItems = useMemo(
     () => items.filter((item) => item.name.toLowerCase().includes(search.toLowerCase())),
@@ -62,6 +70,11 @@ export const SelectionModal = ({
       onCreate(search);
       setSearch("");
     }
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setSelectedItem(null);
   };
 
   return (
@@ -95,9 +108,37 @@ export const SelectionModal = ({
                     }}
                     icon={selectedIds.includes(item.id) ? <CheckIcon /> : undefined}
                     color={selectedIds.includes(item.id) ? "primary" : "default"}
+                    deleteIcon={<MoreVert />}
+                    onDelete={(e: React.MouseEvent<HTMLElement>) => {
+                      setAnchorEl(e.currentTarget);
+                      setSelectedItem(item);
+                    }}
                   />
                 ))}
               </Box>
+              <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+                {onEdit && (
+                  <MenuItem
+                    onClick={() => {
+                      if (selectedItem) onEdit(selectedItem);
+                      handleMenuClose();
+                    }}
+                  >
+                    <Edit sx={{ mr: 1 }} /> Edit
+                  </MenuItem>
+                )}
+                {onDelete && (
+                  <MenuItem
+                    onClick={() => {
+                      if (selectedItem) onDelete(selectedItem);
+                      handleMenuClose();
+                    }}
+                    sx={{ color: "error.main" }}
+                  >
+                    <Delete sx={{ mr: 1 }} /> Delete
+                  </MenuItem>
+                )}
+              </Menu>
               {showCreateButton && (
                 <Button startIcon={<Add />} variant="outlined" onClick={handleCreate}>
                   {createButtonText} {!forceCreateNewButton && search}

@@ -10,7 +10,7 @@ import { AppRoute } from "@shared/constants/routes";
 import StarIcon from "@mui/icons-material/Star";
 import placeholderCover from "@assets/placeholder-cover.png";
 import { enqueueSnackbar } from "notistack";
-import { Add, Bookmark } from "@mui/icons-material";
+import { Add, Bookmark, PhotoCamera, Edit, EditNote } from "@mui/icons-material";
 import { UserBookFavoritesType } from "@shared/types/userBookFavorites";
 import { userBookFavoritesApi } from "@api/userBookFavorites";
 import { SelectionModal } from "./components/SelectionModal";
@@ -22,6 +22,13 @@ import { bookAuthorApi } from "@api/bookAuthor";
 import { bookGenreApi } from "@api/bookGenre";
 import { UserRole } from "@shared/types/user";
 import { CreateAuthorModal } from "./components/CreateAuthorModal";
+import { EditGenreModal } from "./components/EditGenreModal";
+import { ConfirmDialog } from "@shared/components/ConfirmDialog"; // Предполагаем, что такой компонент существует
+import { EditAuthorModal } from "./components/EditAuthorModal";
+import { IconButton } from "@mui/material";
+import { UploadImageDialog } from "../../shared/components/UploadImageDialog";
+import { imageApi } from "@api/image";
+import { EditBookDialog } from "./components/EditBookDialog";
 
 const formatRatingCount = (count: number) => {
   return count >= 1000 ? `${(count / 1000).toFixed(1)}K` : count.toString();
@@ -34,6 +41,7 @@ export const BookPage = () => {
   const [book, setBook] = useState<Book>();
   const [rating, setRating] = useState<number>(0);
   const [ratingCount, setRatingCount] = useState<number>(0);
+  const [userRating, setUserRating] = useState<number>(0);
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
   const [favoriteType, setFavoriteType] = useState<UserBookFavoritesType | null>(null);
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
@@ -44,6 +52,25 @@ export const BookPage = () => {
   const [isGenreModalOpen, setIsGenreModalOpen] = useState(false);
   const [loading, setLoading] = useState({ authors: false, genres: false });
   const [isCreateAuthorModalOpen, setIsCreateAuthorModalOpen] = useState(false);
+  const [editingGenre, setEditingGenre] = useState<Genre | null>(null);
+  const [deletingItem, setDeletingItem] = useState<{ type: "genre" | "author"; item: Genre | Author } | null>(null);
+  const [editingAuthor, setEditingAuthor] = useState<Author | null>(null);
+  const [isUploadImageOpen, setIsUploadImageOpen] = useState(false);
+  const [editMode, setEditMode] = useState<"title" | "description" | null>(null);
+
+  const loadRating = () => {
+    if (!id) return;
+    bookRatingApi
+      .getRating(id)
+      .then((data) => {
+        setRating(data.average);
+        setRatingCount(data.count);
+        setUserRating(data.userLoginRating);
+      })
+      .catch(() => {
+        enqueueSnackbar("Failed to load rating", { variant: "error" });
+      });
+  };
 
   useEffect(() => {
     if (id) {
@@ -55,15 +82,7 @@ export const BookPage = () => {
         .catch(() => {
           navigate(AppRoute.NotFound, { replace: true });
         });
-      bookRatingApi
-        .getRating(id)
-        .then((data) => {
-          setRating(data.average);
-          setRatingCount(data.count);
-        })
-        .catch(() => {
-          enqueueSnackbar("Failed to load rating", { variant: "error" });
-        });
+      loadRating();
     } else {
       navigate(AppRoute.NotFound, { replace: true });
     }
@@ -92,18 +111,32 @@ export const BookPage = () => {
     setIsRatingModalOpen(true);
   };
 
-  const handleRate = async (value: number) => {
+  const handleRate = (value: number) => {
     if (!id) return;
-    await bookRatingApi.updateRating(id, { value });
-    const newRating = await bookRatingApi.getRating(id);
-    setRating(newRating.average);
+    bookRatingApi
+      .updateRating(id, { value })
+      .then()
+      .catch(() => {
+        enqueueSnackbar("Failed to update rating", { variant: "error" });
+      });
+
+    setTimeout(() => {
+      loadRating();
+    }, 500);
   };
 
-  const handleRemoveRating = async () => {
+  const handleRemoveRating = () => {
     if (!id) return;
-    await bookRatingApi.deleteRating(id);
-    const newRating = await bookRatingApi.getRating(id);
-    setRating(newRating.average);
+    bookRatingApi
+      .deleteRating(id)
+      .then()
+      .catch(() => {
+        enqueueSnackbar("Failed to update rating", { variant: "error" });
+      });
+
+    setTimeout(() => {
+      loadRating();
+    }, 500);
   };
 
   const handleListButtonClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -279,6 +312,93 @@ export const BookPage = () => {
       });
   };
 
+  const handleEditGenre = (genreId: string, name: string) => {
+    genreApi
+      .editGenre({ id: genreId, name })
+      .then(() => {
+        loadGenres();
+        enqueueSnackbar("Genre updated successfully", { variant: "success" });
+        setEditingGenre(null);
+      })
+      .catch((error: Error) => {
+        enqueueSnackbar(error.message, { variant: "error" });
+      });
+  };
+
+  const handleEditAuthor = (
+    authorId: string,
+    data: { firstName: string; secondName: string; middleName?: string; nickName?: string },
+  ) => {
+    authorApi
+      .editAuthor({ id: authorId, ...data })
+      .then(() => {
+        loadAuthors();
+        enqueueSnackbar("Author updated successfully", { variant: "success" });
+        setEditingAuthor(null);
+      })
+      .catch((error: Error) => {
+        enqueueSnackbar(error.message, { variant: "error" });
+      });
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!deletingItem) return;
+
+    if (deletingItem.type === "genre") {
+      genreApi
+        .deleteGenre({ id: deletingItem.item.id })
+        .then(() => {
+          loadGenres();
+          enqueueSnackbar("Genre deleted successfully", { variant: "success" });
+        })
+        .catch((error: Error) => {
+          enqueueSnackbar(error.message, { variant: "error" });
+        });
+    } else {
+      authorApi
+        .deleteAuthor({ id: deletingItem.item.id })
+        .then(() => {
+          loadAuthors();
+          enqueueSnackbar("Author deleted successfully", { variant: "success" });
+        })
+        .catch((error: Error) => {
+          enqueueSnackbar(error.message, { variant: "error" });
+        });
+    }
+    setDeletingItem(null);
+  };
+
+  const handleUploadCover = (base64: string) => {
+    imageApi
+      .storeBookImage({ bookId: book.bookId, imageData: base64 })
+      .then(() => {
+        setBook((prev) => (prev ? { ...prev, cover: base64 } : prev));
+        enqueueSnackbar("Cover updated successfully", { variant: "success" });
+      })
+      .catch((error: Error) => {
+        enqueueSnackbar(error.message, { variant: "error" });
+      });
+    setIsUploadImageOpen(false);
+  };
+
+  const handleEditBook = (data: { title?: string; description?: string }) => {
+    bookApi
+      .editBook({
+        id: book.bookId,
+        title: data.title ?? book.title,
+        description: data.description ?? book.description,
+      })
+      .then(() => {
+        setBook((prev) => (prev ? { ...prev, ...data } : prev));
+        enqueueSnackbar("Book updated successfully", { variant: "success" });
+      })
+      .catch((error: Error) => {
+        enqueueSnackbar(error.message, { variant: "error" });
+      });
+
+    setEditMode(null);
+  };
+
   const favoriteTypes: UserBookFavoritesType[] = ["READING", "PLANNED", "DEFERRED", "READ", "DROPPED", "FAVORITE"];
 
   return (
@@ -292,6 +412,20 @@ export const BookPage = () => {
                 alt={book.title}
                 style={{ width: 250, height: 350, objectFit: "cover", borderRadius: 8 }}
               />
+              {userInfo?.role === UserRole.Admin && (
+                <IconButton
+                  sx={{
+                    position: "absolute",
+                    top: 8,
+                    right: 8,
+                  }}
+                  onClick={() => {
+                    setIsUploadImageOpen(true);
+                  }}
+                >
+                  <PhotoCamera />
+                </IconButton>
+              )}
               <Chip
                 sx={{
                   position: "absolute",
@@ -301,7 +435,11 @@ export const BookPage = () => {
                 }}
                 label={
                   <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 2 }}>
-                    (<StarIcon fontSize="small" sx={{ alignContent: "center" }} /> {rating.toFixed(0)} )
+                    {!!userRating && (
+                      <>
+                        <StarIcon fontSize="small" sx={{ alignContent: "center" }} /> {userRating.toFixed(0)}
+                      </>
+                    )}
                     <StarIcon color="warning" sx={{ alignContent: "center" }} /> {rating.toFixed(1)} (
                     {formatRatingCount(ratingCount)})
                   </div>
@@ -309,16 +447,29 @@ export const BookPage = () => {
                 onClick={handleOpenRatingModal}
               />
             </Box>
-            <Typography
-              variant="h4"
-              component="h1"
-              sx={{
-                textAlign: "center",
-                width: "100%",
-              }}
-            >
-              {book.title}
-            </Typography>
+            <Box position="relative" width="100%">
+              <Typography
+                variant="h4"
+                component="h1"
+                sx={{
+                  textAlign: "center",
+                  width: "100%",
+                }}
+              >
+                {book.title}
+                {userInfo?.role === UserRole.Admin && (
+                  <IconButton
+                    size="small"
+                    sx={{ ml: 1, verticalAlign: "middle" }}
+                    onClick={() => {
+                      setEditMode("title");
+                    }}
+                  >
+                    <Edit />
+                  </IconButton>
+                )}
+              </Typography>
+            </Box>
             <Stack direction="row" spacing={2}>
               <Tooltip title={!userInfo ? "Authorize first" : ""}>
                 <span>
@@ -416,6 +567,17 @@ export const BookPage = () => {
             <Box display="flex" flexDirection="column" gap={1}>
               <Typography variant="h5" color="textSecondary">
                 Description
+                {userInfo?.role === UserRole.Admin && (
+                  <IconButton
+                    size="small"
+                    sx={{ ml: 1, verticalAlign: "middle" }}
+                    onClick={() => {
+                      setEditMode("description");
+                    }}
+                  >
+                    <EditNote />
+                  </IconButton>
+                )}
               </Typography>
               <Typography variant="body1">{book.description}</Typography>
             </Box>
@@ -470,6 +632,18 @@ export const BookPage = () => {
           setIsCreateAuthorModalOpen(true);
           setIsAuthorModalOpen(false);
         }}
+        onEdit={(author) => {
+          const fullAuthor = authors.find((a) => a.id === author.id);
+          if (fullAuthor) {
+            setEditingAuthor(fullAuthor);
+          }
+        }}
+        onDelete={(author) => {
+          const fullAuthor = authors.find((a) => a.id === author.id);
+          if (fullAuthor) {
+            setDeletingItem({ type: "author", item: fullAuthor });
+          }
+        }}
       />
 
       <CreateAuthorModal
@@ -494,7 +668,67 @@ export const BookPage = () => {
         loading={loading.genres}
         searchPlaceholder="Search or enter new genre name..."
         createButtonText="Create Genre"
+        onEdit={(genre) => {
+          setEditingGenre(genre);
+        }}
+        onDelete={(genre) => {
+          setDeletingItem({ type: "genre", item: genre });
+        }}
       />
+
+      {editingGenre && (
+        <EditGenreModal
+          open={!!editingGenre}
+          onClose={() => {
+            setEditingGenre(null);
+          }}
+          genre={editingGenre}
+          onEdit={handleEditGenre}
+        />
+      )}
+
+      {editingAuthor && (
+        <EditAuthorModal
+          open={!!editingAuthor}
+          onClose={() => {
+            setEditingAuthor(null);
+          }}
+          author={editingAuthor}
+          onEdit={handleEditAuthor}
+        />
+      )}
+
+      <ConfirmDialog
+        open={!!deletingItem}
+        onClose={() => {
+          setDeletingItem(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        title={`Delete ${deletingItem?.type ?? ""}`}
+        content={`Are you sure you want to delete? This action cannot be undone.`}
+      />
+
+      <UploadImageDialog
+        open={isUploadImageOpen}
+        onClose={() => {
+          setIsUploadImageOpen(false);
+        }}
+        onUpload={handleUploadCover}
+        title="Upload Book Cover"
+      />
+
+      {editMode && (
+        <EditBookDialog
+          open={!!editMode}
+          onClose={() => {
+            setEditMode(null);
+          }}
+          onSave={handleEditBook}
+          title={book.title}
+          description={book.description}
+          mode={editMode}
+        />
+      )}
     </Container>
   );
 };
