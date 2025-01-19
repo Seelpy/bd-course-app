@@ -2,13 +2,14 @@ package service
 
 import (
 	"github.com/gofrs/uuid"
+	"github.com/mono83/maybe"
 	"server/pkg/domain/model"
 )
 
 type BookRatingService interface {
 	StoreRating(input StoreBookRatingInput) error
 	DeleteRating(bookID model.BookID, userID model.UserID) error
-	GetStatistics(bookID model.BookID) (StatisticsBookRatingOutput, error)
+	GetStatistics(bookID model.BookID, userID maybe.Maybe[model.UserID]) (StatisticsBookRatingOutput, error)
 }
 
 type bookRatingService struct {
@@ -35,8 +36,9 @@ type StoreBookRatingInput struct {
 }
 
 type StatisticsBookRatingOutput struct {
-	Average float64
-	Count   int
+	Average         float64
+	Count           int
+	UserLoginRating maybe.Maybe[int]
 }
 
 func (service *bookRatingService) StoreRating(input StoreBookRatingInput) error {
@@ -53,7 +55,10 @@ func (service *bookRatingService) DeleteRating(bookID model.BookID, userID model
 	return service.bookRatingRepo.Delete(bookID, userID)
 }
 
-func (service *bookRatingService) GetStatistics(bookID model.BookID) (StatisticsBookRatingOutput, error) {
+func (service *bookRatingService) GetStatistics(
+	bookID model.BookID,
+	userID maybe.Maybe[model.UserID],
+) (StatisticsBookRatingOutput, error) {
 	average, err := service.bookRatingRepo.AverageByBookID(bookID)
 	if err != nil {
 		return StatisticsBookRatingOutput{}, err
@@ -64,8 +69,19 @@ func (service *bookRatingService) GetStatistics(bookID model.BookID) (Statistics
 		return StatisticsBookRatingOutput{}, err
 	}
 
+	userLoginRating := maybe.Nothing[int]()
+	if userID2, ok := userID.Get(); ok {
+		bookRating, err2 := service.bookRatingRepo.Find(bookID, userID2)
+		if err2 != nil {
+			return StatisticsBookRatingOutput{}, err2
+		}
+
+		userLoginRating = maybe.Just(bookRating.Value())
+	}
+
 	return StatisticsBookRatingOutput{
-		Average: average,
-		Count:   count,
+		Average:         average,
+		Count:           count,
+		UserLoginRating: userLoginRating,
 	}, nil
 }
