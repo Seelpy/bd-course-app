@@ -1,4 +1,4 @@
-import { Box, Button, Card, Chip, Container, Stack, Tooltip, Typography } from "@mui/material";
+import { Box, Button, Card, Chip, Container, Stack, Tooltip, Typography, Menu, MenuItem } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { bookApi } from "@api/book";
@@ -11,6 +11,8 @@ import StarIcon from "@mui/icons-material/Star";
 import placeholderCover from "@assets/placeholder-cover.png";
 import { enqueueSnackbar } from "notistack";
 import { Add } from "@mui/icons-material";
+import { UserBookFavoritesType } from "@shared/types/userBookFavorites";
+import { userBookFavoritesApi } from "@api/userBookFavorites";
 
 const formatRatingCount = (count: number) => {
   return count >= 1000 ? `${(count / 1000).toFixed(1)}K` : count.toString();
@@ -23,6 +25,9 @@ export const BookPage = () => {
   const [book, setBook] = useState<Book>();
   const [rating, setRating] = useState<number>(0);
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+  const [favoriteType, setFavoriteType] = useState<UserBookFavoritesType | null>(null);
+  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const [menuWidth, setMenuWidth] = useState<number>(0);
 
   useEffect(() => {
     if (id) {
@@ -47,6 +52,17 @@ export const BookPage = () => {
     }
   }, [id]);
 
+  useEffect(() => {
+    if (id && userInfo) {
+      userBookFavoritesApi
+        .getFavoriteTypeByBook({ bookId: id })
+        .then(setFavoriteType)
+        .catch(() => {
+          setFavoriteType(null);
+        });
+    }
+  }, [id, userInfo]);
+
   if (!book) return null;
 
   const handleOpenRatingModal = () => {
@@ -70,6 +86,45 @@ export const BookPage = () => {
     const newRating = await bookRatingApi.getRating(id);
     setRating(newRating.average);
   };
+
+  const handleListButtonClick = (event: React.MouseEvent<HTMLElement>) => {
+    setMenuAnchor(event.currentTarget);
+    setMenuWidth(event.currentTarget.offsetWidth);
+  };
+
+  const handleListClose = () => {
+    setMenuAnchor(null);
+  };
+
+  const handleFavoriteSelect = (type: UserBookFavoritesType | "REMOVE") => {
+    if (!id) return;
+
+    if (type === "REMOVE") {
+      userBookFavoritesApi
+        .deleteFavorite({ bookId: id })
+        .then(() => {
+          setFavoriteType(null);
+          enqueueSnackbar("Book removed from list", { variant: "success" });
+        })
+        .catch((error: Error) => {
+          enqueueSnackbar(error.message, { variant: "error" });
+        });
+    } else {
+      userBookFavoritesApi
+        .storeFavorite({ bookId: id, type })
+        .then(() => {
+          setFavoriteType(type);
+          enqueueSnackbar("Book added to list", { variant: "success" });
+        })
+        .catch((error: Error) => {
+          enqueueSnackbar(error.message, { variant: "error" });
+        });
+    }
+
+    handleListClose();
+  };
+
+  const favoriteTypes: UserBookFavoritesType[] = ["READING", "PLANNED", "DEFERRED", "READ", "DROPPED", "FAVORITE"];
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
@@ -102,11 +157,61 @@ export const BookPage = () => {
             <Stack direction="row" spacing={2}>
               <Tooltip title={!userInfo ? "Authorize first" : ""}>
                 <span>
-                  <Button variant="contained" color="inherit" startIcon={<Add />} disabled={!userInfo}>
-                    Add to List
+                  <Button
+                    variant="contained"
+                    color="inherit"
+                    startIcon={<Add />}
+                    onClick={handleListButtonClick}
+                    disabled={!userInfo}
+                  >
+                    {favoriteType ? `In ${favoriteType.toLowerCase()}` : "Add to List"}
                   </Button>
                 </span>
               </Tooltip>
+              <Menu
+                anchorEl={menuAnchor}
+                open={Boolean(menuAnchor)}
+                onClose={handleListClose}
+                anchorOrigin={{
+                  vertical: "bottom",
+                  horizontal: "center",
+                }}
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "center",
+                }}
+                slotProps={{
+                  paper: {
+                    style: {
+                      width: menuWidth,
+                      maxWidth: "none",
+                    },
+                  },
+                }}
+              >
+                {favoriteTypes.map((type) => (
+                  <MenuItem
+                    key={type}
+                    onClick={() => {
+                      handleFavoriteSelect(type);
+                    }}
+                    selected={type === favoriteType}
+                    sx={{ justifyContent: "center" }}
+                  >
+                    {type.charAt(0) + type.slice(1).toLowerCase()}
+                  </MenuItem>
+                ))}
+                {favoriteType && (
+                  <MenuItem
+                    onClick={() => {
+                      handleFavoriteSelect("REMOVE");
+                    }}
+                    sx={{ color: "error.main", justifyContent: "center" }}
+                  >
+                    Remove
+                  </MenuItem>
+                )}
+              </Menu>
               <Button variant="contained">Start Reading</Button>
             </Stack>
           </Stack>
