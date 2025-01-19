@@ -138,6 +138,10 @@ func (service *bookQueryService) ListByIDs(bookIDs []model.BookID) ([]BookOutput
 }
 
 func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
+	if spec.Page <= 0 || spec.Size <= 0 {
+		return []BookOutput{}, nil
+	}
+
 	query := `
 		SELECT b.book_id, i.path, b.title, b.description, COALESCE(AVG(br.value), 0) as average_rating
 		FROM book b

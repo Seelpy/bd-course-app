@@ -345,7 +345,7 @@ func (p public) GetUser(ctx echo.Context, id string) error {
 func (p public) ListUser(ctx echo.Context) error {
 	usersOutput, err := p.userQueryService.List()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to edit user: %s", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list user: %s", err))
 	}
 
 	users := make([]api.User, len(usersOutput))
@@ -439,6 +439,11 @@ func (p public) DeleteBook(ctx echo.Context) error {
 
 func (p public) SearchBook(ctx echo.Context, queryParams api.SearchBookParams) error {
 	spec := convertListBookParamsToListSpec(queryParams)
+
+	if spec.Page < 0 || spec.Size < 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "Page and size needed positive and not zero")
+	}
+
 	bookOutputs, err := p.bookQueryService.List(spec)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list book: %s", err))

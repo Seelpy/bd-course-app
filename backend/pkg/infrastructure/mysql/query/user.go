@@ -49,8 +49,8 @@ func (service *userQueryService) List() ([]model.User, error) {
 	users := make([]model.User, len(sqlxUsers))
 	for i, user := range sqlxUsers {
 		var avatar maybe.Maybe[string]
-		if user.AvatarID.Valid {
-			avatar = maybe.Just(user.AvatarID.String)
+		if user.Avatar.Valid {
+			avatar = maybe.Just(user.Avatar.String)
 		}
 
 		users[i] = model.User{
@@ -90,8 +90,8 @@ func (service *userQueryService) FindByLogin(login string) (model.User, error) {
 	}
 
 	var avatar maybe.Maybe[string]
-	if user.AvatarID.Valid {
-		avatar = maybe.Just(user.AvatarID.String)
+	if user.Avatar.Valid {
+		avatar = maybe.Just(user.Avatar.String)
 	}
 
 	return model.User{
@@ -133,8 +133,8 @@ func (service *userQueryService) FindByID(userID model2.UserID) (model.User, err
 	}
 
 	var avatar maybe.Maybe[string]
-	if user.AvatarID.Valid {
-		avatar = maybe.Just(user.AvatarID.String)
+	if user.Avatar.Valid {
+		avatar = maybe.Just(user.Avatar.String)
 	}
 
 	return model.User{
@@ -149,7 +149,7 @@ func (service *userQueryService) FindByID(userID model2.UserID) (model.User, err
 
 type sqlxUser struct {
 	ID       uuid.UUID      `db:"user_id"`
-	AvatarID sql.NullString `db:"avatar_id"`
+	Avatar   sql.NullString `db:"path"`
 	Login    string         `db:"login"`
 	Role     int            `db:"role"`
 	Password string         `db:"password"`
