@@ -178,11 +178,11 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 	}
 
 	if minRating, ok := spec.MinRating.Get(); ok {
-		query += " AND (SELECT COALESCE(AVG(br2.value), 0) FROM book_rating br2 WHERE br2.book_id = b.book_id) >= ?"
+		query += " AND (SELECT COALESCE(AVG(br.value), 0) FROM book_rating br WHERE br.book_id = b.book_id) >= ?"
 		args = append(args, minRating)
 	}
 	if maxRating, ok := spec.MaxRating.Get(); ok {
-		query += " AND (SELECT COALESCE(AVG(br2.value), 0) FROM book_rating br2 WHERE br2.book_id = b.book_id) <= ?"
+		query += " AND (SELECT COALESCE(AVG(br.value), 0) FROM book_rating br WHERE br.book_id = b.book_id) <= ?"
 		args = append(args, maxRating)
 	}
 
@@ -198,6 +198,10 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 	if minRatingCount, ok := spec.MinRatingCount.Get(); ok {
 		query += " AND (SELECT COUNT(*) FROM book_rating br WHERE br.book_id = b.book_id) >= ?"
 		args = append(args, minRatingCount)
+	}
+	if maxRatingCount, ok := spec.MaxRatingCount.Get(); ok {
+		query += " AND (SELECT COUNT(*) FROM book_rating br WHERE br.book_id = b.book_id) <= ?"
+		args = append(args, maxRatingCount)
 	}
 
 	query += " GROUP BY b.book_id, i.path, b.title, b.description"
@@ -218,7 +222,7 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 			query += " " + sortType
 		}
 	} else {
-		query += " ORDER BY b.title" // Сортировка по умолчанию
+		query += " ORDER BY b.title"
 	}
 
 	offset := (spec.Page - 1) * spec.Size
@@ -229,10 +233,6 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 	err := service.connection.Select(&sqlxBooks, query, args...)
 	if err != nil {
 		return nil, err
-	}
-	if maxRatingCount, ok := spec.MaxRatingCount.Get(); ok {
-		query += " AND (SELECT COUNT(*) FROM book_rating br WHERE br.book_id = b.book_id) <= ?"
-		args = append(args, maxRatingCount)
 	}
 
 	bookOutputs := make([]BookOutput, len(sqlxBooks))
