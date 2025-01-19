@@ -59,6 +59,7 @@ export function CatalogPage() {
   const [authors, setAuthors] = useState<Author[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingDebounced, setLoadingDebounced] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef<IntersectionObserver>();
@@ -106,6 +107,7 @@ export function CatalogPage() {
       if (loading || (!hasMore && !newSearch)) return;
 
       setLoading(true);
+      setLoadingDebounced(true);
       const currentPage = newSearch ? 1 : page;
 
       bookApi
@@ -138,6 +140,9 @@ export function CatalogPage() {
         })
         .finally(() => {
           setLoading(false);
+          setTimeout(() => {
+            setLoadingDebounced(false);
+          }, 300);
         });
     },
     [
@@ -185,8 +190,8 @@ export function CatalogPage() {
   ]);
 
   const lastBookElementRef = useCallback(
-    (node: HTMLDivElement) => {
-      if (loading) return;
+    (node: HTMLDivElement | null) => {
+      if (!node || loading) return;
 
       if (observer.current) observer.current.disconnect();
 
@@ -218,7 +223,6 @@ export function CatalogPage() {
         sx={{
           overflow: "auto",
           flex: 1,
-          // Стилизация скроллбара
           "&::-webkit-scrollbar": {
             width: "8px",
           },
@@ -456,12 +460,13 @@ export function CatalogPage() {
 
           <Box ref={containerRef}>
             <Grid2 container spacing={2}>
-              {books.map((book, index) => (
-                <Grid2 key={book.bookId} ref={index === books.length - 1 ? lastBookElementRef : undefined}>
-                  <BookPreview book={book} width={bookWidth} />
-                </Grid2>
-              ))}
-              {loading &&
+              {!loadingDebounced &&
+                books.map((book, index) => (
+                  <Grid2 key={book.bookId} ref={index === books.length - 1 ? lastBookElementRef : undefined}>
+                    <BookPreview book={book} width={bookWidth} />
+                  </Grid2>
+                ))}
+              {loadingDebounced &&
                 Array.from(new Array(6)).map((_, index) => (
                   <Grid2 key={index}>
                     <BookPreviewSkeleton width={bookWidth} />
