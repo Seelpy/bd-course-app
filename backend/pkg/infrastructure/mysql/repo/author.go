@@ -62,8 +62,8 @@ func (repo *AuthorRepository) Store(author model.Author) error {
 		binaryAvatarID,
 		author.FirstName(),
 		author.SecondName(),
-		author.MiddleName(),
-		author.Nickname(),
+		"",
+		"",
 	)
 
 	return err
