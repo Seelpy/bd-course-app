@@ -1927,12 +1927,15 @@ components:
           type: string
         password:
           type: string
+        confirmPassword:
+          type: string
         aboutMe:
           type: string
       required:
         - id
         - login
         - password
+        - confirmPassword
         - aboutMe
     DeleteUserRequest:
       type: object

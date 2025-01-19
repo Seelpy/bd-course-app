@@ -176,11 +176,14 @@ func (p public) LoginUser(ctx echo.Context) error {
 	}
 
 	user, err := p.userQueryService.FindByLogin(userReq.Login)
-	if err != nil {
-		return err
+	if errors.Is(err, domainmodel.ErrUserNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "User not found")
 	}
 	if user == (model.User{}) || user.Password != userReq.Password {
 		return echo.NewHTTPError(http.StatusNotFound, "User not found")
+	}
+	if err != nil {
+		return err
 	}
 
 	accessToken, accessExpirationTime, err := createToken(user, 5*time.Hour)
@@ -288,7 +291,24 @@ func (p public) EditUser(ctx echo.Context) error {
 		})
 	}
 
-	err := p.userService.EditUser(service.EditUserInput{
+	user, err := p.userQueryService.FindByID(domainmodel.UserID(input.Id))
+	if errors.Is(err, domainmodel.ErrUserNotFound) {
+		return echo.NewHTTPError(http.StatusNotFound, "User not found")
+	}
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to edit user: %s", err))
+	}
+
+	isAdmin, err := checkIsAdmin(ctx)
+	if err != nil {
+		return err
+	}
+
+	if user.Password != input.ConfirmPassword && !isAdmin {
+		return echo.NewHTTPError(http.StatusForbidden, fmt.Sprintf("Failed to edit user: %s", err))
+	}
+
+	err = p.userService.EditUser(service.EditUserInput{
 		ID:       domainmodel.UserID(input.Id),
 		AboutMe:  input.AboutMe,
 		Login:    input.Login,
@@ -345,7 +365,7 @@ func (p public) GetUser(ctx echo.Context, id string) error {
 func (p public) ListUser(ctx echo.Context) error {
 	usersOutput, err := p.userQueryService.List()
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to edit user: %s", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list user: %s", err))
 	}
 
 	users := make([]api.User, len(usersOutput))
@@ -439,6 +459,11 @@ func (p public) DeleteBook(ctx echo.Context) error {
 
 func (p public) SearchBook(ctx echo.Context, queryParams api.SearchBookParams) error {
 	spec := convertListBookParamsToListSpec(queryParams)
+
+	if spec.Page < 0 || spec.Size < 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "Page and size needed positive and not zero")
+	}
+
 	bookOutputs, err := p.bookQueryService.List(spec)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list book: %s", err))
@@ -1399,12 +1424,32 @@ func ptr[T any](s T) *T {
 }
 
 func extractUserIDFromContext(ctx echo.Context) (domainmodel.UserID, error) {
-	tokenString, err := ctx.Cookie("access_token")
+	claims, err := parseClaims(ctx)
 	if err != nil {
 		return domainmodel.UserID{}, err
 	}
+
+	var userID uuid.UUID
+	err = userID.Parse(claims.UserID)
+	return domainmodel.UserID(userID), err
+}
+
+func checkIsAdmin(ctx echo.Context) (bool, error) {
+	claims, err := parseClaims(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	return domainmodel.UserRole(claims.Role) == domainmodel.Admin, nil
+}
+
+func parseClaims(ctx echo.Context) (model.Claims, error) {
+	tokenString, err := ctx.Cookie("access_token")
+	if err != nil {
+		return model.Claims{}, err
+	}
 	if tokenString.Value == "" {
-		return domainmodel.UserID{}, echo.NewHTTPError(http.StatusUnauthorized, "Missing token")
+		return model.Claims{}, echo.NewHTTPError(http.StatusUnauthorized, "Missing token")
 	}
 
 	claims := &model.Claims{}
@@ -1413,12 +1458,10 @@ func extractUserIDFromContext(ctx echo.Context) (domainmodel.UserID, error) {
 	})
 
 	if err != nil || !token.Valid {
-		return domainmodel.UserID{}, echo.NewHTTPError(http.StatusUnauthorized, "Invalid token")
+		return model.Claims{}, echo.NewHTTPError(http.StatusUnauthorized, "Invalid token")
 	}
 
-	var userID uuid.UUID
-	err = userID.Parse(claims.UserID)
-	return domainmodel.UserID(userID), err
+	return *claims, nil
 }
 
 func convertUserBookFavouritesTypeAPIToModel(apiType api.UserBookFavouritesType) (domainmodel.UserBookFavouritesType, error) {
