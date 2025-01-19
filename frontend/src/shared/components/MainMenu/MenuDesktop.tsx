@@ -7,7 +7,6 @@ import ThemeButton from "../ThemeButton/ThemeButton";
 
 type MenuDesktopProps = {
   userInfo: User | null;
-  avatar: string;
   handleLogout: () => void;
   menuItems: {
     text: string;
@@ -16,7 +15,7 @@ type MenuDesktopProps = {
   }[];
 };
 
-export const MenuDesktop = ({ userInfo, avatar, handleLogout, menuItems }: MenuDesktopProps) => {
+export const MenuDesktop = ({ userInfo, handleLogout, menuItems }: MenuDesktopProps) => {
   const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
   const navigate = useNavigate();
 
@@ -59,7 +58,7 @@ export const MenuDesktop = ({ userInfo, avatar, handleLogout, menuItems }: MenuD
               <Button
                 variant="text"
                 color="inherit"
-                startIcon={<Avatar src={avatar} sx={{ width: 32, height: 32 }} />}
+                startIcon={<Avatar src={userInfo.avatar} sx={{ width: 32, height: 32 }} />}
                 onClick={(e) => {
                   setUserMenuAnchor(e.currentTarget);
                 }}

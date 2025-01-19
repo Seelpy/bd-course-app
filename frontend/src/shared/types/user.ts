@@ -8,7 +8,7 @@ export type User = {
   login: string;
   role: UserRole;
   aboutMe: string;
-  avatarId: string;
+  avatar: string;
 };
 
 export type CreateUser = {

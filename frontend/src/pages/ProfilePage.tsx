@@ -21,7 +21,6 @@ import EditIcon from "@mui/icons-material/Edit";
 import { useUserStore } from "@shared/stores/userStore";
 import { useShallow } from "zustand/shallow";
 import { userApi } from "@api/user";
-import { imageApi } from "@api/image";
 import { userBookFavoritesApi } from "@api/userBookFavorites";
 import { User } from "@shared/types/user";
 import { Book } from "@shared/types/book";
@@ -57,7 +56,6 @@ export function ProfilePage() {
   const isMediumUp = useMediaQuery(theme.breakpoints.up("md"));
 
   const [user, setUser] = useState<User | null>(null);
-  const [avatar, setAvatar] = useState<string>("");
   const [books, setBooks] = useState<Book[]>([]);
   const [selectedType, setSelectedType] = useState<FavoriteType>("ALL");
   const [isEditing, setIsEditing] = useState(false);
@@ -79,18 +77,6 @@ export function ProfilePage() {
       navigate(AppRoute.NotFound, { replace: true });
     }
   }, [id]);
-
-  useEffect(() => {
-    if (user?.avatarId) {
-      imageApi
-        .getImage({ imageId: user.avatarId })
-        .then((data) => {
-          setAvatar(data.imageData);
-        })
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        .catch(() => {});
-    }
-  }, [user?.avatarId]);
 
   useEffect(() => {
     if (id) {
@@ -136,7 +122,7 @@ export function ProfilePage() {
       <Container>
         <Paper elevation={3} sx={{ p: 3, mb: 4, borderRadius: 4 }}>
           <Box display="flex" alignItems="center" gap={3}>
-            <Avatar src={avatar} sx={{ width: 120, height: 120 }} />
+            <Avatar src={user?.avatar} sx={{ width: 120, height: 120 }} />
             <Box sx={{ flex: 1 }}>
               <Typography variant="h4" gutterBottom>
                 {user?.login}
