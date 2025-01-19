@@ -531,31 +531,67 @@ paths:
           schema:
             type: string
         - in: query
-          name: authorIds[]
+          name: authorIds
           required: false
           schema:
-            type: string
+            type: array
+            items:
+              type: string
         - in: query
-          name: rating
+          name: genreIds
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - in: query
+          name: minRating
+          required: false
+          schema:
+            type: number
+        - in: query
+          name: maxRating
+          required: false
+          schema:
+            type: number
+        - in: query
+          name: minChaptersCount
+          required: false
+          schema:
+            type: integer
+        - in: query
+          name: maxChaptersCount
+          required: false
+          schema:
+            type: integer
+        - in: query
+          name: minRatingCount
+          required: false
+          schema:
+            type: integer
+        - in: query
+          name: maxRatingCount
+          required: false
+          schema:
+            type: integer
+        - in: query
+          name: sortBy
           required: false
           schema:
             type: string
             enum:
-              - MIN_RATING
-              - MAX_RATING
+              - TITLE
+              - RATING
+              - RATING_COUNT
+              - CHAPTERS_COUNT
         - in: query
-          name: genreIds[]
-          required: false
-          schema:
-            type: string
-        - in: query
-          name: numberBookChapter
+          name: sortType
           required: false
           schema:
             type: string
             enum:
-              - MIN_BOOK_CHAPTERS
-              - MAX_BOOK_CHAPTERS
+              - ASC
+              - DESC
       responses:
         '200':
           description: Successful response
@@ -1824,9 +1860,8 @@ components:
         id:
           type: string
           format: uuid
-        avatarId:
+        avatar:
           type: string
-          format: uuid
         login:
           type: string
         role:

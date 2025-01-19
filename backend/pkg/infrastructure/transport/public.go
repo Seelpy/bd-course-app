@@ -14,7 +14,6 @@ import (
 	"server/pkg/infrastructure/model"
 	"server/pkg/infrastructure/mysql/provider"
 	"server/pkg/infrastructure/mysql/query"
-	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -1518,78 +1517,98 @@ func convertListBookParamsToListSpec(params api.SearchBookParams) query.ListSpec
 		Size: params.Size,
 	}
 
-	spec.BookTitle = maybe.Nothing[string]()
 	if params.BookTitle != nil {
 		spec.BookTitle = maybe.Just(*params.BookTitle)
+	} else {
+		spec.BookTitle = maybe.Nothing[string]()
 	}
 
-	spec.AuthorIDs = maybe.Nothing[[]domainmodel.AuthorID]()
 	if params.AuthorIds != nil {
-		uuidStrings := strings.Split(*params.AuthorIds, ",")
-		authorIDs := make([]domainmodel.AuthorID, 0, len(uuidStrings))
-
-		for _, uuidStr := range uuidStrings {
-			uuidStr = strings.TrimSpace(uuidStr)
-			if uuidStr != "" {
-				authorIDs = append(authorIDs, domainmodel.AuthorID(uuid.FromStringOrNil(uuidStr)))
-			}
+		authorIDs := make([]domainmodel.AuthorID, len(*params.AuthorIds))
+		for i, authorID := range *params.AuthorIds {
+			authorIDs[i] = domainmodel.AuthorID(uuid.FromStringOrNil(authorID))
 		}
 
-		if len(authorIDs) > 0 {
-			spec.AuthorIDs = maybe.Just(authorIDs)
-		}
-	}
-
-	spec.RatingExtreme = maybe.Nothing[query.RatingExtremeType]()
-	if params.Rating != nil {
-		if *params.Rating == api.MINRATING {
-			spec.RatingExtreme = maybe.Just(query.RAITING_EXTREME_MIN)
-		} else if *params.Rating == api.MAXRATING {
-			spec.RatingExtreme = maybe.Just(query.RAITING_EXTREME_MAX)
-		}
+		spec.AuthorIDs = maybe.Just(authorIDs)
+	} else {
+		spec.AuthorIDs = maybe.Nothing[[]domainmodel.AuthorID]()
 	}
 
 	if params.GenreIds != nil {
-		uuidStrings := strings.Split(*params.GenreIds, ",")
-		genreIDs := make([]domainmodel.GenreID, 0, len(uuidStrings))
-
-		for _, uuidStr := range uuidStrings {
-			uuidStr = strings.TrimSpace(uuidStr)
-			if uuidStr != "" {
-				genreIDs = append(genreIDs, domainmodel.GenreID(uuid.FromStringOrNil(uuidStr)))
-			}
+		genreIDs := make([]domainmodel.GenreID, len(*params.GenreIds))
+		for i, genreID := range *params.GenreIds {
+			genreIDs[i] = domainmodel.GenreID(uuid.FromStringOrNil(genreID))
 		}
 
-		if len(genreIDs) > 0 {
-			spec.GenreIDs = maybe.Just(genreIDs)
-		}
+		spec.GenreIDs = maybe.Just(genreIDs)
+	} else {
+		spec.GenreIDs = maybe.Nothing[[]domainmodel.GenreID]()
 	}
 
-	spec.BookChapterExtreme = maybe.Nothing[query.BookChapterExtremeType]()
-	if params.NumberBookChapter != nil {
-		if *params.NumberBookChapter == api.MINBOOKCHAPTERS {
-			spec.BookChapterExtreme = maybe.Just(query.BOOK_CHAPTER_MIN)
-		} else if *params.NumberBookChapter == api.MAXBOOKCHAPTERS {
-			spec.BookChapterExtreme = maybe.Just(query.BOOK_CHAPTER_MAX)
-		}
+	if params.MinRating != nil {
+		spec.MinRating = maybe.Just(float64(*params.MinRating))
+	} else {
+		spec.MinRating = maybe.Nothing[float64]()
+	}
+
+	if params.MaxRating != nil {
+		spec.MaxRating = maybe.Just(float64(*params.MaxRating))
+	} else {
+		spec.MaxRating = maybe.Nothing[float64]()
+	}
+
+	if params.MinChaptersCount != nil {
+		spec.MinChaptersCount = maybe.Just(*params.MinChaptersCount)
+	} else {
+		spec.MinChaptersCount = maybe.Nothing[int]()
+	}
+
+	if params.MaxChaptersCount != nil {
+		spec.MaxChaptersCount = maybe.Just(*params.MaxChaptersCount)
+	} else {
+		spec.MaxChaptersCount = maybe.Nothing[int]()
+	}
+
+	if params.MinRatingCount != nil {
+		spec.MinRatingCount = maybe.Just(*params.MinRatingCount)
+	} else {
+		spec.MinRatingCount = maybe.Nothing[int]()
+	}
+
+	if params.MaxRatingCount != nil {
+		spec.MaxRatingCount = maybe.Just(*params.MaxRatingCount)
+	} else {
+		spec.MaxRatingCount = maybe.Nothing[int]()
+	}
+
+	if params.SortBy != nil {
+		spec.SortBy = maybe.Just(string(*params.SortBy))
+	} else {
+		spec.SortBy = maybe.Nothing[string]()
+	}
+
+	if params.SortType != nil {
+		spec.SortType = maybe.Just(string(*params.SortType))
+	} else {
+		spec.SortType = maybe.Nothing[string]()
 	}
 
 	return spec
 }
 
 func convertUserModelToAPI(user model.User) api.User {
-	avatarID, ok := user.AvatarID.Get()
+	avatar, ok := user.Avatar.Get()
 
 	userAPI := api.User{
-		Id:       openapi_types.UUID(user.ID),
-		AvatarId: ptr(openapi_types.UUID(avatarID)),
-		Login:    user.Login,
-		Role:     user.Role,
-		AboutMe:  user.AboutMe,
+		Id:      openapi_types.UUID(user.ID),
+		Avatar:  ptr(avatar),
+		Login:   user.Login,
+		Role:    user.Role,
+		AboutMe: user.AboutMe,
 	}
 
 	if !ok {
-		userAPI.AvatarId = nil
+		userAPI.Avatar = nil
 	}
 
 	return userAPI

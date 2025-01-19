@@ -10,20 +10,6 @@ import (
 	"strings"
 )
 
-type RatingExtremeType int16
-
-const (
-	RAITING_EXTREME_MAX RatingExtremeType = iota
-	RAITING_EXTREME_MIN
-)
-
-type BookChapterExtremeType int16
-
-const (
-	BOOK_CHAPTER_MAX BookChapterExtremeType = iota
-	BOOK_CHAPTER_MIN
-)
-
 type BookQueryService interface {
 	FindByID(bookID model.BookID) (BookOutput, error)
 	List(spec ListSpec) ([]BookOutput, error)
@@ -32,13 +18,19 @@ type BookQueryService interface {
 }
 
 type ListSpec struct {
-	Page               int
-	Size               int
-	BookTitle          maybe.Maybe[string]
-	AuthorIDs          maybe.Maybe[[]model.AuthorID]
-	RatingExtreme      maybe.Maybe[RatingExtremeType]
-	GenreIDs           maybe.Maybe[[]model.GenreID]
-	BookChapterExtreme maybe.Maybe[BookChapterExtremeType]
+	Page             int
+	Size             int
+	BookTitle        maybe.Maybe[string]
+	AuthorIDs        maybe.Maybe[[]model.AuthorID]
+	GenreIDs         maybe.Maybe[[]model.GenreID]
+	MinRating        maybe.Maybe[float64]
+	MaxRating        maybe.Maybe[float64]
+	MinChaptersCount maybe.Maybe[int]
+	MaxChaptersCount maybe.Maybe[int]
+	MinRatingCount   maybe.Maybe[int]
+	MaxRatingCount   maybe.Maybe[int]
+	SortBy           maybe.Maybe[string]
+	SortType         maybe.Maybe[string]
 }
 
 type BookOutput struct {
@@ -147,7 +139,7 @@ func (service *bookQueryService) ListByIDs(bookIDs []model.BookID) ([]BookOutput
 
 func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 	query := `
-		SELECT b.book_id, i.path, b.title, b.description,  COALESCE(AVG(br.value), 0) as average_rating
+		SELECT b.book_id, i.path, b.title, b.description, COALESCE(AVG(br.value), 0) as average_rating
 		FROM book b
 		LEFT JOIN image i ON b.cover_id = i.image_id
 		LEFT JOIN book_rating br ON br.book_id = b.book_id
@@ -173,17 +165,6 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 		query += "))"
 	}
 
-	if ratingExtreme, ok := spec.RatingExtreme.Get(); ok {
-		switch ratingExtreme {
-		case RAITING_EXTREME_MIN:
-			query += " AND b.rating >= ?"
-			args = append(args, ratingExtreme)
-		case RAITING_EXTREME_MAX:
-			query += " AND b.rating <= ?"
-			args = append(args, ratingExtreme)
-		}
-	}
-
 	if genreIDs, ok := spec.GenreIDs.Get(); ok && len(genreIDs) > 0 {
 		query += " AND b.book_id IN (SELECT bg.book_id FROM book_genre bg WHERE bg.genre_id IN ("
 		for i, genreID := range genreIDs {
@@ -196,20 +177,56 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 		query += "))"
 	}
 
-	if chapterExtreme, ok := spec.BookChapterExtreme.Get(); ok {
-		switch chapterExtreme {
-		case BOOK_CHAPTER_MIN:
-			query += " AND (SELECT COUNT(*) FROM chapter c WHERE c.book_id = b.book_id) >= ?"
-			args = append(args, chapterExtreme)
-		case BOOK_CHAPTER_MAX:
-			query += " AND (SELECT COUNT(*) FROM chapter c WHERE c.book_id = b.book_id) <= ?"
-			args = append(args, chapterExtreme)
-		}
+	if minRating, ok := spec.MinRating.Get(); ok {
+		query += " AND (SELECT COALESCE(AVG(br.value), 0) FROM book_rating br WHERE br.book_id = b.book_id) >= ?"
+		args = append(args, minRating)
+	}
+	if maxRating, ok := spec.MaxRating.Get(); ok {
+		query += " AND (SELECT COALESCE(AVG(br.value), 0) FROM book_rating br WHERE br.book_id = b.book_id) <= ?"
+		args = append(args, maxRating)
+	}
+
+	if minChaptersCount, ok := spec.MinChaptersCount.Get(); ok {
+		query += " AND (SELECT COUNT(*) FROM chapter c WHERE c.book_id = b.book_id) >= ?"
+		args = append(args, minChaptersCount)
+	}
+	if maxChaptersCount, ok := spec.MaxChaptersCount.Get(); ok {
+		query += " AND (SELECT COUNT(*) FROM chapter c WHERE c.book_id = b.book_id) <= ?"
+		args = append(args, maxChaptersCount)
+	}
+
+	if minRatingCount, ok := spec.MinRatingCount.Get(); ok {
+		query += " AND (SELECT COUNT(*) FROM book_rating br WHERE br.book_id = b.book_id) >= ?"
+		args = append(args, minRatingCount)
+	}
+	if maxRatingCount, ok := spec.MaxRatingCount.Get(); ok {
+		query += " AND (SELECT COUNT(*) FROM book_rating br WHERE br.book_id = b.book_id) <= ?"
+		args = append(args, maxRatingCount)
 	}
 
 	query += " GROUP BY b.book_id, i.path, b.title, b.description"
-	query += " ORDER BY b.title LIMIT ? OFFSET ?"
+
+	if sortBy, ok := spec.SortBy.Get(); ok {
+		switch sortBy {
+		case "TITLE":
+			query += " ORDER BY b.title"
+		case "RATING":
+			query += " ORDER BY average_rating"
+		case "RATING_COUNT":
+			query += " ORDER BY (SELECT COUNT(*) FROM book_rating br WHERE br.book_id = b.book_id)"
+		case "CHAPTERS_COUNT":
+			query += " ORDER BY (SELECT COUNT(*) FROM chapter c WHERE c.book_id = b.book_id)"
+		}
+
+		if sortType, ok := spec.SortType.Get(); ok {
+			query += " " + sortType
+		}
+	} else {
+		query += " ORDER BY b.title"
+	}
+
 	offset := (spec.Page - 1) * spec.Size
+	query += " LIMIT ? OFFSET ?"
 	args = append(args, spec.Size, offset)
 
 	var sqlxBooks []sqlxBook
