@@ -27,13 +27,14 @@ func NewUserQueryService(connection *sqlx.DB) *userQueryService {
 func (service *userQueryService) List() ([]model.User, error) {
 	const query = `
 		SELECT
-			user_id,
-			avatar_id,
-			login,
-			role,
-			password,
-       		about_me
-		FROM user
+			u.user_id,
+			i.path,
+			u.login,
+			u.role,
+			u.password,
+       		u.about_me
+		FROM user u
+		LEFT JOIN image i ON u.avatar_id = i.image_id;
 `
 
 	var sqlxUsers []sqlxUser
@@ -47,17 +48,14 @@ func (service *userQueryService) List() ([]model.User, error) {
 
 	users := make([]model.User, len(sqlxUsers))
 	for i, user := range sqlxUsers {
-		var avatarID maybe.Maybe[uuid.UUID]
+		var avatar maybe.Maybe[string]
 		if user.AvatarID.Valid {
-			id, err2 := uuid.FromString(user.AvatarID.String)
-			if err2 == nil {
-				avatarID = maybe.Just(id)
-			}
+			avatar = maybe.Just(user.AvatarID.String)
 		}
 
 		users[i] = model.User{
 			ID:       user.ID,
-			AvatarID: avatarID,
+			Avatar:   avatar,
 			Login:    user.Login,
 			Role:     user.Role,
 			Password: user.Password,
@@ -71,13 +69,14 @@ func (service *userQueryService) List() ([]model.User, error) {
 func (service *userQueryService) FindByLogin(login string) (model.User, error) {
 	const query = `
 		SELECT
-			user_id,
-			avatar_id,
-			login,
-			role,
-			password,
-       		about_me
-		FROM user
+			u.user_id,
+			i.path,
+			u.login,
+			u.role,
+			u.password,
+       		u.about_me
+		FROM user u
+		LEFT JOIN image i ON u.avatar_id = i.image_id
 		WHERE login = ?;
 `
 
@@ -90,17 +89,14 @@ func (service *userQueryService) FindByLogin(login string) (model.User, error) {
 		return model.User{}, err
 	}
 
-	var avatarID maybe.Maybe[uuid.UUID]
+	var avatar maybe.Maybe[string]
 	if user.AvatarID.Valid {
-		id, err2 := uuid.FromString(user.AvatarID.String)
-		if err2 == nil {
-			avatarID = maybe.Just(id)
-		}
+		avatar = maybe.Just(user.AvatarID.String)
 	}
 
 	return model.User{
 		ID:       user.ID,
-		AvatarID: avatarID,
+		Avatar:   avatar,
 		Login:    user.Login,
 		Role:     user.Role,
 		Password: user.Password,
@@ -111,13 +107,14 @@ func (service *userQueryService) FindByLogin(login string) (model.User, error) {
 func (service *userQueryService) FindByID(userID model2.UserID) (model.User, error) {
 	const query = `
 		SELECT
-			user_id,
-			avatar_id,
-			login,
-			role,
-			password,
-       		about_me
-		FROM user
+			u.user_id,
+			i.path,
+			u.login,
+			u.role,
+			u.password,
+       		u.about_me
+		FROM user u
+		LEFT JOIN image i ON u.avatar_id = i.image_id
 		WHERE user_id = ?;
 `
 
@@ -135,17 +132,14 @@ func (service *userQueryService) FindByID(userID model2.UserID) (model.User, err
 		return model.User{}, err
 	}
 
-	var avatarID maybe.Maybe[uuid.UUID]
+	var avatar maybe.Maybe[string]
 	if user.AvatarID.Valid {
-		id, err2 := uuid.FromString(user.AvatarID.String)
-		if err2 == nil {
-			avatarID = maybe.Just(id)
-		}
+		avatar = maybe.Just(user.AvatarID.String)
 	}
 
 	return model.User{
 		ID:       user.ID,
-		AvatarID: avatarID,
+		Avatar:   avatar,
 		Login:    user.Login,
 		Role:     user.Role,
 		Password: user.Password,

@@ -7,7 +7,7 @@ import (
 
 type User struct {
 	ID       uuid.UUID
-	AvatarID maybe.Maybe[uuid.UUID]
+	Avatar   maybe.Maybe[string]
 	Login    string
 	Role     int
 	Password string

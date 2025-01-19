@@ -534,7 +534,7 @@ paths:
           name: authorIds
           required: false
           schema:
-            type: string
+            type: array
             items:
               type: string
         - in: query
@@ -1860,9 +1860,8 @@ components:
         id:
           type: string
           format: uuid
-        avatarId:
+        avatar:
           type: string
-          format: uuid
         login:
           type: string
         role:

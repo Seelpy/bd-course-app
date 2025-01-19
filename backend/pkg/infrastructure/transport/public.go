@@ -1597,18 +1597,18 @@ func convertListBookParamsToListSpec(params api.SearchBookParams) query.ListSpec
 }
 
 func convertUserModelToAPI(user model.User) api.User {
-	avatarID, ok := user.AvatarID.Get()
+	avatar, ok := user.Avatar.Get()
 
 	userAPI := api.User{
-		Id:       openapi_types.UUID(user.ID),
-		AvatarId: ptr(openapi_types.UUID(avatarID)),
-		Login:    user.Login,
-		Role:     user.Role,
-		AboutMe:  user.AboutMe,
+		Id:      openapi_types.UUID(user.ID),
+		Avatar:  ptr(avatar),
+		Login:   user.Login,
+		Role:    user.Role,
+		AboutMe: user.AboutMe,
 	}
 
 	if !ok {
-		userAPI.AvatarId = nil
+		userAPI.Avatar = nil
 	}
 
 	return userAPI
