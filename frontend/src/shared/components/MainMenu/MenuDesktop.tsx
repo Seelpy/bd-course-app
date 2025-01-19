@@ -20,7 +20,7 @@ export const MenuDesktop = ({ userInfo, handleLogout, menuItems }: MenuDesktopPr
   const navigate = useNavigate();
 
   return (
-    <AppBar position="static">
+    <AppBar position="sticky">
       <Toolbar>
         <Box sx={{ display: "flex", alignItems: "center" }}>
           <ThemeButton />

@@ -35,7 +35,7 @@ export const MenuMobile = ({ userInfo, handleLogout, menuItems }: MenuMobileProp
 
   return (
     <>
-      <AppBar position="static">
+      <AppBar position="sticky">
         <Toolbar>
           <IconButton
             color="inherit"
