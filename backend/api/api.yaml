@@ -2411,6 +2411,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Author"
+        genres:
+          type: array
+          items:
+            $ref: "#/components/schemas/Genre"
         isLoggedUserTranslator:
           type: boolean
         rating:
@@ -2420,6 +2424,7 @@ components:
         - title
         - description
         - authors
+        - genres
         - isLoggedUserTranslator
         - rating
     BookChapter:

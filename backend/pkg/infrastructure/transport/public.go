@@ -475,8 +475,12 @@ func (p public) SearchBook(ctx echo.Context, queryParams api.SearchBookParams) e
 		if err2 != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list author: %s", err2))
 		}
+		genres, err2 := p.genreQueryService.ListByBookID(b.BookID)
+		if err2 != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list genre: %s", err2))
+		}
 
-		booksRespData[i] = convertBookOutputModelToAPI(b, authors)
+		booksRespData[i] = convertBookOutputModelToAPI(b, authors, genres)
 	}
 
 	countBook, err := p.bookQueryService.CountBook(true)
@@ -510,7 +514,12 @@ func (p public) GetBook(ctx echo.Context, id string) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list author: %s", err2))
 	}
 
-	bookRespData := convertBookOutputModelToAPI(book, authors)
+	genres, err2 := p.genreQueryService.ListByBookID(book.BookID)
+	if err2 != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list genre: %s", err2))
+	}
+
+	bookRespData := convertBookOutputModelToAPI(book, authors, genres)
 
 	return ctx.JSON(http.StatusOK, api.GetBookResponse{
 		Book: bookRespData,
@@ -778,12 +787,17 @@ func (p public) ListVerifyBookRequest(ctx echo.Context) error {
 			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list author: %s", err2))
 		}
 
+		genres, err2 := p.genreQueryService.ListByBookID(v.BookID)
+		if err2 != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list genre: %s", err2))
+		}
+
 		verifyBookRespRequests[i] = api.VerifyBookRequest{
 			VerifyBookRequestId: openapi_types.UUID(v.VerifyBookRequestID),
 			TranslatorId:        openapi_types.UUID(v.TranslatorID),
 			IsVerified:          ptr(isVerified),
 			SendDateMilli:       sendDateMilli,
-			Book:                convertBookOutputModelToAPI(bookIDToBookMap[v.BookID], authors),
+			Book:                convertBookOutputModelToAPI(bookIDToBookMap[v.BookID], authors, genres),
 		}
 
 		if !ok {
@@ -1137,7 +1151,12 @@ func (p public) ListBookByUserBookFavourites(ctx echo.Context) error {
 				return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list author: %s", err3))
 			}
 
-			books[j] = convertBookOutputModelToAPI(book, authors)
+			genres, err3 := p.genreQueryService.ListByBookID(book.BookID)
+			if err3 != nil {
+				return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list genre: %s", err3))
+			}
+
+			books[j] = convertBookOutputModelToAPI(book, authors, genres)
 		}
 
 		userBookFavouritesBooks[i] = api.UserBookFavouritesBooks{
@@ -1502,10 +1521,19 @@ func convertUserBookFavouritesTypeModelToAPI(modelType domainmodel.UserBookFavou
 	}
 }
 
-func convertBookOutputModelToAPI(bookOutput query.BookOutput, authors []query.AuthorOutput) api.Book {
+func convertBookOutputModelToAPI(
+	bookOutput query.BookOutput,
+	authors []query.AuthorOutput,
+	genres []query.GenreOutput,
+) api.Book {
 	authorsAPI := make([]api.Author, len(authors))
 	for i, author := range authors {
 		authorsAPI[i] = convertAuthorOutputModelToAPI(author)
+	}
+
+	genresAPI := make([]api.Genre, len(genres))
+	for i, genre := range genres {
+		genresAPI[i] = convertGenreOutputModelToAPI(genre)
 	}
 
 	cover, ok := bookOutput.Cover.Get()
@@ -1516,6 +1544,7 @@ func convertBookOutputModelToAPI(bookOutput query.BookOutput, authors []query.Au
 		Title:                  bookOutput.Title,
 		Description:            bookOutput.Description,
 		Authors:                authorsAPI,
+		Genres:                 genresAPI,
 		IsLoggedUserTranslator: true,
 		Rating:                 float32(bookOutput.AverageRating),
 	}
