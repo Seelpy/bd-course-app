@@ -331,7 +331,7 @@ func (p public) EditUser(ctx echo.Context) error {
 	}
 
 	if input.AboutMe != nil {
-		editUserInput.Login = *input.AboutMe
+		editUserInput.AboutMe = *input.AboutMe
 	}
 
 	err = p.userService.EditUser(editUserInput)
