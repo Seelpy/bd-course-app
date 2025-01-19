@@ -10,6 +10,7 @@ import { AppRoute } from "@shared/constants/routes";
 import StarIcon from "@mui/icons-material/Star";
 import placeholderCover from "@assets/placeholder-cover.png";
 import { enqueueSnackbar } from "notistack";
+import { Add } from "@mui/icons-material";
 
 const formatRatingCount = (count: number) => {
   return count >= 1000 ? `${(count / 1000).toFixed(1)}K` : count.toString();
@@ -27,7 +28,9 @@ export const BookPage = () => {
     if (id) {
       bookApi
         .getBook(id)
-        .then(setBook)
+        .then((data) => {
+          setBook(data.book);
+        })
         .catch(() => {
           navigate(AppRoute.NotFound, { replace: true });
         });
@@ -71,35 +74,40 @@ export const BookPage = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
       <Stack spacing={2}>
-        <Card elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+        <Card elevation={0} sx={{ p: 3, borderRadius: 2 }}>
           <Stack alignItems="center" spacing={2}>
             <Box position="relative">
               <img
                 src={book.cover ?? placeholderCover}
                 alt={book.title}
-                style={{ width: 250, height: 350, objectFit: "cover" }}
+                style={{ width: 250, height: 350, objectFit: "cover", borderRadius: 8 }}
               />
               <Chip
-                sx={{ position: "absolute", bottom: 8, left: 8 }}
-                icon={<StarIcon sx={{ color: "gold" }} />}
+                sx={{ position: "absolute", bottom: 8, left: `50%`, transform: `translate(-50%, -50%)` }}
+                icon={<StarIcon color="warning" />}
                 label={`${rating.toFixed(1)} (${formatRatingCount(parseInt(book.rating))})`}
                 onClick={handleOpenRatingModal}
               />
             </Box>
-            <Typography variant="h4" component="h1">
+            <Typography
+              variant="h4"
+              component="h1"
+              sx={{
+                textAlign: "center",
+                width: "100%",
+              }}
+            >
               {book.title}
             </Typography>
             <Stack direction="row" spacing={2}>
               <Tooltip title={!userInfo ? "Authorize first" : ""}>
                 <span>
-                  <Button variant="contained" disabled={!userInfo}>
+                  <Button variant="contained" color="inherit" startIcon={<Add />} disabled={!userInfo}>
                     Add to List
                   </Button>
                 </span>
               </Tooltip>
-              <Button variant="contained" color="secondary">
-                Start Reading
-              </Button>
+              <Button variant="contained">Start Reading</Button>
             </Stack>
           </Stack>
         </Card>

@@ -1,10 +1,18 @@
-import { CreateBook, EditBook, DeleteBook, Book, ListBookResponse, SortBy, SortType } from "@shared/types/book";
+import {
+  CreateBook,
+  EditBook,
+  DeleteBook,
+  ListBookResponse,
+  SortBy,
+  SortType,
+  GetBookResponse,
+} from "@shared/types/book";
 import { handleApiError } from "./utils/handleApiError";
 
 export const bookApi = {
   PREFIX: "/api/v1/book",
 
-  getBook(id: string): Promise<Book> {
+  getBook(id: string): Promise<GetBookResponse> {
     return fetch(`${this.PREFIX}/${id}`, {
       method: "GET",
       credentials: "include",

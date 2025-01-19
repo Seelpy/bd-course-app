@@ -60,7 +60,7 @@ export function CatalogPage() {
   const [genres, setGenres] = useState<Genre[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingDebounced, setLoadingDebounced] = useState(false);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef<IntersectionObserver>();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -126,14 +126,8 @@ export function CatalogPage() {
           sortType,
         })
         .then((result) => {
-          if (newSearch) {
-            setBooks(result.books);
-            setPage(1);
-          } else {
-            setBooks((prev) => [...prev, ...result.books]);
-            setPage((prev) => prev + 1);
-          }
-
+          setBooks((prev) => (!newSearch ? [...prev, ...result.books] : result.books));
+          setPage((prev) => prev + 1);
           setHasMore(result.books.length === BOOKS_PER_PAGE);
         })
         .catch((error: Error) => {
@@ -175,7 +169,9 @@ export function CatalogPage() {
   }, []);
 
   useEffect(() => {
-    debouncedSearch();
+    if (page === 0) loadBooks(true);
+    else debouncedSearch();
+
     return () => {
       debouncedSearch.cancel();
     };

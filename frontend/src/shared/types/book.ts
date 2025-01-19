@@ -30,6 +30,10 @@ export type Book = {
   genres?: Genre[];
 };
 
+export type GetBookResponse = {
+  book: Book;
+};
+
 export type ListBookResponse = {
   books: Book[];
   countPages: number;
