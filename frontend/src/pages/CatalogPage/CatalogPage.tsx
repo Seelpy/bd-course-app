@@ -102,74 +102,53 @@ export function CatalogPage() {
     setAnchorEl(null);
   };
 
-  const loadBooks = useCallback(
-    (newSearch = false) => {
-      if (loading || (!hasMore && !newSearch)) return;
+  const loadBooks = (newSearch = false) => {
+    if (loading || (!hasMore && !newSearch)) return;
 
-      let currentPage = 1;
+    let currentPage = 1;
 
-      if (newSearch) {
-        setPage(1);
-      } else {
-        currentPage = page + 1;
-        setPage((prev) => prev + 1);
-      }
+    if (newSearch) {
+      setPage(1);
+    } else {
+      currentPage = page + 1;
+      setPage((prev) => prev + 1);
+    }
 
-      setLoading(true);
-      setLoadingDebounced(true);
+    setLoading(true);
 
-      bookApi
-        .searchBooks(currentPage, BOOKS_PER_PAGE, {
-          bookTitle: searchTitle,
-          authorIds: selectedAuthorIds.length ? selectedAuthorIds : undefined,
-          genreIds: selectedGenreIds.length ? selectedGenreIds : undefined,
-          minChaptersCount: chaptersRange.from,
-          maxChaptersCount: chaptersRange.to,
-          minRating: ratingRange.from,
-          maxRating: ratingRange.to,
-          minRatingCount: ratingCountRange.from,
-          maxRatingCount: ratingCountRange.to,
-          sortBy,
-          sortType,
-        })
-        .then((result) => {
-          const filteredBooks = result.books.filter((book) => {
-            const hasSelectedAuthors =
-              selectedAuthorIds.length === 0 || book.authors.some((author) => selectedAuthorIds.includes(author.id));
+    bookApi
+      .searchBooks(currentPage, BOOKS_PER_PAGE, {
+        bookTitle: searchTitle,
+        authorIds: selectedAuthorIds.length ? selectedAuthorIds : undefined,
+        genreIds: selectedGenreIds.length ? selectedGenreIds : undefined,
+        minChaptersCount: chaptersRange.from,
+        maxChaptersCount: chaptersRange.to,
+        minRating: ratingRange.from,
+        maxRating: ratingRange.to,
+        minRatingCount: ratingCountRange.from,
+        maxRatingCount: ratingCountRange.to,
+        sortBy,
+        sortType,
+      })
+      .then((result) => {
+        const filteredBooks = result.books;
 
-            const hasSelectedGenres =
-              selectedGenreIds.length === 0 || book.genres.some((genre) => selectedGenreIds.includes(genre.id));
-
-            return hasSelectedAuthors && hasSelectedGenres;
-          });
-
-          setBooks((prev) => (!newSearch ? [...prev, ...filteredBooks] : filteredBooks));
-          setHasMore(filteredBooks.length === BOOKS_PER_PAGE);
-        })
-        .catch((error: Error) => {
-          enqueueSnackbar(error.message, { variant: "error" });
-        })
-        .finally(() => {
-          setLoading(false);
-          setTimeout(() => {
-            setLoadingDebounced(false);
-          }, 300);
-        });
-    },
-    [
-      searchTitle,
-      selectedAuthorIds,
-      selectedGenreIds,
-      chaptersRange,
-      ratingRange,
-      ratingCountRange,
-      sortBy,
-      sortType,
-      page,
-    ],
-  );
+        setBooks((prev) => (!newSearch ? [...prev, ...filteredBooks] : filteredBooks));
+        setHasMore(filteredBooks.length === BOOKS_PER_PAGE);
+      })
+      .catch((error: Error) => {
+        enqueueSnackbar(error.message, { variant: "error" });
+      })
+      .finally(() => {
+        setLoading(false);
+        setTimeout(() => {
+          setLoadingDebounced(false);
+        }, 300);
+      });
+  };
 
   const debouncedSearch = debounce(() => {
+    setLoadingDebounced(true);
     loadBooks(true);
   }, 500);
 
@@ -479,7 +458,7 @@ export function CatalogPage() {
                     <BookPreview book={book} width={bookWidth} />
                   </Grid2>
                 ))}
-              {loadingDebounced &&
+              {(loadingDebounced || loading) &&
                 Array.from(new Array(6)).map((_, index) => (
                   <Grid2 key={index}>
                     <BookPreviewSkeleton width={bookWidth} />
