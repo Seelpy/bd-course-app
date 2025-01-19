@@ -191,11 +191,11 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 	}
 
 	if minChaptersCount, ok := spec.MinChaptersCount.Get(); ok {
-		query += " AND (SELECT COUNT(*) FROM chapter c WHERE c.book_id = b.book_id) >= ?"
+		query += " AND (SELECT COUNT(*) FROM book_chapter bc WHERE bc.book_id = b.book_id) >= ?"
 		args = append(args, minChaptersCount)
 	}
 	if maxChaptersCount, ok := spec.MaxChaptersCount.Get(); ok {
-		query += " AND (SELECT COUNT(*) FROM chapter c WHERE c.book_id = b.book_id) <= ?"
+		query += " AND (SELECT COUNT(*) FROM book_chapter bc WHERE bc.book_id = b.book_id) <= ?"
 		args = append(args, maxChaptersCount)
 	}
 
@@ -219,7 +219,7 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 		case "RATING_COUNT":
 			query += " ORDER BY (SELECT COUNT(*) FROM book_rating br WHERE br.book_id = b.book_id)"
 		case "CHAPTERS_COUNT":
-			query += " ORDER BY (SELECT COUNT(*) FROM chapter c WHERE c.book_id = b.book_id)"
+			query += " ORDER BY (SELECT COUNT(*) FROM book_chapter bc WHERE bc.book_id = b.book_id)"
 		}
 
 		if sortType, ok := spec.SortType.Get(); ok {

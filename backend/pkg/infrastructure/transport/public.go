@@ -136,7 +136,14 @@ func (p public) UpdateBookRating(ctx echo.Context, id string) error {
 		return err
 	}
 
-	return p.bookRatingService.StoreRating(service.StoreBookRatingInput{BookID: bookID, UserID: userID, Value: req.Value})
+	err = p.bookRatingService.StoreRating(service.StoreBookRatingInput{BookID: bookID, UserID: userID, Value: req.Value})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to store rating: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
+		Message: ptr("Rating store successfully"),
+	})
 }
 
 func (p public) DeleteBookRating(ctx echo.Context, id string) error {
@@ -151,7 +158,14 @@ func (p public) DeleteBookRating(ctx echo.Context, id string) error {
 		return err
 	}
 
-	return p.bookRatingService.DeleteRating(bookID, userID)
+	err = p.bookRatingService.DeleteRating(bookID, userID)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to delete rating: %s", err))
+	}
+
+	return ctx.JSON(http.StatusOK, api.SuccessResponse{
+		Message: ptr("Rating delete successfully"),
+	})
 }
 
 func (p public) GetBookRating(ctx echo.Context, id string) error {
