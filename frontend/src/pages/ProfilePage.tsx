@@ -99,22 +99,21 @@ export function ProfilePage() {
     }
   }, [user?.aboutMe]);
 
-  const handleEditSubmit = async () => {
+  const handleEditSubmit = () => {
     if (!user || !userInfo) return;
-
-    try {
-      await userApi.editUser({
+    userApi
+      .editUser({
         id: userInfo.id,
-        login: userInfo.login,
         aboutMe: newAboutMe,
-        password: "", // пустая строка, так как не меняем пароль
+      })
+      .then(() => {
+        setUser({ ...user, aboutMe: newAboutMe });
+        setIsEditing(false);
+        enqueueSnackbar("Profile updated successfully", { variant: "success" });
+      })
+      .catch((error: Error) => {
+        enqueueSnackbar((error.message, { variant: "error" }));
       });
-      setUser({ ...user, aboutMe: newAboutMe });
-      setIsEditing(false);
-      enqueueSnackbar("Profile updated successfully", { variant: "success" });
-    } catch (error) {
-      enqueueSnackbar((error as Error).message, { variant: "error" });
-    }
   };
 
   return (
