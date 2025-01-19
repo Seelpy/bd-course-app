@@ -106,9 +106,17 @@ export function CatalogPage() {
     (newSearch = false) => {
       if (loading || (!hasMore && !newSearch)) return;
 
+      let currentPage = 1;
+
+      if (newSearch) {
+        setPage(1);
+      } else {
+        currentPage = page + 1;
+        setPage((prev) => prev + 1);
+      }
+
       setLoading(true);
       setLoadingDebounced(true);
-      const currentPage = newSearch ? 1 : page;
 
       bookApi
         .searchBooks(currentPage, BOOKS_PER_PAGE, {
@@ -136,7 +144,6 @@ export function CatalogPage() {
           });
 
           setBooks((prev) => (!newSearch ? [...prev, ...filteredBooks] : filteredBooks));
-          setPage((prev) => prev + 1);
           setHasMore(filteredBooks.length === BOOKS_PER_PAGE);
         })
         .catch((error: Error) => {
