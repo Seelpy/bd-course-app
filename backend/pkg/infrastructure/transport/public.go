@@ -6,7 +6,6 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/mono83/maybe"
 	openapi_types "github.com/oapi-codegen/runtime/types"
-	"math"
 	"net/http"
 	"server/api"
 	domainmodel "server/pkg/domain/model"
@@ -439,31 +438,32 @@ func (p public) DeleteBook(ctx echo.Context) error {
 }
 
 func (p public) SearchBook(ctx echo.Context, queryParams api.SearchBookParams) error {
-	spec := convertListBookParamsToListSpec(queryParams)
-	bookOutputs, err := p.bookQueryService.List(spec)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list book: %s", err))
-	}
+	panic("impl me")
+	//spec := convertListBookParamsToListSpec(queryParams)
+	//bookOutputs, err := p.bookQueryService.List(spec)
+	//if err != nil {
+	//	return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list book: %s", err))
+	//}
+	//
+	//booksRespData := make([]api.Book, len(bookOutputs))
+	//for i, b := range bookOutputs {
+	//	authors, err2 := p.authorQueryService.ListByBookID(b.BookID)
+	//	if err2 != nil {
+	//		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list author: %s", err2))
+	//	}
+	//
+	//	booksRespData[i] = convertBookOutputModelToAPI(b, authors)
+	//}
+	//
+	//countBook, err := p.bookQueryService.CountBook(true)
+	//if err != nil {
+	//	return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list book: %s", err))
+	//}
 
-	booksRespData := make([]api.Book, len(bookOutputs))
-	for i, b := range bookOutputs {
-		authors, err2 := p.authorQueryService.ListByBookID(b.BookID)
-		if err2 != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list author: %s", err2))
-		}
-
-		booksRespData[i] = convertBookOutputModelToAPI(b, authors)
-	}
-
-	countBook, err := p.bookQueryService.CountBook(true)
-	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to list book: %s", err))
-	}
-
-	return ctx.JSON(http.StatusOK, api.ListBookResponse{
-		Books:      booksRespData,
-		CountPages: ptr(int(math.Ceil(float64(countBook) / float64(spec.Size)))),
-	})
+	//return ctx.JSON(http.StatusOK, api.ListBookResponse{
+	//	Books:      booksRespData,
+	//	CountPages: ptr(int(math.Ceil(float64(countBook) / float64(spec.Size)))),
+	//})
 }
 
 func (p public) GetBook(ctx echo.Context, id string) error {
