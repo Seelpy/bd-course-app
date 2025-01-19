@@ -20,6 +20,10 @@ export type ListBookByUserBookFavorites = {
   userId: string;
 };
 
+export type GetUserBookFavorityType = {
+  type: UserBookFavoritesType;
+};
+
 export type StoreUserBookFavorites = {
   bookId: string;
   type: UserBookFavoritesType;

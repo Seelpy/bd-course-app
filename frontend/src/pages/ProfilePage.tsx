@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Container,
@@ -21,13 +22,17 @@ import EditIcon from "@mui/icons-material/Edit";
 import { useUserStore } from "@shared/stores/userStore";
 import { useShallow } from "zustand/shallow";
 import { userApi } from "@api/user";
-import { imageApi } from "@api/image";
 import { userBookFavoritesApi } from "@api/userBookFavorites";
-import { User } from "@shared/types/user";
+import { User, UserRole } from "@shared/types/user";
 import { Book } from "@shared/types/book";
 import { UserBookFavoritesType } from "@shared/types/userBookFavorites";
 import { useSnackbar } from "notistack";
 import { AppRoute } from "@shared/constants/routes";
+import { BookPreview } from "@shared/components/BookPreview/BookPreview";
+import { useBookWidth } from "@shared/hooks/useBookWidth";
+import { PhotoCamera } from "@mui/icons-material";
+import { imageApi } from "@api/image";
+import { UploadImageDialog } from "@shared/components/UploadImageDialog";
 
 type FavoriteType = UserBookFavoritesType | "ALL";
 
@@ -57,13 +62,31 @@ export function ProfilePage() {
   const isMediumUp = useMediaQuery(theme.breakpoints.up("md"));
 
   const [user, setUser] = useState<User | null>(null);
-  const [avatar, setAvatar] = useState<string>("");
   const [books, setBooks] = useState<Book[]>([]);
   const [selectedType, setSelectedType] = useState<FavoriteType>("ALL");
   const [isEditing, setIsEditing] = useState(false);
   const [newAboutMe, setNewAboutMe] = useState("");
+  const [isUploadImageOpen, setIsUploadImageOpen] = useState(false);
   const { userInfo } = useUserStore(useShallow((state) => ({ userInfo: state.userInfo })));
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (containerRef.current) {
+        setContainerWidth(containerRef.current.offsetWidth);
+      }
+    };
+
+    updateWidth();
+    window.addEventListener("resize", updateWidth);
+    return () => {
+      window.removeEventListener("resize", updateWidth);
+    };
+  }, []);
+
+  const { bookWidth } = useBookWidth(containerWidth);
   const isOwnProfile = userInfo?.id === id;
 
   useEffect(() => {
@@ -79,18 +102,6 @@ export function ProfilePage() {
       navigate(AppRoute.NotFound, { replace: true });
     }
   }, [id]);
-
-  useEffect(() => {
-    if (user?.avatarId) {
-      imageApi
-        .getImage({ imageId: user.avatarId })
-        .then((data) => {
-          setAvatar(data.imageData);
-        })
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        .catch(() => {});
-    }
-  }, [user?.avatarId]);
 
   useEffect(() => {
     if (id) {
@@ -113,22 +124,34 @@ export function ProfilePage() {
     }
   }, [user?.aboutMe]);
 
-  const handleEditSubmit = async () => {
+  const handleEditSubmit = () => {
     if (!user || !userInfo) return;
-
-    try {
-      await userApi.editUser({
-        id: userInfo.id,
-        login: userInfo.login,
+    userApi
+      .editUser({
+        id: user.id,
         aboutMe: newAboutMe,
-        password: "", // пустая строка, так как не меняем пароль
+      })
+      .then(() => {
+        setUser({ ...user, aboutMe: newAboutMe });
+        setIsEditing(false);
+        enqueueSnackbar("Profile updated successfully", { variant: "success" });
+      })
+      .catch((error: Error) => {
+        enqueueSnackbar((error.message, { variant: "error" }));
       });
-      setUser({ ...user, aboutMe: newAboutMe });
-      setIsEditing(false);
-      enqueueSnackbar("Profile updated successfully", { variant: "success" });
-    } catch (error) {
-      enqueueSnackbar((error as Error).message, { variant: "error" });
-    }
+  };
+
+  const handleUploadAvatar = (base64: string) => {
+    imageApi
+      .storeUserImage({ imageData: base64 })
+      .then(() => {
+        setUser((prev) => (prev ? { ...prev, avatar: base64 } : prev));
+        enqueueSnackbar("Avatar updated successfully", { variant: "success" });
+      })
+      .catch((error: Error) => {
+        enqueueSnackbar(error.message, { variant: "error" });
+      });
+    setIsUploadImageOpen(false);
   };
 
   return (
@@ -136,7 +159,20 @@ export function ProfilePage() {
       <Container>
         <Paper elevation={3} sx={{ p: 3, mb: 4, borderRadius: 4 }}>
           <Box display="flex" alignItems="center" gap={3}>
-            <Avatar src={avatar} sx={{ width: 120, height: 120 }} />
+            <Avatar src={user?.avatar} sx={{ width: 120, height: 120 }} />
+            {id === userInfo?.id && (
+              <IconButton
+                sx={{
+                  position: "absolute",
+                  transform: "translate(80px, -50px)",
+                }}
+                onClick={() => {
+                  setIsUploadImageOpen(true);
+                }}
+              >
+                <PhotoCamera />
+              </IconButton>
+            )}
             <Box sx={{ flex: 1 }}>
               <Typography variant="h4" gutterBottom>
                 {user?.login}
@@ -170,7 +206,7 @@ export function ProfilePage() {
                   <Typography variant="body1" color="text.secondary">
                     {user?.aboutMe}
                   </Typography>
-                  {isOwnProfile && user?.aboutMe.trim() && (
+                  {((isOwnProfile && user?.aboutMe.trim()) || userInfo?.role === UserRole.Admin) && (
                     <IconButton
                       size="small"
                       onClick={() => {
@@ -231,23 +267,25 @@ export function ProfilePage() {
                 <Tab label="Favorite" value="FAVORITE" />
               </Tabs>
             </Grid2>
-            <Grid2 size={{ xs: 12, sm: 9, md: 10 }} order={{ xs: 2, sm: 2 }}>
+            <Grid2 size={{ xs: 12, sm: 9, md: 10 }} order={{ xs: 2, sm: 2 }} ref={containerRef}>
               <Grid2 container spacing={2}>
                 {books.map((book) => (
-                  <Grid2 size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={book.bookId}>
-                    <Paper elevation={2} sx={{ p: 2, borderRadius: 2, height: "100%" }}>
-                      <Typography variant="h6">{book.title}</Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {book.description}
-                      </Typography>
-                    </Paper>
-                  </Grid2>
+                  <BookPreview key={book.bookId} book={book} width={bookWidth} />
                 ))}
               </Grid2>
             </Grid2>
           </Grid2>
         </Paper>
       </Container>
+
+      <UploadImageDialog
+        open={isUploadImageOpen}
+        onClose={() => {
+          setIsUploadImageOpen(false);
+        }}
+        onUpload={handleUploadAvatar}
+        title="Upload User Avatar"
+      />
     </Box>
   );
 }

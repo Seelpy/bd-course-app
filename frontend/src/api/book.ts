@@ -1,10 +1,18 @@
-import { CreateBook, EditBook, DeleteBook, Book, ListBookResponse } from "@shared/types/book";
+import {
+  CreateBook,
+  EditBook,
+  DeleteBook,
+  ListBookResponse,
+  SortBy,
+  SortType,
+  GetBookResponse,
+} from "@shared/types/book";
 import { handleApiError } from "./utils/handleApiError";
 
 export const bookApi = {
   PREFIX: "/api/v1/book",
 
-  getBook(id: string): Promise<Book> {
+  getBook(id: string): Promise<GetBookResponse> {
     return fetch(`${this.PREFIX}/${id}`, {
       method: "GET",
       credentials: "include",
@@ -22,9 +30,15 @@ export const bookApi = {
     params?: {
       bookTitle?: string;
       authorIds?: string[];
-      rating?: "MIN_RATING" | "MAX_RATING";
       genreIds?: string[];
-      numberBookChapter?: "MIN_BOOK_CHAPTERS" | "MAX_BOOK_CHAPTERS";
+      minChaptersCount?: number;
+      maxChaptersCount?: number;
+      minRating?: number;
+      maxRating?: number;
+      minRatingCount?: number;
+      maxRatingCount?: number;
+      sortBy?: SortBy;
+      sortType?: SortType;
     },
   ): Promise<ListBookResponse> {
     const searchParams = new URLSearchParams({
@@ -40,16 +54,34 @@ export const bookApi = {
         searchParams.append("authorIds[]", id);
       });
     }
-    if (params?.rating) {
-      searchParams.append("rating", params.rating);
-    }
     if (params?.genreIds) {
       params.genreIds.forEach((id) => {
         searchParams.append("genreIds[]", id);
       });
     }
-    if (params?.numberBookChapter) {
-      searchParams.append("numberBookChapter", params.numberBookChapter);
+    if (params?.minChaptersCount) {
+      searchParams.append("minChaptersCount", params.minChaptersCount.toString());
+    }
+    if (params?.maxChaptersCount) {
+      searchParams.append("maxChaptersCount", params.maxChaptersCount.toString());
+    }
+    if (params?.minRating) {
+      searchParams.append("minRating", params.minRating.toString());
+    }
+    if (params?.maxRating) {
+      searchParams.append("maxRating", params.maxRating.toString());
+    }
+    if (params?.minRatingCount) {
+      searchParams.append("minRatingCount", params.minRatingCount.toString());
+    }
+    if (params?.maxRatingCount) {
+      searchParams.append("maxRatingCount", params.maxRatingCount.toString());
+    }
+    if (params?.sortBy) {
+      searchParams.append("sortBy", params.sortBy);
+    }
+    if (params?.sortType) {
+      searchParams.append("sortType", params.sortType);
     }
 
     return fetch(`${this.PREFIX}/search?${searchParams}`, {

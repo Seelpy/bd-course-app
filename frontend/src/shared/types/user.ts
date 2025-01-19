@@ -8,7 +8,7 @@ export type User = {
   login: string;
   role: UserRole;
   aboutMe: string;
-  avatarId: string;
+  avatar: string;
 };
 
 export type CreateUser = {
@@ -19,9 +19,10 @@ export type CreateUser = {
 
 export type EditUser = {
   id: string;
-  login: string;
-  password: string;
-  aboutMe: string;
+  login?: string;
+  password?: string;
+  aboutMe?: string;
+  confirmPassword?: string;
 };
 
 export type DeleteUser = {

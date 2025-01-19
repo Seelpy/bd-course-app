@@ -21,7 +21,6 @@ import { AppRoute } from "@shared/constants/routes";
 
 type MenuMobileProps = {
   userInfo: User | null;
-  avatar: string;
   handleLogout: () => void;
   menuItems: {
     text: string;
@@ -30,13 +29,13 @@ type MenuMobileProps = {
   }[];
 };
 
-export const MenuMobile = ({ userInfo, avatar, handleLogout, menuItems }: MenuMobileProps) => {
+export const MenuMobile = ({ userInfo, handleLogout, menuItems }: MenuMobileProps) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
 
   return (
     <>
-      <AppBar position="static">
+      <AppBar position="sticky">
         <Toolbar>
           <IconButton
             color="inherit"
@@ -92,7 +91,7 @@ export const MenuMobile = ({ userInfo, avatar, handleLogout, menuItems }: MenuMo
                 }}
               >
                 <ListItemIcon>
-                  <Avatar src={avatar} sx={{ width: 24, height: 24 }} />
+                  <Avatar src={userInfo.avatar} sx={{ width: 24, height: 24 }} />
                 </ListItemIcon>
                 <ListItemText primary={userInfo.login} />
               </ListItemButton>

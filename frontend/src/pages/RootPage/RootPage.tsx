@@ -4,6 +4,7 @@ import { Book } from "@shared/types/book";
 import { useSnackbar } from "notistack";
 import { useEffect, useState } from "react";
 import { useShallow } from "zustand/shallow";
+import { BooksSlider } from "./BooksSlider";
 
 export const RootPage = () => {
   const { enqueueSnackbar } = useSnackbar();
@@ -39,8 +40,10 @@ export const RootPage = () => {
     }
   }, [userInfo]);
 
-  console.log(continueReadingBooks);
-  console.log(plannedBooks);
-
-  return <></>;
+  return (
+    <>
+      {continueReadingBooks.length > 0 && <BooksSlider sliderName="Continue Reading" books={continueReadingBooks} />}
+      {plannedBooks.length > 0 && <BooksSlider sliderName="Planned" books={plannedBooks} />}
+    </>
+  );
 };

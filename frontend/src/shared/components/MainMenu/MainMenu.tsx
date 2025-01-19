@@ -8,15 +8,12 @@ import { useSnackbar } from "notistack";
 import { MenuDesktop } from "./MenuDesktop";
 import { MenuMobile } from "./MenuMobile";
 import { useShallow } from "zustand/shallow";
-import { useEffect, useState } from "react";
-import { imageApi } from "@api/image";
 
 export const MainMenu = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-  const [avatar, setAvatar] = useState<string>("");
 
   const { userInfo, setUserInfo } = useUserStore(
     useShallow((state) => ({
@@ -24,18 +21,6 @@ export const MainMenu = () => {
       setUserInfo: state.setUserInfo,
     })),
   );
-
-  useEffect(() => {
-    if (userInfo?.avatarId) {
-      imageApi
-        .getImage({ imageId: userInfo.avatarId })
-        .then((data) => {
-          setAvatar(data.imageData);
-        })
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
-        .catch(() => {});
-    }
-  }, [userInfo?.avatarId]);
 
   const handleLogout = () => {
     authApi
@@ -54,7 +39,7 @@ export const MainMenu = () => {
       text: "Catalog",
       icon: <AutoStories />,
       onClick: () => {
-        console.log("TODO");
+        navigate(AppRoute.Catalog);
       },
     },
     {
@@ -67,8 +52,8 @@ export const MainMenu = () => {
   ];
 
   return isMobile ? (
-    <MenuMobile userInfo={userInfo} avatar={avatar} handleLogout={handleLogout} menuItems={menuItems} />
+    <MenuMobile userInfo={userInfo} handleLogout={handleLogout} menuItems={menuItems} />
   ) : (
-    <MenuDesktop userInfo={userInfo} avatar={avatar} handleLogout={handleLogout} menuItems={menuItems} />
+    <MenuDesktop userInfo={userInfo} handleLogout={handleLogout} menuItems={menuItems} />
   );
 };

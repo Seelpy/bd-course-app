@@ -45,6 +45,10 @@ function App() {
           lazy: () => import("./pages/RootPage/RootPage.tsx").then((m) => ({ Component: m.RootPage })),
         },
         {
+          path: AppRoute.Catalog,
+          lazy: () => import("./pages/CatalogPage/CatalogPage.tsx").then((m) => ({ Component: m.CatalogPage })),
+        },
+        {
           path: AppRoute.NotFound,
           lazy: () => import("./pages/PageNotFound.tsx").then((m) => ({ Component: m.PageNotFound })),
         },
@@ -64,11 +68,13 @@ function App() {
           path: AppRoute.Requests,
           lazy: () => import("./pages/RequestsPage.tsx").then((m) => ({ Component: m.RequestsPage })),
         },
+        {
+          path: AppRoute.Book,
+          lazy: () => import("./pages/BookPage/BookPage.tsx").then((m) => ({ Component: m.BookPage })),
+        },
       ],
     },
   ]);
-
-  console.log(routes);
 
   return (
     <SnackbarProvider maxSnack={3} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
