@@ -68,7 +68,6 @@ func (service *userBookFavouritesQueryService) ListBookByUserBookFavourites(
 		return nil, nil
 	}
 
-	// Базовый запрос
 	query := `
 		SELECT
 			ubf.type,
@@ -87,25 +86,20 @@ func (service *userBookFavouritesQueryService) ListBookByUserBookFavourites(
 		return nil, err
 	}
 
-	// Преобразуем userBookFavouritesTypes в срез интерфейсов
 	values := make([]interface{}, len(userBookFavouritesTypes))
 	for i, v := range userBookFavouritesTypes {
 		values[i] = fmt.Sprintf("%v", v)
 	}
 
-	// Добавляем оператор IN в запрос
 	query += " AND ubf.type IN (?)"
 
-	// Используем sqlx.In для обработки оператора IN
 	query, args, err := sqlx.In(query, binaryUserID, values)
 	if err != nil {
 		return nil, err
 	}
 
-	// Пересобираем запрос для конкретного диалекта базы данных
 	query = service.connection.Rebind(query)
 
-	// Выполняем запрос
 	var userBookFavouritesBooksOutput []sqlxUserBookFavouritesBooksOutput
 	err = service.connection.Select(&userBookFavouritesBooksOutput, query, args...)
 	if errors.Is(err, sql.ErrNoRows) {

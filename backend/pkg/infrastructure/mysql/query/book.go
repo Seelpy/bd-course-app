@@ -152,25 +152,49 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 
 	var args []interface{}
 
-	// Фильтр по названию книги
 	if bookTitle, ok := spec.BookTitle.Get(); ok {
 		query += " AND b.title LIKE ?"
 		args = append(args, "%"+bookTitle+"%")
 	}
 
-	// Фильтр по авторам
 	if authorIDs, ok := spec.AuthorIDs.Get(); ok && len(authorIDs) > 0 {
-		query += " AND b.book_id IN (SELECT ba.book_id FROM book_author ba WHERE ba.author_id IN (?))"
-		args = append(args, authorIDs) // Передаем срез authorIDs
+		binAuthorIDs := make([][]byte, len(authorIDs))
+		for i, id := range authorIDs {
+			binaryAuthorID, err := uuid.UUID(id).MarshalBinary()
+			if err != nil {
+				return nil, err
+			}
+			binAuthorIDs[i] = binaryAuthorID
+		}
+
+		subQuery := " AND b.book_id IN (SELECT ba.book_id FROM book_author ba WHERE ba.author_id IN (?))"
+		subQuery, authorArgs, err := sqlx.In(subQuery, binAuthorIDs)
+		if err != nil {
+			return nil, err
+		}
+		query += subQuery
+		args = append(args, authorArgs...)
 	}
 
-	// Фильтр по жанрам
 	if genreIDs, ok := spec.GenreIDs.Get(); ok && len(genreIDs) > 0 {
-		query += " AND b.book_id IN (SELECT bg.book_id FROM book_genre bg WHERE bg.genre_id IN (?))"
-		args = append(args, genreIDs) // Передаем срез genreIDs
+		binGenreIDs := make([][]byte, len(genreIDs))
+		for i, id := range genreIDs {
+			binaryGenreID, err := uuid.UUID(id).MarshalBinary()
+			if err != nil {
+				return nil, err
+			}
+			binGenreIDs[i] = binaryGenreID
+		}
+
+		subQuery := " AND b.book_id IN (SELECT bg.book_id FROM book_genre bg WHERE bg.genre_id IN (?))"
+		subQuery, genreArgs, err := sqlx.In(subQuery, binGenreIDs)
+		if err != nil {
+			return nil, err
+		}
+		query += subQuery
+		args = append(args, genreArgs...)
 	}
 
-	// Фильтр по минимальному и максимальному рейтингу
 	if minRating, ok := spec.MinRating.Get(); ok {
 		query += " AND (SELECT COALESCE(AVG(br.value), 0) FROM book_rating br WHERE br.book_id = b.book_id) >= ?"
 		args = append(args, minRating)
@@ -180,7 +204,6 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 		args = append(args, maxRating)
 	}
 
-	// Фильтр по количеству глав
 	if minChaptersCount, ok := spec.MinChaptersCount.Get(); ok {
 		query += " AND (SELECT COUNT(*) FROM book_chapter bc WHERE bc.book_id = b.book_id) >= ?"
 		args = append(args, minChaptersCount)
@@ -190,7 +213,6 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 		args = append(args, maxChaptersCount)
 	}
 
-	// Фильтр по количеству оценок
 	if minRatingCount, ok := spec.MinRatingCount.Get(); ok {
 		query += " AND (SELECT COUNT(*) FROM book_rating br WHERE br.book_id = b.book_id) >= ?"
 		args = append(args, minRatingCount)
@@ -200,10 +222,8 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 		args = append(args, maxRatingCount)
 	}
 
-	// Группировка
 	query += " GROUP BY b.book_id, i.path, b.title, b.description"
 
-	// Сортировка
 	if sortBy, ok := spec.SortBy.Get(); ok {
 		switch sortBy {
 		case "TITLE":
@@ -223,25 +243,18 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 		query += " ORDER BY b.title"
 	}
 
-	// Пагинация
 	offset := (spec.Page - 1) * spec.Size
 	query += " LIMIT ? OFFSET ?"
 	args = append(args, spec.Size, offset)
 
-	// Используем sqlx.In для обработки списков авторов и жанров
-	query, args, err := sqlx.In(query, args...)
-	if err != nil {
-		return nil, err
-	}
+	query = service.connection.Rebind(query)
 
-	// Выполняем запрос
 	var sqlxBooks []sqlxBook
-	err = service.connection.Select(&sqlxBooks, query, args...)
+	err := service.connection.Select(&sqlxBooks, query, args...)
 	if err != nil {
 		return nil, err
 	}
 
-	// Преобразуем результат в BookOutput
 	bookOutputs := make([]BookOutput, len(sqlxBooks))
 	for i, b := range sqlxBooks {
 		cover := maybe.Nothing[string]()
