@@ -177,6 +177,15 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 		query += "))"
 	}
 
+	if minRating, ok := spec.MinRating.Get(); ok {
+		query += " AND (SELECT COALESCE(AVG(br2.value), 0) FROM book_rating br2 WHERE br2.book_id = b.book_id) >= ?"
+		args = append(args, minRating)
+	}
+	if maxRating, ok := spec.MaxRating.Get(); ok {
+		query += " AND (SELECT COALESCE(AVG(br2.value), 0) FROM book_rating br2 WHERE br2.book_id = b.book_id) <= ?"
+		args = append(args, maxRating)
+	}
+
 	if minChaptersCount, ok := spec.MinChaptersCount.Get(); ok {
 		query += " AND (SELECT COUNT(*) FROM chapter c WHERE c.book_id = b.book_id) >= ?"
 		args = append(args, minChaptersCount)
@@ -192,19 +201,6 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 	}
 
 	query += " GROUP BY b.book_id, i.path, b.title, b.description"
-
-	if minRating, ok := spec.MinRating.Get(); ok {
-		query += " HAVING average_rating >= ?"
-		args = append(args, minRating)
-	}
-	if maxRating, ok := spec.MaxRating.Get(); ok {
-		if _, ok := spec.MinRating.Get(); ok {
-			query += " AND average_rating <= ?"
-		} else {
-			query += " HAVING average_rating <= ?"
-		}
-		args = append(args, maxRating)
-	}
 
 	if sortBy, ok := spec.SortBy.Get(); ok {
 		switch sortBy {
@@ -222,7 +218,7 @@ func (service *bookQueryService) List(spec ListSpec) ([]BookOutput, error) {
 			query += " " + sortType
 		}
 	} else {
-		query += " ORDER BY b.title"
+		query += " ORDER BY b.title" // Сортировка по умолчанию
 	}
 
 	offset := (spec.Page - 1) * spec.Size
