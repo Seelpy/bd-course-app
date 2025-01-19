@@ -1,4 +1,4 @@
-import { Box, Button, Card, Chip, Container, Stack, Tooltip, Typography, Menu, MenuItem } from "@mui/material";
+import { Box, Button, Card, Chip, Container, Stack, Tooltip, Typography, Menu, MenuItem, alpha } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { bookApi } from "@api/book";
@@ -432,6 +432,15 @@ export const BookPage = () => {
                   bottom: 8,
                   left: `50%`,
                   transform: `translate(-50%, -50%)`,
+                  backgroundColor: (theme) => alpha(theme.palette.background.paper, 0.8),
+                  boxShadow: 1,
+                  transition: "background-color 0.2s ease",
+                  "&:hover": {
+                    backgroundColor: (theme) => theme.palette.background.paper,
+                  },
+                  "& .MuiChip-label": {
+                    color: (theme) => theme.palette.text.primary,
+                  },
                 }}
                 label={
                   <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 2 }}>

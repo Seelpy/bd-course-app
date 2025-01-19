@@ -125,9 +125,19 @@ export function CatalogPage() {
           sortType,
         })
         .then((result) => {
-          setBooks((prev) => (!newSearch ? [...prev, ...result.books] : result.books));
+          const filteredBooks = result.books.filter((book) => {
+            const hasSelectedAuthors =
+              selectedAuthorIds.length === 0 || book.authors.some((author) => selectedAuthorIds.includes(author.id));
+
+            const hasSelectedGenres =
+              selectedGenreIds.length === 0 || book.genres.some((genre) => selectedGenreIds.includes(genre.id));
+
+            return hasSelectedAuthors && hasSelectedGenres;
+          });
+
+          setBooks((prev) => (!newSearch ? [...prev, ...filteredBooks] : filteredBooks));
           setPage((prev) => prev + 1);
-          setHasMore(result.books.length === BOOKS_PER_PAGE);
+          setHasMore(filteredBooks.length === BOOKS_PER_PAGE);
         })
         .catch((error: Error) => {
           enqueueSnackbar(error.message, { variant: "error" });
